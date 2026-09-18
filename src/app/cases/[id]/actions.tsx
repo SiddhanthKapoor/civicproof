@@ -62,6 +62,7 @@ export function NextActions({ caseData }: { caseData: PublicCase }) {
               )}
             </dl>
           )}
+          {a.channelNote && <p className="mt-2 max-w-3xl text-[12.5px] leading-relaxed text-ink-3">{a.channelNote}</p>}
           <div className="mt-4 flex flex-wrap gap-2">
             {a.type === "rti_request" ? (
               <Link href={`/cases/${id}/packet?kind=rti`} className={buttonClass(i === 0 ? "primary" : "secondary", "sm")}>Draft the RTI application</Link>

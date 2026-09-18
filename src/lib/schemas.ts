@@ -264,6 +264,8 @@ export const NextActionSchema = z.object({
   addressedTo: z.string().optional(),
   channel: z.string().optional(),
   channelUrl: z.string().optional(),
+  /** Caveats about the channel (e.g. reachability when checked). */
+  channelNote: z.string().optional(),
   basedOnClaimIds: z.array(z.string()),
   priority: z.number().int().min(1).max(5),
   /** "rule": derived deterministically from verified facts. "ai": suggested by the model. */

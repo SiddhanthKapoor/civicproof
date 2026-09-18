@@ -75,7 +75,7 @@ async function analyzePhoto(ctx: RunContext) {
   const format = photo.mime === "image/png" ? "png" : photo.mime === "image/webp" ? "webp" : "jpeg";
   ctx.setStage("intake");
   ctx.trace({ kind: "tool_call", tool: "analyze_photo", stage: "intake", summary: "Describing the reporter's photo with Claude vision" });
-  const agent = new Agent({ model: bedrockModel(1500), printer: false, structuredOutputSchema: PhotoObservation });
+  const agent = new Agent({ model: bedrockModel(2000), printer: false, structuredOutputSchema: PhotoObservation });
   const res = await agent.invoke([new ImageBlock({ format, source: { bytes: blob.body } }), new TextBlock(PHOTO_PROMPT)]);
   const obs = res.structuredOutput as z.infer<typeof PhotoObservation> | undefined;
   if (!obs) return;
@@ -194,7 +194,8 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
       ctx.trace({ kind: "denied", tool, summary: `Neutral-language guard stopped "${term}" in ${tool}; the model was asked to rephrase` }),
     );
 
-    const model: Model = engine === "bedrock" ? bedrockModel(8000) : new RulesPlanner(ctx);
+    // Thinking tokens count toward the limit on current Claude models; leave room so a turn is never cut off.
+    const model: Model = engine === "bedrock" ? bedrockModel(16000) : new RulesPlanner(ctx);
     const agent = new Agent({
       model,
       tools: buildTools(ctx),
