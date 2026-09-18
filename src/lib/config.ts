@@ -63,6 +63,10 @@ export const config = {
 
   /** Contact string sent to OpenStreetMap Nominatim, per its usage policy. */
   nominatimContact: env("NOMINATIM_CONTACT") ?? "civicproof-hackathon",
+  /** "amazon-location" (Amazon Location Service Places API, on AWS), "nominatim" (local) or "none" (tests). */
+  geocoder: (env("CIVICPROOF_GEOCODER") ?? "nominatim") as "amazon-location" | "nominatim" | "none",
+  /** Test-only: point the Amazon Location client at a local stand-in. */
+  locationEndpoint: env("LOCATION_ENDPOINT"),
 } as const;
 
 export type AppConfig = typeof config;

@@ -32,6 +32,8 @@ export interface RunContext {
   missing: MissingItem[];
   proposedActions: Array<Pick<NextAction, "type" | "title" | "rationale" | "basedOnClaimIds">>;
   pagesRead: Set<string>;
+  /** The road and locality at the pin, from the geocoder (records name roads, not coordinates). */
+  place?: { road?: string; locality?: string; district?: string; label: string; provider: string };
   summary?: string;
   analysis?: string;
   finished: boolean;

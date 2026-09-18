@@ -164,6 +164,7 @@ Resources:
           CIVICPROOF_MAX_RUNS_PER_DAY: !Ref MaxRunsPerDay
           CIVICPROOF_MAX_RUNS_PER_CASE: !Ref MaxRunsPerCase
           CIVICPROOF_OCR: textract
+          CIVICPROOF_GEOCODER: amazon-location
           GEMINI_SECRET_ARN: !If [HasGeminiKey, !Ref GeminiApiKeySecret, ""]
           GEMINI_MODEL_ID: !Ref GeminiModelId
           BEDROCK_MODEL_ID: !Ref BedrockModelId
@@ -174,7 +175,7 @@ Resources:
         AuthType: NONE
         InvokeMode: RESPONSE_STREAM
       Policies:
-        # Least privilege: one table, one bucket, one secret, one model family, and Textract OCR. Nothing else.
+        # Least privilege: one table, one bucket, one secret, one model family, two geocoding calls, Textract OCR.
         - DynamoDBCrudPolicy:
             TableName: !Ref CasesTable
         - S3CrudPolicy:
@@ -195,6 +196,13 @@ Resources:
               Effect: Allow
               Action: secretsmanager:GetSecretValue
               Resource: !If [HasGeminiKey, !Ref GeminiApiKeySecret, !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:civicproof-none"]
+            # Amazon Location Service: address search on the report form, and the road at a report's pin.
+            - Sid: GeocodeAddresses
+              Effect: Allow
+              Action:
+                - geo-places:Geocode
+                - geo-places:ReverseGeocode
+              Resource: !Sub arn:aws:geo-places:${AWS::Region}::provider/default
             # Textract text detection has no resource-level permissions; reads S3 with this role.
             - Sid: OcrScannedUploads
               Effect: Allow

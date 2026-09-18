@@ -37,6 +37,7 @@ import { finalizeClaims } from "./finalize";
 import { PHOTO_PROMPT, SYSTEM_PROMPT } from "./prompt";
 import { describeModelError, RateLimitRetry } from "./rate-limit";
 import { geminiApiKey } from "@/lib/secrets";
+import { reverseGeocode } from "@/lib/geocode";
 
 export type StreamEvent =
   | AgentEvent
@@ -251,6 +252,11 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
     if (engine === "gemini") {
       resolvedGeminiKey = await geminiApiKey();
       if (!resolvedGeminiKey) throw new Error("No Gemini API key is configured (GEMINI_API_KEY or GEMINI_SECRET_ARN).");
+    }
+    // Which road is at the pin: records name roads, so the model searches by name as well as distance.
+    if (usesModel) {
+      const place = await reverseGeocode(initial.location.lat, initial.location.lng).catch(() => undefined);
+      if (place) ctx.place = { road: place.road, locality: place.locality, district: place.district, label: place.label, provider: place.provider };
     }
     if (usesModel && initial.photos.length) {
       try {

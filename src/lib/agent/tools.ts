@@ -75,7 +75,13 @@ export function buildTools(ctx: RunContext) {
         description: c.description,
         category: CATEGORY_LABELS[c.category],
         observed_on: c.observedOn,
-        location: { lat: c.location.lat, lng: c.location.lng, address: c.location.address, how_obtained: c.location.source },
+        location: {
+          lat: c.location.lat,
+          lng: c.location.lng,
+          address: c.location.address,
+          how_obtained: c.location.source,
+          ...(ctx.place ? { road_at_pin: ctx.place.road, locality_at_pin: ctx.place.locality, geocoder: ctx.place.provider } : {}),
+        },
         photos: c.photos.map((p) => ({ sha256: p.sha256.slice(0, 16), exif_taken_at: p.exif?.takenAt, exif_gps: p.exif?.lat !== undefined })),
         ai_photo_observation: photoObs ? photoObs.text : "not available",
         reporter_documents: c.documents

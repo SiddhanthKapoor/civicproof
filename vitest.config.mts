@@ -12,5 +12,7 @@ export default defineConfig({
     environment: "node",
     include: ["tests/**/*.test.ts"],
     testTimeout: 30000,
+    // No network in tests: geocoding is off unless a test points it at a stand-in.
+    env: { CIVICPROOF_GEOCODER: "none" },
   },
 });
