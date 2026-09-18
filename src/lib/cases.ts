@@ -13,6 +13,7 @@ import { log } from "@/lib/log";
 import { buildAppeal, buildComplaint, buildRti } from "@/lib/packet";
 import { rtiClock } from "@/lib/rti-clock";
 import { pdfPages } from "@/lib/pdf-text";
+import { ocrEnabled, ocrPages } from "@/lib/ocr";
 import {
   CASE_DOCUMENT_KINDS,
   CASE_DOCUMENT_LABELS,
@@ -355,6 +356,7 @@ export async function addCaseDocument(
   const mime = isPdf ? "application/pdf" : image!.mime;
   await getBlobs().put(`${folder}.${isPdf ? "pdf" : image!.ext}`, file.bytes, mime);
 
+  const fileKey = `${folder}.${isPdf ? "pdf" : image!.ext}`;
   let pages: string[] = [];
   if (isPdf) {
     try {
@@ -362,6 +364,21 @@ export async function addCaseDocument(
     } catch {
       throw new ForbiddenError([], "The PDF could not be read. It may be encrypted or damaged.");
     }
+  }
+  // Scans (images, or PDFs without a text layer) go through Amazon Textract when it is enabled.
+  let ocr: CaseDocument["ocr"];
+  if ((!isPdf || !pages.some((p) => p.length >= 20)) && ocrEnabled()) {
+    try {
+      const recognised = await ocrPages({ bytes: file.bytes, pageCount: isPdf ? Math.max(1, pages.length) : 1, s3Key: fileKey });
+      if (recognised?.some((p) => p.length >= 20)) {
+        pages = recognised.slice(0, 200);
+        ocr = "textract";
+      }
+    } catch (e) {
+      log.warn("ocr.failed", { caseId, error: e instanceof Error ? e.message : String(e) });
+    }
+  }
+  if (pages.length) {
     await getBlobs().put(`${folder}.pages.json`, new TextEncoder().encode(JSON.stringify(pages)), "application/json");
   }
 
@@ -373,10 +390,11 @@ export async function addCaseDocument(
     mime,
     bytes: file.bytes.byteLength,
     sha256,
-    key: `${folder}.${isPdf ? "pdf" : image!.ext}`,
-    pagesKey: isPdf ? `${folder}.pages.json` : undefined,
-    pageCount: isPdf ? pages.length : 1,
+    key: fileKey,
+    pagesKey: pages.length ? `${folder}.pages.json` : undefined,
+    pageCount: Math.max(1, pages.length),
     textPages: pages.filter((p) => p.length >= 20).length,
+    ocr,
     uploadedAt: new Date().toISOString(),
   };
   const caseData = await store.update(caseId, (c) => ({
@@ -390,7 +408,11 @@ export async function addCaseDocument(
         type: "evidence_added",
         actor: "reporter",
         summary: `${CASE_DOCUMENT_LABELS[doc.kind]} added: ${doc.title}`,
-        notes: doc.textPages ? `${doc.textPages} of ${doc.pageCount} pages have text the investigator can read.` : "No text layer, so it can't be quoted yet (OCR is not part of CivicProof yet).",
+        notes: doc.textPages
+          ? `${doc.textPages} of ${doc.pageCount} pages have text the investigator can read${doc.ocr ? " (recognised with Amazon Textract)" : ""}.`
+          : ocrEnabled()
+            ? "No readable text was found, even with OCR."
+            : "No text layer, so it can't be quoted. OCR (Amazon Textract) is available on the AWS deployment.",
       },
     ],
   }));

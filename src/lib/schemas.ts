@@ -394,6 +394,8 @@ export const CaseDocumentSchema = z.object({
   pagesKey: z.string().optional(),
   pageCount: z.number().int(),
   textPages: z.number().int(),
+  /** Set when the text came from OCR rather than the file's own text layer. */
+  ocr: z.enum(["textract"]).optional(),
   uploadedAt: z.string(),
 });
 export type CaseDocument = z.infer<typeof CaseDocumentSchema>;

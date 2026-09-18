@@ -65,15 +65,17 @@ export function ArchitectureDiagram() {
         <Arrow d="M356 302 V322" />
 
         {/* AWS services */}
-        <Box x={860} y={40} w={240} h={80} title="Amazon Bedrock" sub={"Claude via Converse API\ntool use + vision"} tone="accent" />
-        <Box x={860} y={148} w={240} h={80} title="Amazon DynamoDB" sub={"cases (optimistic locking)\ndaily run counters (TTL)"} />
-        <Box x={860} y={256} w={240} h={80} title="Amazon S3" sub={"photos, packet PDFs\nprivate, SSE, no public access"} />
-        <Box x={860} y={364} w={240} h={80} title="Amazon CloudWatch" sub={"structured JSON logs\nruns, denials, packets"} />
+        <Box x={860} y={40} w={240} h={72} title="Amazon Bedrock" sub={"Claude via Converse API\ntool use + vision"} tone="accent" />
+        <Box x={860} y={126} w={240} h={72} title="Amazon Textract" sub={"OCR for scanned uploads\n(RTI replies, letters)"} />
+        <Box x={860} y={212} w={240} h={72} title="Amazon DynamoDB" sub={"cases (optimistic locking)\ndaily run counters (TTL)"} />
+        <Box x={860} y={298} w={240} h={72} title="Amazon S3" sub={"photos, private documents, PDFs\nSSE, no public access"} />
+        <Box x={860} y={384} w={240} h={72} title="Amazon CloudWatch" sub={"structured logs, alarm,\nmetric filters"} />
 
-        <Arrow d="M796 110 H860" label="Converse" lx={828} ly={102} />
-        <Arrow d="M796 190 H860" />
-        <Arrow d="M796 296 H860" />
-        <Arrow d="M796 404 H860" />
+        <Arrow d="M796 76 H860" label="Converse" lx={828} ly={68} />
+        <Arrow d="M796 162 H860" />
+        <Arrow d="M796 248 H860" />
+        <Arrow d="M796 334 H860" />
+        <Arrow d="M796 420 H860" />
 
         <text x={20} y={500} fontSize={11} fill="var(--ink-3)" fontFamily="var(--font-sans)">
           Outside AWS: OpenFreeMap vector tiles and OpenStreetMap Nominatim (address search), both keyless and rate-limited server-side.

@@ -136,6 +136,7 @@ Resources:
           CIVICPROOF_PLANNER: !Ref Planner
           CIVICPROOF_MAX_RUNS_PER_DAY: !Ref MaxRunsPerDay
           CIVICPROOF_MAX_RUNS_PER_CASE: !Ref MaxRunsPerCase
+          CIVICPROOF_OCR: textract
           BEDROCK_MODEL_ID: !Ref BedrockModelId
           BEDROCK_REGION: !Ref AWS::Region
           NOMINATIM_CONTACT: !Ref NominatimContact
@@ -158,6 +159,14 @@ Resources:
                 - !Sub arn:aws:bedrock:*:${AWS::AccountId}:inference-profile/${BedrockModelId}
                 - arn:aws:bedrock:*::foundation-model/anthropic.claude-*
                 - arn:aws:bedrock:*::foundation-model/amazon.nova-*
+            # Textract text detection has no resource-level permissions; reads S3 with this role.
+            - Sid: OcrScannedUploads
+              Effect: Allow
+              Action:
+                - textract:DetectDocumentText
+                - textract:StartDocumentTextDetection
+                - textract:GetDocumentTextDetection
+              Resource: "*"
 
   # Since Oct 2025 a public Function URL also needs lambda:InvokeFunction, restricted here
   # to invocations that arrive through the URL.

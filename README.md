@@ -72,6 +72,7 @@ The hard part is reading: 65-page bid documents, scheme reports whose tables ext
 | **Strands Agents** (AWS open source) | The agent loop, Bedrock provider, lifecycle hooks and the Cedar intervention. |
 | **Cedar** (AWS open source) | Two policy sets: agent tool calls, and every change to a case. |
 | **AWS Lambda** | Next.js standalone server behind a **Function URL in response-streaming mode**, via the Lambda Web Adapter, so the agent's steps stream to the browser live. |
+| **Amazon Textract** | OCR for scanned uploads (RTI replies usually come back as scanned letters), so the investigator can quote them. |
 | **Amazon DynamoDB** | Cases (single table, optimistic locking), daily investigation budget counters with TTL. |
 | **Amazon S3** | Report photos and every generated packet PDF, private, SSE, TLS-only. |
 | **Amazon CloudWatch** | Structured JSON logs, an error alarm, and metric filters for failed and budget-denied investigations. |
@@ -161,13 +162,13 @@ docs/               architecture, agent, data sources, security, deploy, demo sc
 - City road alignments are approximate; the tenders' key maps have not been digitised.
 - PMGSY maintenance windows use the programme guideline's 5-year rule and the recorded completion date; individual contracts were not available.
 - Submission is manual: there is no supported government API to file into, so CivicProof drafts and tracks.
-- Scanned PDFs without text can't be quoted (OCR, e.g. Amazon Textract, is future work).
+- Scanned uploads are OCR'd with Amazon Textract on AWS; locally (no AWS) they are stored but can't be quoted. Scanned documents in the shared corpus are not OCR'd.
 - No accounts: an owner key in the browser proves you filed a report.
 
 ## What's next
 
 1. Ingest more cities and sources automatically (KPPP awarded-works API, OMMAS exports) with the same quote-verification gate.
-2. Amazon Textract for scanned work orders and completion certificates obtained through RTI, fed back into the case.
+2. Table-aware extraction (Textract `AnalyzeDocument` tables) for measurement books and bills of quantities.
 3. Digitise tender key maps so city projects get exact reaches.
 4. Group nearby reports into one case, and report outcomes (fix rate), not just counts.
 5. Amazon Cognito accounts for organisations, and Amazon Location Service for geocoding.

@@ -31,6 +31,11 @@ export const config = {
   /** Test-only: point the Bedrock client at a local Converse-compatible endpoint. */
   bedrockEndpoint: env("BEDROCK_ENDPOINT"),
 
+  /** OCR for scanned uploads: "textract" (Amazon Textract) or "none". */
+  ocr: (env("CIVICPROOF_OCR") ?? "none") as "textract" | "none",
+  /** Test-only: point the Textract client at a local stand-in. */
+  textractEndpoint: env("TEXTRACT_ENDPOINT"),
+
   /** Hard ceilings that protect the Bedrock budget on a public deployment. */
   maxInvestigationsPerCase: Number(env("CIVICPROOF_MAX_RUNS_PER_CASE") ?? 5),
   maxInvestigationsPerDay: Number(env("CIVICPROOF_MAX_RUNS_PER_DAY") ?? 150),

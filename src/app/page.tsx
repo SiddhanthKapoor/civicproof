@@ -256,14 +256,16 @@ unless { principal is Reporter && context.is_owner };`}
             <Eyebrow>Built on AWS</Eyebrow>
             <h2 className="mt-4 font-serif text-[36px] leading-tight tracking-[-0.01em] sm:text-[44px]">Small, auditable, serverless.</h2>
           </Reveal>
-          <AnimatedGroup preset="fade" className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-3">
+          <AnimatedGroup preset="fade" className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { k: "Amazon Bedrock", v: "Claude reads the documents through the Converse API, with tool use and vision for the photo." },
-              { k: "Strands Agents", v: "AWS's open-source agent SDK runs the tool loop, streaming each step to the case page." },
-              { k: "Cedar", v: "Policies authorize every tool call and every status change, and deny anything unlisted." },
-              { k: "AWS Lambda", v: "The app runs behind a Function URL in response-streaming mode, deployed with AWS SAM." },
-              { k: "DynamoDB + S3", v: "Cases in a single table with optimistic locking; photos and packet PDFs in a private bucket." },
-              { k: "CloudWatch", v: "Structured JSON logs for every case, run, denial and packet, ready for Logs Insights." },
+              { k: "Amazon Bedrock", v: "Claude reads the documents through the Converse API, with tool use, and describes the photo with vision." },
+              { k: "Strands Agents", v: "AWS's open-source agent SDK runs the tool loop and streams each step to the case page." },
+              { k: "Cedar", v: "Policies authorize every tool call and every change to a case, and deny anything unlisted." },
+              { k: "Amazon Textract", v: "Reads scanned RTI replies and letters so the investigator can quote them." },
+              { k: "AWS Lambda", v: "The app runs behind a Function URL in response-streaming mode, via the Lambda Web Adapter." },
+              { k: "DynamoDB + S3", v: "Cases in one table with optimistic locking; photos, private documents and PDFs in a private bucket." },
+              { k: "CloudWatch", v: "Structured logs for every case, run, denial and packet; an error alarm and metric filters." },
+              { k: "AWS SAM", v: "One template, least-privilege IAM: one table, one bucket, one model family." },
             ].map((a) => (
               <div key={a.k} className="bg-card p-6">
                 <h3 className="text-[16px] font-semibold">{a.k}</h3>
