@@ -17,6 +17,34 @@ export const log = {
   error: (event: string, data?: Record<string, unknown>) => write("error", event, data),
 };
 
+type Unit = "Count" | "Seconds" | "Percent" | "None";
+
+/**
+ * Custom metrics in CloudWatch Embedded Metric Format: one JSON log line that CloudWatch turns into
+ * metrics (namespace CivicProof) without an API call, so a Lambda can emit them for free.
+ */
+export function metrics(event: string, dimensions: Record<string, string>, values: Record<string, [number, Unit]>, extra?: Record<string, unknown>) {
+  const line = {
+    level: "info",
+    event,
+    at: new Date().toISOString(),
+    _aws: {
+      Timestamp: Date.now(),
+      CloudWatchMetrics: [
+        {
+          Namespace: "CivicProof",
+          Dimensions: [Object.keys(dimensions)],
+          Metrics: Object.entries(values).map(([Name, [, Unit]]) => ({ Name, Unit })),
+        },
+      ],
+    },
+    ...dimensions,
+    ...Object.fromEntries(Object.entries(values).map(([k, [v]]) => [k, v])),
+    ...extra,
+  };
+  console.log(JSON.stringify(line));
+}
+
 export function errorMessage(e: unknown): string {
   if (e instanceof Error) return e.message;
   return String(e);

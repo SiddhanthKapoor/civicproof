@@ -30,14 +30,20 @@ export const config = {
    *   "bedrock" – a model on Amazon Bedrock (needs AWS credentials with bedrock:InvokeModel*)
    *   "rules"   – no language model: fixed rules replaying the curated extractions (tests, offline demo)
    */
-  planner: (env("CIVICPROOF_PLANNER") ?? (env("GEMINI_API_KEY") ? "gemini" : "rules")) as "rules" | "bedrock" | "gemini",
+  planner: (env("CIVICPROOF_PLANNER") ?? (env("GEMINI_API_KEY") || env("GEMINI_SECRET_ARN") ? "gemini" : "rules")) as "rules" | "bedrock" | "gemini",
+  /** Local: the key itself. On AWS: GEMINI_SECRET_ARN names a Secrets Manager secret instead (lib/secrets.ts). */
   geminiApiKey: env("GEMINI_API_KEY"),
+  geminiSecretArn: env("GEMINI_SECRET_ARN"),
+  /** Test-only: point the Secrets Manager client at a local stand-in. */
+  secretsEndpoint: env("SECRETS_MANAGER_ENDPOINT"),
   geminiModelId: env("GEMINI_MODEL_ID") ?? "gemini-3-flash-preview",
   /** Longest a model-driven investigation may run. Free-tier rate limits make runs slower. */
   runTimeoutMs: Number(env("CIVICPROOF_RUN_TIMEOUT_S") ?? 240) * 1000,
   /** Test-only: point the Gemini client at a local stand-in. */
   geminiEndpoint: env("GEMINI_ENDPOINT"),
-  bedrockModelId: env("BEDROCK_MODEL_ID") ?? "global.anthropic.claude-opus-5",
+  bedrockModelId: env("BEDROCK_MODEL_ID") ?? "apac.amazon.nova-pro-v1:0",
+  /** A Bedrock model a Gemini run continues on when Gemini is unavailable (set on AWS; unset locally). */
+  fallbackModelId: env("CIVICPROOF_FALLBACK_MODEL"),
   bedrockRegion: env("BEDROCK_REGION") ?? env("AWS_REGION") ?? "ap-south-1",
   /** Test-only: point the Bedrock client at a local Converse-compatible endpoint. */
   bedrockEndpoint: env("BEDROCK_ENDPOINT"),

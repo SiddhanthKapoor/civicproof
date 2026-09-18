@@ -27,7 +27,7 @@ import { getStore } from "@/lib/store";
 import { getBlobs } from "@/lib/blob";
 import { authorize } from "@/lib/authz";
 import { newId } from "@/lib/ids";
-import { errorMessage, log } from "@/lib/log";
+import { errorMessage, log, metrics } from "@/lib/log";
 import type { Case, CaseStatus, Investigation, TraceStep } from "@/lib/schemas";
 import { createRunContext, type AgentEvent, type RunContext } from "./context";
 import { buildTools } from "./tools";
@@ -36,6 +36,7 @@ import { NeutralLanguageGuard } from "./guards";
 import { finalizeClaims } from "./finalize";
 import { PHOTO_PROMPT, SYSTEM_PROMPT } from "./prompt";
 import { describeModelError, RateLimitRetry } from "./rate-limit";
+import { geminiApiKey } from "@/lib/secrets";
 
 export type StreamEvent =
   | AgentEvent
@@ -43,14 +44,14 @@ export type StreamEvent =
   | { type: "complete"; caseData: Case }
   | { type: "failed"; error: string };
 
-function bedrockModel(maxTokens: number): BedrockModel {
+function bedrockModel(maxTokens: number, modelId = config.bedrockModelId): BedrockModel {
   return new BedrockModel({
     region: config.bedrockRegion,
-    modelId: config.bedrockModelId,
+    modelId,
     maxTokens,
-    // Prompt caching: tools, system prompt and the growing conversation prefix are re-sent every
-    // turn, so caching them cuts most of an investigation's input-token cost.
-    cacheConfig: { strategy: config.bedrockModelId.includes("anthropic") ? "anthropic" : "auto" },
+    // Prompt caching where the model supports it: tools, system prompt and the growing conversation
+    // prefix are re-sent every turn, so caching them cuts most of an investigation's input-token cost.
+    cacheConfig: { strategy: modelId.includes("anthropic") ? "anthropic" : "auto" },
     ...(config.bedrockEndpoint
       ? { stream: false, clientConfig: { endpoint: config.bedrockEndpoint, credentials: { accessKeyId: "test", secretAccessKey: "test" } } }
       : {}),
@@ -65,9 +66,12 @@ function bedrockModel(maxTokens: number): BedrockModel {
   });
 }
 
+// Resolved once per run (from the environment, or Secrets Manager on AWS) before any model is built.
+let resolvedGeminiKey: string | undefined;
+
 function geminiModel(maxTokens: number): GoogleModel {
   return new GoogleModel({
-    apiKey: config.geminiApiKey,
+    apiKey: resolvedGeminiKey,
     modelId: config.geminiModelId,
     params: { maxOutputTokens: maxTokens, temperature: 0.2 },
     // A per-request timeout, so a stalled stream fails (and is retried) instead of hanging the run.
@@ -126,13 +130,37 @@ async function analyzePhoto(ctx: RunContext) {
 }
 
 /** Waits out rate limits (e.g. Gemini's free tier) and shows the wait in the live trace. */
-function rateLimitRetry(ctx: RunContext) {
-  return new RateLimitRetry((waitMs, attempt, reason) =>
+function rateLimitRetry(ctx: RunContext, maxAttempts?: number) {
+  return new RateLimitRetry(
+    (waitMs, attempt, reason) =>
     ctx.trace({
       kind: "note",
       summary: `${ENGINE_NAME[config.planner]} ${reason === "overloaded" ? "is overloaded" : "rate limit reached"}; waiting ${Math.round(waitMs / 1000)} s before retrying (attempt ${attempt + 1})`,
     }),
+    maxAttempts,
   );
+}
+
+/**
+ * The prompt for a fallback model that picks up an interrupted run. The run context (selected
+ * project, recorded claims, candidates for Cedar) carries over, so the new model continues rather
+ * than repeating the work, and never sees the other provider's message format.
+ */
+function continuationPrompt(caseId: string, ctx: RunContext): string {
+  const recorded = ctx.claims
+    .filter((c) => c.origin !== "computed")
+    .map((c) => `- ${c.field}: ${c.value ?? c.text} (${c.verification.replace("_", " ")})`);
+  return [
+    `Investigate case ${caseId}. Another model started this investigation and was interrupted; its work is kept and summarised here.`,
+    ctx.selectedProjectId
+      ? `Selected project: ${ctx.selectedProjectId}.`
+      : "No project has been selected yet: read the report and search near its location first.",
+    recorded.length ? `Facts already recorded (do not record them again):\n${recorded.join("\n")}` : "No facts have been recorded yet.",
+    ctx.missing.length ? `Already flagged as missing: ${ctx.missing.map((m) => m.field).join(", ")}.` : "",
+    "Continue from there: read what is still needed, record the remaining facts with exact quotes, flag what cannot be found, then call finish.",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 function agentPolicy(): string {
@@ -145,6 +173,7 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
   const engine = config.planner;
   const usesModel = engine !== "rules";
   const modelId = modelIdFor(engine);
+  let modelLabel = modelId;
   const runId = newId("run");
   const startedAt = new Date().toISOString();
   const trace: TraceStep[] = [];
@@ -219,6 +248,10 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
   const usage = { inputTokens: 0, outputTokens: 0, modelCalls: 0 };
 
   try {
+    if (engine === "gemini") {
+      resolvedGeminiKey = await geminiApiKey();
+      if (!resolvedGeminiKey) throw new Error("No Gemini API key is configured (GEMINI_API_KEY or GEMINI_SECRET_ARN).");
+    }
     if (usesModel && initial.photos.length) {
       try {
         await analyzePhoto(ctx);
@@ -227,46 +260,58 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
       }
     }
 
-    const cedar = new CedarAuthorization({
-      policies: agentPolicy(),
-      principal: { type: "Agent", id: "investigator" },
-      contextEnricher: () => ({ candidate_ids: ctx.candidateIds }),
-      onError: "deny",
-    });
-    const guard = new NeutralLanguageGuard((tool, term) =>
-      ctx.trace({ kind: "denied", tool, summary: `Neutral-language guard stopped "${term}" in ${tool}; the model was asked to rephrase` }),
-    );
+    // One agent per model. Cedar and the guard are per agent; the run context is shared.
+    const buildAgent = (model: Model, maxAttempts?: number) => {
+      const cedar = new CedarAuthorization({
+        policies: agentPolicy(),
+        principal: { type: "Agent", id: "investigator" },
+        contextEnricher: () => ({ candidate_ids: ctx.candidateIds }),
+        onError: "deny",
+      });
+      const guard = new NeutralLanguageGuard((tool, term) =>
+        ctx.trace({ kind: "denied", tool, summary: `Neutral-language guard stopped "${term}" in ${tool}; the model was asked to rephrase` }),
+      );
+      const agent = new Agent({
+        model,
+        tools: buildTools(ctx),
+        interventions: [cedar, guard],
+        systemPrompt: SYSTEM_PROMPT,
+        printer: false,
+        ...(usesModel ? { retryStrategy: rateLimitRetry(ctx, maxAttempts) } : {}),
+      });
+      agent.addHook(BeforeToolCallEvent, (ev) => {
+        toolCalls++;
+        if (toolCalls > config.maxAgentToolCalls && ev.toolUse.name !== "finish") {
+          ev.cancel = "Tool-call budget for this run is used up. Call finish now with what you have.";
+          ctx.trace({ kind: "denied", tool: ev.toolUse.name, summary: "Run budget reached; the model was told to finish" });
+        }
+      });
+      agent.addHook(AfterToolCallEvent, (ev) => {
+        if (ev.result.status !== "error") return;
+        const text = ev.result.content.map((b) => ("text" in b ? String(b.text) : "")).join(" ");
+        if (/Cedar/i.test(text)) {
+          ctx.trace({ kind: "denied", tool: ev.toolUse.name, summary: `Cedar policy denied ${ev.toolUse.name}`, detail: { reason: text.slice(0, 300) } });
+        }
+      });
+      return agent;
+    };
 
+    const deadline = AbortSignal.timeout(usesModel ? config.runTimeoutMs : 30_000);
+    // On AWS, a Gemini run that loses its model (daily quota, persistent overload) continues on Amazon Bedrock.
+    const fallback = engine === "gemini" ? config.fallbackModelId : undefined;
     // Thinking tokens count toward the output limit on current models; leave room so a turn is never cut off.
-    const model: Model = usesModel ? languageModel(16000) : new RulesPlanner(ctx);
-    const agent = new Agent({
-      model,
-      tools: buildTools(ctx),
-      interventions: [cedar, guard],
-      systemPrompt: SYSTEM_PROMPT,
-      printer: false,
-      ...(usesModel ? { retryStrategy: rateLimitRetry(ctx) } : {}),
-    });
-
-    agent.addHook(BeforeToolCallEvent, (ev) => {
-      toolCalls++;
-      if (toolCalls > config.maxAgentToolCalls && ev.toolUse.name !== "finish") {
-        ev.cancel = "Tool-call budget for this run is used up. Call finish now with what you have.";
-        ctx.trace({ kind: "denied", tool: ev.toolUse.name, summary: "Run budget reached; the model was told to finish" });
-      }
-    });
-    agent.addHook(AfterToolCallEvent, (ev) => {
-      if (ev.result.status !== "error") return;
-      const text = ev.result.content.map((b) => ("text" in b ? String(b.text) : "")).join(" ");
-      if (/Cedar/i.test(text)) {
-        ctx.trace({ kind: "denied", tool: ev.toolUse.name, summary: `Cedar policy denied ${ev.toolUse.name}`, detail: { reason: text.slice(0, 300) } });
-      }
-    });
-
-    const result = await agent.invoke(
-      `Investigate case ${initial.id}. Start by reading the report.`,
-      { cancelSignal: AbortSignal.timeout(usesModel ? config.runTimeoutMs : 30_000) },
-    );
+    const primary = usesModel ? languageModel(16000) : new RulesPlanner(ctx);
+    let result;
+    try {
+      result = await buildAgent(primary, fallback ? 3 : undefined).invoke(`Investigate case ${initial.id}. Start by reading the report.`, { cancelSignal: deadline });
+    } catch (e) {
+      const why = fallback ? describeModelError(errorMessage(e), ENGINE_NAME[engine]) : undefined;
+      if (!fallback || !why) throw e;
+      ctx.trace({ kind: "note", summary: `${why.split(". ")[0]}. Continuing on Amazon Bedrock (${fallback}) with the work done so far.` });
+      log.warn("investigation.fallback", { caseId, runId, from: modelId, to: fallback, reason: errorMessage(e).slice(0, 300) });
+      modelLabel = `${modelId} → ${fallback}`;
+      result = await buildAgent(bedrockModel(16000, fallback)).invoke(continuationPrompt(initial.id, ctx), { cancelSignal: deadline });
+    }
     if (result.metrics) {
       usage.inputTokens = result.metrics.accumulatedUsage.inputTokens;
       usage.outputTokens = result.metrics.accumulatedUsage.outputTokens;
@@ -293,7 +338,7 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
         investigation: {
           runId,
           engine,
-          model: modelId,
+          model: modelLabel,
           status: "complete",
           startedAt,
           finishedAt,
@@ -321,7 +366,27 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
         ],
       };
     });
-    log.info("investigation.complete", { caseId, runId, engine, verifiedOfficial, toolCalls, ...usage });
+    const proposed = fin.claims.filter((c) => c.origin === "official_record" || c.origin === "ai_inference");
+    metrics(
+      "investigation.complete",
+      { Engine: engine },
+      {
+        Investigations: [1, "Count"],
+        DurationSeconds: [(Date.parse(finishedAt) - Date.parse(startedAt)) / 1000, "Seconds"],
+        VerifiedFacts: [verifiedOfficial, "Count"],
+        // Share of the model's own factual claims that the verifier accepted.
+        VerifiedShare: [proposed.length ? (100 * verifiedOfficial) / proposed.length : 0, "Percent"],
+        UnverifiedClaims: [fin.claims.filter((c) => c.verification === "unverified" && c.origin !== "computed").length, "Count"],
+        Conflicts: [fin.conflicts.length, "Count"],
+        PolicyDenials: [trace.filter((t) => t.kind === "denied").length, "Count"],
+        ModelWaits: [trace.filter((t) => t.kind === "note" && /rate limit|overloaded/.test(t.summary)).length, "Count"],
+        ToolCalls: [toolCalls, "Count"],
+        ModelCalls: [usage.modelCalls, "Count"],
+        InputTokens: [usage.inputTokens, "Count"],
+        OutputTokens: [usage.outputTokens, "Count"],
+      },
+      { caseId, runId, model: modelLabel },
+    );
     onEvent({ type: "complete", caseData: finalCase });
     return finalCase;
   } catch (e) {
@@ -329,6 +394,7 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
     const raw = errorMessage(e);
     const message = describeModelError(raw, ENGINE_NAME[engine]) ?? raw;
     log.error("investigation.failed", { caseId, runId, engine, error: raw });
+    metrics("investigation.failed.metric", { Engine: engine }, { InvestigationFailures: [1, "Count"] }, { caseId, runId });
     const failed = await store.update(caseId, (c) => ({
       ...c,
       status: c.status === "investigating" ? (c.investigation?.claims.length ? "investigating" : "reported") : c.status,

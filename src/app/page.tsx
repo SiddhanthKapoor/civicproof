@@ -259,14 +259,14 @@ unless { principal is Reporter && context.is_owner };`}
           </Reveal>
           <AnimatedGroup preset="fade" className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { k: "Amazon Bedrock", v: "Supported model host for the investigator (Converse API, tool use, vision). This build runs Gemini by default; set one variable to switch." },
+              { k: "Amazon Bedrock", v: "Amazon Nova takes over an investigation mid-run when Gemini hits its quota or is overloaded, keeping the work done so far. Or runs it end to end." },
               { k: "Strands Agents", v: "AWS's open-source agent SDK runs the tool loop and streams each step to the case page." },
               { k: "Cedar", v: "Policies authorize every tool call and every change to a case, and deny anything unlisted." },
               { k: "Amazon Textract", v: "Reads scanned RTI replies and letters so the investigator can quote them." },
               { k: "AWS Lambda", v: "The app runs behind a Function URL in response-streaming mode, via the Lambda Web Adapter." },
               { k: "DynamoDB + S3", v: "Cases in one table with optimistic locking; photos, private documents and PDFs in a private bucket." },
-              { k: "CloudWatch", v: "Structured logs for every case, run, denial and packet; an error alarm and metric filters." },
-              { k: "AWS SAM", v: "One template, least-privilege IAM: one table, one bucket, one model family, plus Textract." },
+              { k: "CloudWatch", v: "Every run emits metrics: share of the model's claims the verifier accepted, policy denials, model waits, duration. A dashboard and an alarm." },
+              { k: "SAM + Secrets Manager", v: "One template, least-privilege IAM: one table, one bucket, one secret (the Gemini key), Nova models, Textract." },
             ].map((a) => (
               <div key={a.k} className="bg-card p-6">
                 <h3 className="text-[16px] font-semibold">{a.k}</h3>

@@ -3,8 +3,9 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   CivicProof: turns a reported road problem into an evidence-backed case.
   Next.js on AWS Lambda (Lambda Web Adapter, response streaming Function URL),
-  DynamoDB for cases, S3 for photos and packet PDFs, Gemini or Amazon Bedrock for the
-  investigator, Textract for scanned uploads, CloudWatch for logs and an error alarm.
+  DynamoDB for cases, S3 for photos and packet PDFs, Gemini (key in Secrets Manager) with
+  Amazon Nova on Bedrock as fallback for the investigator, Textract for scanned uploads,
+  CloudWatch logs, metrics, dashboard and an error alarm.
 
 Parameters:
   Planner:
@@ -16,14 +17,19 @@ Parameters:
     Type: String
     Default: ""
     NoEcho: true
-    Description: Gemini API key, passed to the function as an environment variable (never to the browser).
+    Description: Gemini API key. Stored in AWS Secrets Manager; the function reads it at run time (never sent to the browser).
   GeminiModelId:
     Type: String
     Default: gemini-3-flash-preview
   BedrockModelId:
     Type: String
-    Default: global.anthropic.claude-opus-5
-    Description: Bedrock model or inference profile ID used by the investigator.
+    Default: apac.amazon.nova-pro-v1:0
+    Description: Amazon Bedrock model (inference profile) for the investigator when Planner=bedrock, and the fallback for Gemini runs.
+  FallbackToBedrock:
+    Type: String
+    Default: "true"
+    AllowedValues: ["true", "false"]
+    Description: When Gemini is unavailable (daily quota, persistent overload), continue the investigation on Amazon Bedrock.
   MaxRunsPerDay:
     Type: Number
     Default: 150
@@ -39,7 +45,19 @@ Parameters:
     Type: Number
     Default: 30
 
+Conditions:
+  HasGeminiKey: !Not [!Equals [!Ref GeminiApiKey, ""]]
+  UseBedrockFallback: !Equals [!Ref FallbackToBedrock, "true"]
+  GeminiWithoutKey: !And [!Equals [!Ref Planner, "gemini"], !Not [!Condition HasGeminiKey]]
+
 Resources:
+  GeminiApiKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Condition: HasGeminiKey
+    Properties:
+      Description: Gemini API key for the CivicProof investigator
+      SecretString: !Ref GeminiApiKey
+
   CasesTable:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Retain
@@ -141,20 +159,22 @@ Resources:
           CIVICPROOF_TABLE: !Ref CasesTable
           CIVICPROOF_BLOBS: s3
           CIVICPROOF_BUCKET: !Ref BlobBucket
-          CIVICPROOF_PLANNER: !Ref Planner
+          # Planner=gemini with no key deployed would fail every run: use Amazon Bedrock instead.
+          CIVICPROOF_PLANNER: !If [GeminiWithoutKey, "bedrock", !Ref Planner]
           CIVICPROOF_MAX_RUNS_PER_DAY: !Ref MaxRunsPerDay
           CIVICPROOF_MAX_RUNS_PER_CASE: !Ref MaxRunsPerCase
           CIVICPROOF_OCR: textract
-          GEMINI_API_KEY: !Ref GeminiApiKey
+          GEMINI_SECRET_ARN: !If [HasGeminiKey, !Ref GeminiApiKeySecret, ""]
           GEMINI_MODEL_ID: !Ref GeminiModelId
           BEDROCK_MODEL_ID: !Ref BedrockModelId
+          CIVICPROOF_FALLBACK_MODEL: !If [UseBedrockFallback, !Ref BedrockModelId, ""]
           BEDROCK_REGION: !Ref AWS::Region
           NOMINATIM_CONTACT: !Ref NominatimContact
       FunctionUrlConfig:
         AuthType: NONE
         InvokeMode: RESPONSE_STREAM
       Policies:
-        # Least privilege: one table, one bucket, one model family, and Textract OCR. Nothing else.
+        # Least privilege: one table, one bucket, one secret, one model family, and Textract OCR. Nothing else.
         - DynamoDBCrudPolicy:
             TableName: !Ref CasesTable
         - S3CrudPolicy:
@@ -167,9 +187,14 @@ Resources:
                 - bedrock:InvokeModelWithResponseStream
               Resource:
                 - !Sub arn:aws:bedrock:*:${AWS::AccountId}:inference-profile/${BedrockModelId}
-                - arn:aws:bedrock:*::foundation-model/anthropic.claude-*
+                - arn:aws:bedrock:*::foundation-model/amazon.nova-*
                 # Global cross-region inference profiles route to region-less foundation-model ARNs.
-                - arn:aws:bedrock:::foundation-model/anthropic.claude-*
+                - arn:aws:bedrock:::foundation-model/amazon.nova-*
+            # The Gemini key: this one secret, read-only.
+            - Sid: ReadGeminiKey
+              Effect: Allow
+              Action: secretsmanager:GetSecretValue
+              Resource: !If [HasGeminiKey, !Ref GeminiApiKeySecret, !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:civicproof-none"]
             # Textract text detection has no resource-level permissions; reads S3 with this role.
             - Sid: OcrScannedUploads
               Effect: Allow
@@ -224,6 +249,40 @@ Resources:
           MetricName: InvestigationBudgetDenials
           MetricValue: "1"
 
+  # The investigator's quality and cost at a glance, from the Embedded Metric Format lines each run logs.
+  InvestigatorDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Sub "${AWS::StackName}-investigator"
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            { "type": "metric", "x": 0, "y": 0, "width": 8, "height": 6,
+              "properties": { "title": "Investigations and failures", "region": "${AWS::Region}", "stat": "Sum", "period": 3600,
+                "metrics": [ [ { "expression": "SEARCH('{CivicProof,Engine} MetricName=\"Investigations\"', 'Sum', 3600)", "id": "runs" } ],
+                             [ { "expression": "SEARCH('{CivicProof,Engine} MetricName=\"InvestigationFailures\"', 'Sum', 3600)", "id": "fails" } ] ] } },
+            { "type": "metric", "x": 8, "y": 0, "width": 8, "height": 6,
+              "properties": { "title": "Share of model claims the verifier accepted (%)", "region": "${AWS::Region}", "stat": "Average", "period": 3600,
+                "metrics": [ [ { "expression": "SEARCH('{CivicProof,Engine} MetricName=\"VerifiedShare\"', 'Average', 3600)", "id": "share" } ] ] } },
+            { "type": "metric", "x": 16, "y": 0, "width": 8, "height": 6,
+              "properties": { "title": "Run duration (s, p90)", "region": "${AWS::Region}", "stat": "p90", "period": 3600,
+                "metrics": [ [ { "expression": "SEARCH('{CivicProof,Engine} MetricName=\"DurationSeconds\"', 'p90', 3600)", "id": "dur" } ] ] } },
+            { "type": "metric", "x": 0, "y": 6, "width": 8, "height": 6,
+              "properties": { "title": "Policy denials, conflicts, unverified claims", "region": "${AWS::Region}", "stat": "Sum", "period": 3600,
+                "metrics": [ [ { "expression": "SEARCH('{CivicProof,Engine} MetricName=\"PolicyDenials\"', 'Sum', 3600)", "id": "deny" } ],
+                             [ { "expression": "SEARCH('{CivicProof,Engine} MetricName=\"Conflicts\"', 'Sum', 3600)", "id": "conf" } ],
+                             [ { "expression": "SEARCH('{CivicProof,Engine} MetricName=\"UnverifiedClaims\"', 'Sum', 3600)", "id": "unv" } ] ] } },
+            { "type": "metric", "x": 8, "y": 6, "width": 8, "height": 6,
+              "properties": { "title": "Model calls, waits for rate limits", "region": "${AWS::Region}", "stat": "Sum", "period": 3600,
+                "metrics": [ [ { "expression": "SEARCH('{CivicProof,Engine} MetricName=\"ModelCalls\"', 'Sum', 3600)", "id": "calls" } ],
+                             [ { "expression": "SEARCH('{CivicProof,Engine} MetricName=\"ModelWaits\"', 'Sum', 3600)", "id": "waits" } ] ] } },
+            { "type": "metric", "x": 16, "y": 6, "width": 8, "height": 6,
+              "properties": { "title": "Lambda errors and duration", "region": "${AWS::Region}", "period": 300,
+                "metrics": [ [ "AWS/Lambda", "Errors", "FunctionName", "${AppFunction}", { "stat": "Sum" } ],
+                             [ "AWS/Lambda", "Duration", "FunctionName", "${AppFunction}", { "stat": "p90", "yAxis": "right" } ] ] } }
+          ]
+        }
+
 Outputs:
   AppUrl:
     Description: Public URL of the app
@@ -234,3 +293,6 @@ Outputs:
     Value: !Ref BlobBucket
   LogGroup:
     Value: !Ref AppLogGroup
+  Dashboard:
+    Description: CloudWatch dashboard for the investigator
+    Value: !Sub "https://${AWS::Region}.console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards:name=${AWS::StackName}-investigator"

@@ -60,7 +60,7 @@ beforeAll(async () => {
   await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
   vi.stubEnv("CIVICPROOF_DATA_DIR", mkdtempSync(path.join(tmpdir(), "civicproof-bedrock-")));
   vi.stubEnv("CIVICPROOF_PLANNER", "bedrock");
-  vi.stubEnv("BEDROCK_MODEL_ID", "global.anthropic.claude-opus-5");
+  vi.stubEnv("BEDROCK_MODEL_ID", "apac.amazon.nova-pro-v1:0");
   vi.stubEnv("BEDROCK_ENDPOINT", `http://127.0.0.1:${(server.address() as AddressInfo).port}`);
   ({ runInvestigation } = await import("@/lib/agent/run"));
   ({ createCase } = await import("@/lib/cases"));
@@ -68,7 +68,7 @@ beforeAll(async () => {
 
 afterAll(() => new Promise<void>((r) => server.close(() => r())));
 
-describe("investigation through the Bedrock Converse API", () => {
+describe("investigation through the Bedrock Converse API (Amazon Nova)", () => {
   it("verifies, rejects, guards and denies as designed", async () => {
     const { caseData } = await createCase(
       { title: "Potholes on the Kodathi road", description: "Several potholes along the road towards Mullur.", category: "pothole", lat: 12.894573, lng: 77.71297, locationSource: "map_pin", observedOn: "2026-09-15" },
@@ -77,10 +77,9 @@ describe("investigation through the Bedrock Converse API", () => {
     const done = await runInvestigation(caseData.id, () => {});
     const inv = done.investigation!;
 
-    expect(requests[0].path).toContain("/model/global.anthropic.claude-opus-5/converse");
+    expect(requests[0].path).toContain("/model/apac.amazon.nova-pro-v1%3A0/converse");
     const tools = (requests[0].body.toolConfig?.tools ?? []) as Array<{ toolSpec?: { name: string }; cachePoint?: unknown }>;
     const toolNames = tools.filter((t) => t.toolSpec).map((t) => t.toolSpec!.name);
-    expect(tools.some((t) => t.cachePoint)).toBe(true); // prompt caching is on
     expect(toolNames).toContain("record_claim");
     expect(toolNames).not.toContain("set_case_status");
 
