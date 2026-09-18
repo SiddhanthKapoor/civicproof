@@ -12,6 +12,7 @@ import type { Authority, Project } from "@/lib/corpus";
 import { fmtDate } from "@/lib/agent/finalize";
 import { parseDates } from "@/lib/agent/text";
 import type { RtiClock } from "@/lib/rti-clock";
+import { wordCount } from "@/lib/packet-text";
 
 export const PACKET_DISCLAIMER =
   "Draft prepared with CivicProof. It states only what the cited records say and what the reporter observed; it makes no allegation. Check every detail, add your contact information, and edit as needed before submitting. CivicProof has not sent this to any authority.";
@@ -185,16 +186,31 @@ export function buildComplaint(c: Case, project: Project | undefined, authority:
 export function buildRti(c: Case, project: Project | undefined, authority: Authority | undefined, now = new Date()): Packet {
   const inv = c.investigation;
   const where = c.location.locality ?? c.location.address ?? `${c.location.lat.toFixed(5)}, ${c.location.lng.toFixed(5)}`;
-  const work = project ? `"${project.name}"` : `road works on the stretch at ${where} (${c.location.lat.toFixed(5)}, ${c.location.lng.toFixed(5)})`;
+  const work = project ? `the work "${project.name}"` : `road works on the stretch at ${where} (${c.location.lat.toFixed(5)}, ${c.location.lng.toFixed(5)})`;
 
+  // Records for what the investigation could not verify come first, then records any works
+  // complaint benefits from.
   const requested = new Set<string>();
   for (const m of inv?.missing ?? []) if (m.requestableRecord) requested.add(m.requestableRecord);
-  // Records any works complaint benefits from, whether or not something is missing.
-  requested.add("Completion certificate and final bill");
-  requested.add("Quality control / third-party test reports for the work");
-  requested.add("Details of repairs carried out on this stretch after completion, including under defect liability, with dates");
+  if (![...requested].some((r) => /completion certificate/i.test(r))) requested.add("Completion certificate and final bill");
+  requested.add("Quality control / third-party test reports");
+  requested.add("Repairs carried out after completion, including under defect liability, with dates");
 
-  const items = [...requested].map((r, i) => `${i + 1}. Certified copy of: ${r}, in respect of ${work}.`);
+  // One subject (this work), and within the authority's word limit where its state rules set one
+  // (Karnataka rule 14: ordinarily 150 words). Records that do not fit are listed for a second application.
+  const opening = `Subject matter: records of ${work}.\n\nPlease provide certified copies of:`;
+  const closing = "If any of this is held by another public authority, please transfer this application under Section 6(3) and inform me.";
+  const limit = authority?.rti?.requestWordLimit;
+  const items: string[] = [];
+  const leftOut: string[] = [];
+  for (const r of requested) {
+    const next = [opening, ...items, `${items.length + 1}. ${r}.`, closing].join("\n");
+    if (limit && items.length > 0 && wordCount(next) > limit) leftOut.push(r);
+    else items.push(`${items.length + 1}. ${r}.`);
+  }
+  const ruleNote = limit
+    ? ` ${authority?.rti?.requestRule ?? `The state's RTI rules limit a request to about ${limit} words.`}${leftOut.length ? ` To stay within it, these were left out and can be asked for in a separate application: ${leftOut.join("; ")}.` : ""}`
+    : "";
 
   return {
     kind: "rti",
@@ -215,26 +231,22 @@ export function buildRti(c: Case, project: Project | undefined, authority: Autho
       {
         id: "information",
         heading: "Information sought",
-        body: `${items.join("\n")}\n\nIf any of this information is held by another public authority, please transfer this application under Section 6(3) and inform me.`,
+        body: [opening, ...items, "", closing].join("\n"),
       },
       {
         id: "fee",
         heading: "Fee",
-        body: `${authority?.rti?.fee ?? "I enclose the prescribed application fee."} [State the mode of payment.] If I am required to pay further fees for copies, please intimate the amount.`,
+        body: "I enclose the prescribed application fee. Mode of payment: [ ]. [If you hold a below-poverty-line card, say so and attach a copy instead of paying.] If further fees are payable for copies, please intimate the amount.",
       },
       {
         id: "declaration",
         heading: "Declaration",
-        body: "I am a citizen of India. The information sought relates to public works funded by public money.\n\nPlace: [ ]\nDate: [ ]\nSignature: [ ]",
-      },
-      {
-        id: "context",
-        heading: "Why this is being requested",
-        body: `Reference: CivicProof case ${c.id}, ${CATEGORY_LABELS[c.category].toLowerCase()} observed on ${fmtDate(c.observedOn)} at ${where}.${authority?.rti?.note ? `\n\nNote: ${authority.rti.note}` : ""}`,
+        body: "I am a citizen of India.\n\nPlace: [ ]\nDate: [ ]\nSignature: [ ]",
       },
     ],
-    disclaimer:
-      "Draft RTI application prepared with CivicProof. Check the correct Public Information Officer and fee rules for the authority before filing. A reply is due within 30 days of receipt (Section 7(1)); if none is received, a first appeal lies under Section 19(1).",
+    // No reasons section: Section 6(2) says an applicant need not give one. The case reference
+    // stays in the disclaimer, which is guidance for the reporter, not part of the request.
+    disclaimer: `Draft RTI application prepared with CivicProof for case ${c.id} (${CATEGORY_LABELS[c.category].toLowerCase()} observed on ${fmtDate(c.observedOn)}).${ruleNote}${authority?.rti?.fee ? ` ${authority.rti.fee}` : ""}${authority?.rti?.note ? ` ${authority.rti.note}` : ""} Check the correct Public Information Officer and fee rules for the authority before filing. A reply is due within 30 days of receipt (Section 7(1)); if none is received, a first appeal lies under Section 19(1). CivicProof has not sent this to any authority.`,
   };
 }
 

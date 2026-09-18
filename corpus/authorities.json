@@ -14,7 +14,9 @@
    "portalUrl": "https://rtionline.karnataka.gov.in",
    "fee": "The Karnataka RTI Rules prescribe a ₹10 application fee; applicants below the poverty line are exempt.",
    "note": "Karnataka's RTI Online portal accepts applications and first appeals for Government of Karnataka public authorities only.",
-   "sourceUrl": "https://rtionline.karnataka.gov.in/index.php?lan=E"
+   "sourceUrl": "https://rtionline.karnataka.gov.in/index.php?lan=E",
+   "requestWordLimit": 150,
+   "requestRule": "Karnataka Right to Information Rules, 2005, rule 14 (inserted in 2008): a request shall relate to one subject matter and shall not ordinarily exceed 150 words."
   }
  },
  {
@@ -33,7 +35,9 @@
    "portalUrl": "https://rtionline.karnataka.gov.in",
    "fee": "The Karnataka RTI Rules prescribe a ₹10 application fee; applicants below the poverty line are exempt.",
    "note": "The DPIU works under the state's rural roads agency, so the Karnataka RTI Online portal applies.",
-   "sourceUrl": "https://rtionline.karnataka.gov.in/index.php?lan=E"
+   "sourceUrl": "https://rtionline.karnataka.gov.in/index.php?lan=E",
+   "requestWordLimit": 150,
+   "requestRule": "Karnataka Right to Information Rules, 2005, rule 14 (inserted in 2008): a request shall relate to one subject matter and shall not ordinarily exceed 150 words."
   }
  },
  {
@@ -50,7 +54,9 @@
    "addressee": "The Public Information Officer, Bengaluru Smart City Limited",
    "portalUrl": "https://rtionline.karnataka.gov.in",
    "fee": "The Karnataka RTI Rules prescribe a ₹10 application fee; applicants below the poverty line are exempt.",
-   "sourceUrl": "https://rtionline.karnataka.gov.in/index.php?lan=E"
+   "sourceUrl": "https://rtionline.karnataka.gov.in/index.php?lan=E",
+   "requestWordLimit": 150,
+   "requestRule": "Karnataka Right to Information Rules, 2005, rule 14 (inserted in 2008): a request shall relate to one subject matter and shall not ordinarily exceed 150 words."
   }
  }
 ]

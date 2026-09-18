@@ -32,7 +32,7 @@ And naming a contractor wrongly is worse than not naming one: a Bengaluru road-c
 1. **Report**: a photo, a pin, a date. EXIF location and capture time are read in the browser; the file is fingerprinted with SHA-256. No account needed.
 2. **Locate**: the pin is matched against the alignments of public-works projects (official PMGSY GIS where it exists; clearly labelled OpenStreetMap traces where it doesn't). Near-ties are shown, not hidden.
 3. **Verify**: an agent reads the tender, award and completion records and records each fact *with a quotation*. A deterministic verifier checks the quotation against the document text and the value against the quotation. Anything it can't find is stored as **unverified**; disagreements are shown as **conflicts**.
-4. **Act**: next steps are derived only from verified facts: a repair request under the defect-liability period if the observation falls inside it, a complaint to the right office, and an RTI application listing exactly the records that are missing. Packets are editable and download as PDF.
+4. **Act**: next steps are derived only from verified facts: a repair request under the defect-liability period if the observation falls inside it, a complaint to the right office, and an RTI application listing exactly the records that are missing, kept to one subject and within the 150 words Karnataka's RTI rules ordinarily allow (rule 14); records that don't fit are listed for a second application. Packets are editable and download as PDF.
 5. **Track**: the reporter records where they sent it, the reference number and any reply. For an RTI application the case shows the statutory clock: reply due in 30 days (Section 7(1)); if none is recorded, a deemed refusal (Section 7(2)) and a drafted **first appeal** under Section 19(1), asking for the information free of charge (Section 7(6)).
 
 6. **Close the loop**: when the RTI reply arrives, the reporter adds it to the case. The file stays private; its text is extracted and the investigator can read and quote it on the next run, with quotes marked as coming from the reporter's upload.
@@ -125,6 +125,7 @@ See [.env.example](.env.example) for every setting.
 ```bash
 npm test            # 42 unit/integration tests (Vitest)
 npm run test:e2e    # 4 browser tests incl. an axe WCAG 2.1 AA audit (Playwright), against a running server
+                    # (they create cases: run that server with CIVICPROOF_DATA_DIR pointing at a scratch dir you've seeded)
 npm run check       # all of the above plus types and lint
 npm run eval        # scores the investigator against the 85 curated facts (set CIVICPROOF_PLANNER=bedrock to evaluate Claude)
 npm run typecheck

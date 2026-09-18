@@ -11,3 +11,8 @@ export function packetToText(p: Packet): string {
     p.disclaimer,
   ].join("\n");
 }
+
+/** Words as a reader would count them: runs of letters or digits, joined by hyphens, slashes or apostrophes. */
+export function wordCount(text: string): number {
+  return text.match(/[\p{L}\p{N}]+(?:['’/-][\p{L}\p{N}]+)*/gu)?.length ?? 0;
+}

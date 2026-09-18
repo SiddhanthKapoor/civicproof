@@ -6,6 +6,9 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { wordCount } from "@/lib/packet-text";
+import { buildRti } from "@/lib/packet";
+import { getCorpus } from "@/lib/corpus";
 
 let createCase: typeof import("@/lib/cases").createCase;
 let savePacket: typeof import("@/lib/cases").savePacket;
@@ -71,6 +74,25 @@ describe("investigation", () => {
 
     const rti = await savePacket(caseData.id, null, "rti");
     expect(rti.packet.subject).toContain("Section 6(1)");
+    // Karnataka RTI Rules, rule 14: one subject, ordinarily at most 150 words; no reasons (s.6(2)).
+    const request = rti.packet.sections.find((s) => s.id === "information")!.body;
+    expect(request).toMatch(/^Subject matter: records of the work/);
+    expect(wordCount(request)).toBeLessThanOrEqual(150);
+    expect(rti.packet.sections.map((s) => s.id)).not.toContain("context");
+    expect(rti.packet.disclaimer).toContain("rule 14");
+    // A case with many open questions: extra records move to a note for a second application.
+    const corpus = getCorpus();
+    const project = corpus.getProject("pmgsy-kn03-70")!;
+    const many = structuredClone(done);
+    many.investigation!.missing = Array.from({ length: 12 }, (_, i) => ({
+      field: "scope" as const,
+      label: `Record ${i + 1}`,
+      reason: "Not stated in the documents available to CivicProof.",
+      requestableRecord: `Measurement book entries for reach ${i + 1} of this work, with the dates of measurement and check-measurement`,
+    }));
+    const long = buildRti(many, project, corpus.getAuthority(project.agencyId));
+    expect(wordCount(long.sections.find((s) => s.id === "information")!.body)).toBeLessThanOrEqual(150);
+    expect(long.disclaimer).toMatch(/left out and can be asked for in a separate application: Measurement book entries for reach \d+/);
 
     // Only the owner can record a submission.
     await expect(recordTimeline(caseData.id, "wrong-key", { type: "complaint_submitted", channel: "CPGRAMS", date: "2026-09-16", packet: "complaint" })).rejects.toThrow();

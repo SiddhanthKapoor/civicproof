@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import type { Packet } from "@/lib/schemas";
-import { packetToText } from "@/lib/packet-text";
+import { packetToText, wordCount } from "@/lib/packet-text";
 import { Button, Container } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { useStoredOwnerKey } from "@/lib/use-owner-key";
@@ -216,6 +216,9 @@ export function PacketEditor({
                   onChange={(v) => update({ sections: doc.sections.map((x, j) => (j === i ? { ...x, body: v } : x)) })}
                   className={cn("mt-1.5 font-serif text-[15.5px] leading-[1.65] text-ink", s.id === "evidence" && "font-mono text-[12px] leading-relaxed text-ink-2")}
                 />
+                {kind === "rti" && s.id === "information" && (
+                  <p className="no-print mt-1 font-mono text-[11.5px] text-ink-3">{wordCount(s.body)} words</p>
+                )}
               </section>
             ))}
           </div>

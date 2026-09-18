@@ -64,6 +64,9 @@ export const AuthoritySchema = z.object({
       fee: z.string().optional(),
       note: z.string().optional(),
       sourceUrl: z.string().optional(),
+      /** State RTI rules that cap the length of a request, e.g. Karnataka rule 14 (150 words). */
+      requestWordLimit: z.number().int().positive().optional(),
+      requestRule: z.string().optional(),
     })
     .optional(),
   officer: z.string().optional(),
