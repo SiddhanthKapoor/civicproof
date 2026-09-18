@@ -41,6 +41,7 @@ export function CaseExplorer({
 
   const sel = cases.find((c) => c.id === selected);
   const mapCases = useMemo(() => shown.map((c) => ({ id: c.id, lat: c.lat, lng: c.lng, status: c.status })), [shown]);
+  const mapProjects = useMemo(() => projects.map((p) => ({ ...p, approx: p.kind !== "official" })), [projects]);
 
   return (
     <Container className="grid gap-5 pb-10 lg:grid-cols-[minmax(0,1fr)_420px]">
@@ -48,7 +49,7 @@ export function CaseExplorer({
         <MapView
           className="h-[420px] lg:h-full"
           cases={mapCases}
-          projects={projects}
+          projects={mapProjects}
           selectedCaseId={selected}
           highlightProjectId={sel?.projectId}
           center={focus}
@@ -67,7 +68,10 @@ export function CaseExplorer({
               </span>
             ))}
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-[3px] w-4 rounded-full bg-[#7f8fd9]" /> Project
+              <span className="h-[3px] w-4 rounded-full bg-[#6f80d6]" /> Project (official)
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-[3px] w-4 bg-[repeating-linear-gradient(90deg,#6f80d6_0_4px,transparent_4px_7px)]" /> Project (approximate)
             </span>
           </div>
         </div>

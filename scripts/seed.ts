@@ -93,7 +93,7 @@ async function main() {
     const { packet, ...report } = d;
     const { caseData } = await createCase(report, [], { demo: true, demoNote: NOTE, reportedAt: new Date(base + i * 7 * 60 * 1000).toISOString() });
     const done = await runInvestigation(caseData.id, () => {});
-    if (packet) await savePacket(caseData.id, null, "complaint");
+    if (packet) await savePacket(caseData.id, null, "complaint", undefined, { system: true });
     const inv = done.investigation!;
     console.log(
       `${caseData.id}  ${d.title}\n   → ${inv.selectedProjectId ?? "no project"} · ${inv.claims.filter((c) => c.verification === "verified").length} verified · ${inv.missing.length} missing · next: ${inv.nextActions[0]?.title ?? "—"}`,

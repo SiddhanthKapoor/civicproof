@@ -63,7 +63,7 @@ export default async function ProjectPage(props: PageProps<"/projects/[id]">) {
         </div>
         <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
           <div className="overflow-hidden rounded-2xl border border-rule bg-card shadow-card">
-            <ProjectMap project={{ id: project.id, name: project.name, geometry: project.geometry! }} cases={cases.map((c) => ({ id: c.id, lat: c.lat, lng: c.lng, status: c.status }))} />
+            <ProjectMap project={{ id: project.id, name: project.name, geometry: project.geometry!, approx: project.geometrySource.kind !== "official" }} cases={cases.map((c) => ({ id: c.id, lat: c.lat, lng: c.lng, status: c.status }))} />
             <p className="border-t border-rule px-4 py-3 text-[12.5px] text-ink-3">{project.geometrySource.note}</p>
           </div>
 

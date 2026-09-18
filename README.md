@@ -10,6 +10,15 @@ Built for **First Commit** (WeMakeDevs × AWS, 17–20 Sep 2026).
 
 ---
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Landing page](docs/screenshots/home.png) | ![Live investigation streaming from the agent](docs/screenshots/live.png) |
+| ![Evidence: each fact with its quoted source](docs/screenshots/evidence.png) | ![Two equally close projects, shown instead of guessed](docs/screenshots/candidates.png) |
+| ![Complaint packet editor](docs/screenshots/packet.png) | ![Source page with the quoted clause highlighted](docs/screenshots/source.png) |
+| ![Cases map with official and approximate alignments](docs/screenshots/cases-map.png) | ![Architecture](docs/screenshots/architecture.png) |
+
 ## The problem
 
 Reporting a pothole is easy. Proving who owes the repair is not.
@@ -24,7 +33,7 @@ And naming a contractor wrongly is worse than not naming one: a Bengaluru road-c
 2. **Locate**: the pin is matched against the alignments of public-works projects (official PMGSY GIS where it exists; clearly labelled OpenStreetMap traces where it doesn't). Near-ties are shown, not hidden.
 3. **Verify**: an agent reads the tender, award and completion records and records each fact *with a quotation*. A deterministic verifier checks the quotation against the document text and the value against the quotation. Anything it can't find is stored as **unverified**; disagreements are shown as **conflicts**.
 4. **Act**: next steps are derived only from verified facts: a repair request under the defect-liability period if the observation falls inside it, a complaint to the right office, and an RTI application listing exactly the records that are missing. Packets are editable and download as PDF.
-5. **Track**: the reporter records where they sent it, the reference number and any reply. RTI replies are due in 30 days (Section 7(1)), and the timeline shows the date.
+5. **Track**: the reporter records where they sent it, the reference number and any reply. For an RTI application the case shows the statutory clock: reply due in 30 days (Section 7(1)); if none is recorded, a deemed refusal (Section 7(2)) and a drafted **first appeal** under Section 19(1), asking for the information free of charge (Section 7(6)).
 
 What it deliberately does **not** do: accuse anyone, invent a tender number, submit anything on your behalf, or mark a case resolved. The last is enforced by a Cedar policy, not by a prompt.
 

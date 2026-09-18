@@ -18,7 +18,7 @@ export default async function CasesPage() {
         <h1 className="mt-2 font-serif text-[40px] leading-[1.05] tracking-[-0.01em] sm:text-[52px]">Cases</h1>
         <p className="mt-3 max-w-2xl text-[16px] leading-relaxed text-ink-2">
           Each dot is a report. Blue lines are public works projects whose records are in the corpus: solid lines follow official
-          PMGSY geometry, the rest are traced from OpenStreetMap by road name.
+          PMGSY geometry; dashed lines are traced from OpenStreetMap by road name and are approximate.
         </p>
       </Container>
       <CaseExplorer cases={cases} projects={projects} />

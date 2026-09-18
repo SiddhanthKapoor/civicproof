@@ -17,6 +17,8 @@ export interface MapProject {
   id: string;
   name: string;
   geometry: GeoJSON.Geometry;
+  /** Approximate alignment (e.g. traced from OpenStreetMap): drawn dashed. */
+  approx?: boolean;
 }
 
 const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
@@ -111,16 +113,24 @@ export function MapView({
         tintBaseMap(map);
         map.addSource("projects", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
         map.addLayer({ id: "project-casing", type: "line", source: "projects", paint: { "line-color": "#ffffff", "line-width": ["interpolate", ["linear"], ["zoom"], 11, 4, 16, 12], "line-opacity": 0.9 }, layout: { "line-cap": "round", "line-join": "round" } });
+        const lineColor = ["case", ["boolean", ["get", "hl"], false], "#2542c8", "#6f80d6"] as unknown as string;
+        const lineWidth = ["interpolate", ["linear"], ["zoom"], 11, 2.2, 16, 7] as unknown as number;
+        const lineOpacity = ["case", ["boolean", ["get", "hl"], false], 0.95, 0.7] as unknown as number;
         map.addLayer({
           id: "project-line",
           type: "line",
           source: "projects",
-          paint: {
-            "line-color": ["case", ["boolean", ["get", "hl"], false], "#2542c8", "#7f8fd9"],
-            "line-width": ["interpolate", ["linear"], ["zoom"], 11, 2, 16, 7],
-            "line-opacity": ["case", ["boolean", ["get", "hl"], false], 0.95, 0.6],
-          },
+          filter: ["!", ["boolean", ["get", "approx"], false]],
+          paint: { "line-color": lineColor, "line-width": lineWidth, "line-opacity": lineOpacity },
           layout: { "line-cap": "round", "line-join": "round" },
+        });
+        map.addLayer({
+          id: "project-line-approx",
+          type: "line",
+          source: "projects",
+          filter: ["boolean", ["get", "approx"], false],
+          paint: { "line-color": lineColor, "line-width": lineWidth, "line-opacity": lineOpacity, "line-dasharray": [1.6, 1.2] },
+          layout: { "line-join": "round" },
         });
         map.addLayer({ id: "project-point", type: "circle", source: "projects", filter: ["==", ["geometry-type"], "Point"], paint: { "circle-radius": 7, "circle-color": "#2542c8", "circle-opacity": 0.25, "circle-stroke-color": "#2542c8", "circle-stroke-width": 1.5 } });
 
@@ -172,7 +182,7 @@ export function MapView({
     if (!ready || !map) return;
     (map.getSource("projects") as GeoJSONSource).setData({
       type: "FeatureCollection",
-      features: projects.map((p) => ({ type: "Feature", geometry: p.geometry, properties: { id: p.id, name: p.name, hl: p.id === highlightProjectId } })),
+      features: projects.map((p) => ({ type: "Feature", geometry: p.geometry, properties: { id: p.id, name: p.name, hl: p.id === highlightProjectId, approx: Boolean(p.approx) } })),
     });
     (map.getSource("cases") as GeoJSONSource).setData({
       type: "FeatureCollection",

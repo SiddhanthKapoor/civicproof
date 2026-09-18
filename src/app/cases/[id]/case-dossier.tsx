@@ -206,7 +206,7 @@ export function CaseDossier({ initial, projects }: { initial: PublicCase; projec
   const canRun = !live.running && (caseData.timeline.filter((e) => e.type === "investigation_started").length < 5);
 
   const mapCases = useMemo(() => [{ id: caseData.id, lat: caseData.location.lat, lng: caseData.location.lng, status: caseData.status }], [caseData.id, caseData.location.lat, caseData.location.lng, caseData.status]);
-  const mapProjects = useMemo(() => projects.map((p) => ({ id: p.id, name: p.name, geometry: p.geometry })), [projects]);
+  const mapProjects = useMemo(() => projects.map((p) => ({ id: p.id, name: p.name, geometry: p.geometry, approx: p.geometryKind !== "official" })), [projects]);
 
   return (
     <div className="pb-10">
@@ -317,7 +317,17 @@ export function CaseDossier({ initial, projects }: { initial: PublicCase; projec
           </div>
 
           <div className="overflow-hidden rounded-2xl border border-rule bg-card shadow-card">
-            <MapView className="h-[260px]" cases={mapCases} projects={mapProjects} selectedCaseId={caseData.id} highlightProjectId={inv?.selectedProjectId} label="Report location and nearby projects" />
+            <MapView
+              className="h-[260px]"
+              cases={mapCases}
+              projects={mapProjects}
+              selectedCaseId={caseData.id}
+              highlightProjectId={inv?.selectedProjectId}
+              center={{ lat: caseData.location.lat, lng: caseData.location.lng }}
+              zoom={15}
+              fitToData={false}
+              label="Report location and nearby projects"
+            />
             <div className="space-y-1.5 border-t border-rule px-4 py-3 text-[12.5px]">
               <p className="font-mono text-ink-2">{caseData.location.lat.toFixed(6)}, {caseData.location.lng.toFixed(6)}</p>
               <p className="text-ink-3">Location {LOCATION_SOURCE[caseData.location.source]}.</p>

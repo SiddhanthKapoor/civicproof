@@ -5,7 +5,7 @@ import { getBlobs } from "@/lib/blob";
 import { draftPacket, ForbiddenError, PacketEditSchema } from "@/lib/cases";
 import { renderPacketPdf } from "@/lib/pdf";
 import { sha256Hex } from "@/lib/ids";
-import { handle, problem } from "@/lib/http";
+import { clientIp, handle, problem, rateLimited } from "@/lib/http";
 import { log } from "@/lib/log";
 import type { Packet } from "@/lib/schemas";
 
@@ -19,6 +19,7 @@ const Body = z.object({ kind: PacketKindSchema, edit: PacketEditSchema.optional(
  */
 export const POST = handle("cases.packet.pdf", async (req: Request, ctx: RouteContext<"/api/cases/[id]/packet/pdf">) => {
   const { id } = await ctx.params;
+  if (rateLimited(`pdf:${clientIp(req)}`, 40, 60 * 60 * 1000)) return problem(429, "Too many PDFs from this connection in the last hour.");
   const body = Body.parse(await req.json());
   const c = await getStore().get(id);
   if (!c) return problem(404, "Case not found.");

@@ -58,14 +58,19 @@ describe("investigation", () => {
     expect(inv.trace.some((t) => t.tool === "find_projects_near")).toBe(true);
 
     // Packets are built from verified facts only.
-    const withPacket = await savePacket(caseData.id, null, "complaint");
+    // A stranger gets a draft but nothing is written to the case.
+    const anon = await savePacket(caseData.id, null, "complaint");
+    expect(anon.persisted).toBe(false);
+    expect(anon.caseData.packets.complaint).toBeUndefined();
+
+    const { caseData: withPacket } = await savePacket(caseData.id, ownerKey, "complaint");
     const body = withPacket.packets.complaint!.sections.map((s) => s.body).join("\n");
     expect(body).toContain("Venkatarama Reddy .M");
     expect(body).toContain("KN03-70");
     expect(withPacket.status).toBe("case_prepared");
 
     const rti = await savePacket(caseData.id, null, "rti");
-    expect(rti.packets.rti!.subject).toContain("Section 6(1)");
+    expect(rti.packet.subject).toContain("Section 6(1)");
 
     // Only the owner can record a submission.
     await expect(recordTimeline(caseData.id, "wrong-key", { type: "complaint_submitted", channel: "CPGRAMS", date: "2026-09-16", packet: "complaint" })).rejects.toThrow();
@@ -104,10 +109,9 @@ describe("RTI first appeal", () => {
   it("drafts a Section 19(1) appeal only after an RTI submission is recorded", async () => {
     const { caseData, ownerKey } = await createCase({ ...base, title: "Appeal flow test case", lat: 12.894573, lng: 77.71297 }, []);
     await runInvestigation(caseData.id, () => {});
-    await expect(savePacket(caseData.id, null, "appeal")).rejects.toThrow(/RTI submission/);
+    await expect(savePacket(caseData.id, ownerKey, "appeal")).rejects.toThrow(/RTI submission/);
     await recordTimeline(caseData.id, ownerKey, { type: "complaint_submitted", channel: "RTI Online (Karnataka)", referenceNumber: "KA/RTI/2026/1", date: "2026-07-01", packet: "rti" });
-    const withAppeal = await savePacket(caseData.id, null, "appeal");
-    const appeal = withAppeal.packets.appeal!;
+    const { packet: appeal } = await savePacket(caseData.id, null, "appeal");
     expect(appeal.subject).toContain("Section 19(1)");
     const text = appeal.sections.map((s) => s.body).join("\n");
     expect(text).toContain("KA/RTI/2026/1");

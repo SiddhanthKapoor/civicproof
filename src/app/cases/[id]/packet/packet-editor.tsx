@@ -129,15 +129,19 @@ export function PacketEditor({
   async function regenerate() {
     setBusy("regen");
     try {
-      const r = await fetch(`/api/cases/${caseId}/packet`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ kind }) });
+      const r = await fetch(`/api/cases/${caseId}/packet`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-owner-key": ownerKey ?? "" },
+        body: JSON.stringify({ kind }),
+      });
       const d = await r.json();
       if (!r.ok) {
         setStatus(d.error);
         return;
       }
-      setDocs((x) => ({ ...x, [kind]: d.case.packets[kind] }));
+      setDocs((x) => ({ ...x, [kind]: d.packet }));
       setDirty((x) => ({ ...x, [kind]: false }));
-      setStatus("A fresh draft was generated from the current evidence.");
+      setStatus(d.persisted ? "A fresh draft was generated from the current evidence and saved to the case." : "A fresh draft was generated from the current evidence.");
     } finally {
       setBusy(null);
     }

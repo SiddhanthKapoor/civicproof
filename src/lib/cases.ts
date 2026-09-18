@@ -253,12 +253,26 @@ export const PacketEditSchema = z.object({
     .max(20),
 });
 
-/** Generates (or regenerates) a packet and stores it. Owners may save edited sections. */
-export async function savePacket(caseId: string, ownerKey: string | null, kind: PacketKind, edit?: z.infer<typeof PacketEditSchema>): Promise<Case> {
+/**
+ * Generates (or regenerates) a packet and stores it. Only the reporter's actions are persisted
+ * (plus `system` calls such as seeding): anyone else just receives a fresh draft, so strangers
+ * cannot add events to someone's case by clicking "rebuild".
+ */
+export async function savePacket(
+  caseId: string,
+  ownerKey: string | null,
+  kind: PacketKind,
+  edit?: z.infer<typeof PacketEditSchema>,
+  opts: { system?: boolean } = {},
+): Promise<{ caseData: Case; packet: Packet; persisted: boolean }> {
   const store = getStore();
   const current = await store.get(caseId);
   if (!current) throw new Error("Case not found");
   const isOwner = ownerKeyMatches(ownerKey, current.ownerKeyHash);
+
+  if (!edit && !isOwner && !opts.system) {
+    return { caseData: current, packet: draftPacket(current, kind), persisted: false };
+  }
 
   if (edit) {
     const d = authorize(isOwner ? { type: "Reporter", id: caseId } : { type: "Public", id: "anonymous" }, "EditPacket", caseId, { is_owner: isOwner });
@@ -266,9 +280,11 @@ export async function savePacket(caseId: string, ownerKey: string | null, kind: 
   }
 
   const at = new Date().toISOString();
-  return store.update(caseId, (c) => {
+  let saved: Packet | undefined;
+  const caseData = await store.update(caseId, (c) => {
     const base = draftPacket(c, kind);
     const packet: Packet = edit ? { ...base, addressedTo: edit.addressedTo, subject: edit.subject, sections: edit.sections, editedAt: at } : base;
+    saved = packet;
     const moveToPrepared =
       !edit && ["reported", "investigating", "evidence_found"].includes(c.status) &&
       authorize({ type: "Agent", id: "investigator" }, "ChangeStatus", caseId, { to_status: "case_prepared" }).allowed &&
@@ -289,4 +305,5 @@ export async function savePacket(caseId: string, ownerKey: string | null, kind: 
       ],
     };
   });
+  return { caseData, packet: saved!, persisted: true };
 }

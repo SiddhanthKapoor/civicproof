@@ -25,6 +25,8 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
+  // Absolute URLs for link previews; set SITE_URL to the deployed URL (e.g. the Function URL).
+  metadataBase: process.env.SITE_URL ? new URL(process.env.SITE_URL) : undefined,
   title: {
     default: "CivicProof — from a civic complaint to an evidence-backed case",
     template: "%s · CivicProof",

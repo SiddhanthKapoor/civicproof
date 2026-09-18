@@ -8,7 +8,7 @@ export function ProjectMap({
   project,
   cases,
 }: {
-  project: { id: string; name: string; geometry: GeoJSON.Geometry };
+  project: { id: string; name: string; geometry: GeoJSON.Geometry; approx?: boolean };
   cases: Array<{ id: string; lat: number; lng: number; status: string }>;
 }) {
   return <MapView className="h-[300px]" projects={[project]} highlightProjectId={project.id} cases={cases} label={`Alignment of ${project.name}`} />;
