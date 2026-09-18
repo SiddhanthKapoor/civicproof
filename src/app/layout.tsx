@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, Instrument_Sans, Newsreader } from "next/font/google";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { MotionProvider } from "@/components/motion-provider";
+import { ServiceWorker } from "@/components/pwa";
 import "./globals.css";
 
 const newsreader = Newsreader({
@@ -35,6 +36,7 @@ export const metadata: Metadata = {
   description:
     "Report a damaged road. CivicProof links it to the public works record for that spot, checks every fact against the official document, and drafts the complaint or RTI request.",
   applicationName: "CivicProof",
+  appleWebApp: { capable: true, title: "CivicProof", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
@@ -60,6 +62,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </main>
           <SiteFooter />
         </MotionProvider>
+        <ServiceWorker />
       </body>
     </html>
   );

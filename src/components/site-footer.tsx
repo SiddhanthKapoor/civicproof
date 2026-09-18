@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Mark } from "./brand";
+import { InstallApp } from "./pwa";
 
 export function SiteFooter() {
   return (
@@ -24,6 +25,7 @@ export function SiteFooter() {
             <li><Link className="hover:text-ink" href="/report">Report an issue</Link></li>
             <li><Link className="hover:text-ink" href="/cases">Explore cases</Link></li>
             <li><Link className="hover:text-ink" href="/sources">Official records</Link></li>
+            <InstallApp />
           </ul>
         </div>
         <div>
