@@ -1,0 +1,1451 @@
+[
+ {
+  "id": "pmgsy-kn03-70",
+  "name": "MRL11-Kodathi to Sulikunte Colony,Mullur Colony,Mullur Kachamaranahalli",
+  "roadNames": [
+   "Kodathi",
+   "Mullur",
+   "Sulikunte",
+   "Kachamaranahalli"
+  ],
+  "locality": "Bangalore(E) block, Bengaluru Urban district",
+  "city": "Bengaluru Urban",
+  "state": "Karnataka",
+  "agencyId": "pmgsy-dpiu-bengaluru-urban",
+  "categories": [
+   "road_damage",
+   "pothole",
+   "drainage"
+  ],
+  "geometrySource": {
+   "kind": "official",
+   "note": "Road alignment from GeoSadak (PMGSY GIS, PRCD 2022 snapshot, GODL-India), matched to OMMAS by package number and road name.",
+   "url": "https://github.com/datameet/pmgsy-geosadak"
+  },
+  "documents": [
+   "ommas-slr-pmgsy3-bangalore-urban",
+   "ommas-quality-grading-bangalore-urban",
+   "pmgsy-programme-guidelines"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "OMMAS lists PMGSY-III work KN03-70 as “MRL11-Kodathi to Sulikunte Colony,Mullur Colony,Mullur Kachamaranahalli”, an upgrade sanctioned in 2019-2020.",
+    "value": "MRL11-Kodathi to Sulikunte Colony,Mullur Colony,Mullur Kachamaranahalli",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Bangalore(E) KN03-70 2019 - 2020 ROAD MRL11-Kodathi to Sulikunte Colony,Mullur Colony,Mullur Kachamaranahalli"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "OMMAS package number KN03-70.",
+    "value": "KN03-70",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Bangalore(E) KN03-70 2019 - 2020 ROAD MRL11-Kodathi to Sulikunte Colony,Mullur Colony,Mullur Kachamaranahalli"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The programme implementation unit is recorded as “DPIU Of Bangalore u” (District Programme Implementation Unit, PMGSY, Bengaluru Urban).",
+    "value": "DPIU Of Bangalore u",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "5 Bangalore U DPIU Of Bangalore u Bangalore(E) KN03-70"
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "OMMAS lists the contractor for this work as “Venkatarama Reddy .M”.",
+    "value": "Venkatarama Reddy .M",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "364.29 152.84 4.250 0.000 4.250 268.89 Maintenance Regular PMGSY Venkatarama Reddy .M [29 Jun 2020]"
+     }
+    ],
+    "notes": "The date printed in brackets next to the name is not labelled in the report."
+   },
+   {
+    "field": "sanctioned_cost",
+    "text": "The sanction cost is recorded as 364.29 (₹ lakh); expenditure to date is 268.89 lakh.",
+    "value": "₹364.29 lakh",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "364.29 152.84 4.250 0.000 4.250 268.89"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "scope",
+    "text": "Upgrade of a 4.250 km road; 4.250 km recorded as completed.",
+    "value": "4.250 km",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "364.29 152.84 4.250 0.000 4.250 268.89"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "work_status",
+    "text": "OMMAS records the stage of progress as “Maintenance”.",
+    "value": "Maintenance",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "364.29 152.84 4.250 0.000 4.250 268.89 Maintenance Regular PMGSY"
+     }
+    ]
+   },
+   {
+    "field": "maintenance_cost",
+    "text": "The “5 Years Maintenance Cost Due” column shows 36.49 (₹ lakh).",
+    "value": "₹36.49 lakh",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "36.49 Financial: 27-05 -2024"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "completion_date",
+    "text": "The completion date column reads “Financial: 27-05-2024 / Physical: 05-03-2022”; the physical completion date is 05-03-2022.",
+    "value": "05-03-2022",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "36.49 Financial: 27-05 -2024/ Physical: 05-03-2022"
+     }
+    ]
+   },
+   {
+    "field": "defect_liability",
+    "text": "The PMGSY Programme Guidelines (para 17.2) state that all PMGSY roads are covered by 5-year maintenance contracts entered into with the same contractor as the construction contract.",
+    "value": "5 years",
+    "citations": [
+     {
+      "docId": "pmgsy-programme-guidelines",
+      "page": 40,
+      "quote": "All PMGSY roads (including associated Main Rural Links / Through Routes of PMGSY link routes) will be covered by 5-year maintenance contracts, (see Para 8.6) to be entered into along with the construction contract, with the same contractor, as per the Standard Bidding Document."
+     }
+    ],
+    "notes": "Programme-wide rule in the PMGSY Programme Guidelines; the specific contract for this road was not available to confirm its terms."
+   },
+   {
+    "field": "quality_grade",
+    "text": "Quality monitoring, Jan 2021 to Sep 2026: 1 National Quality Monitor inspection, last graded “Satisfactory”; 3 State Quality Monitor inspections, last graded “Satisfactory”.",
+    "value": "Satisfactory",
+    "citations": [
+     {
+      "docId": "ommas-quality-grading-bangalore-urban",
+      "page": 1,
+      "quote": "KN03-70 MRL11-Kodathi to Sulikunte Colony,Mullur Colony,Mullur Kachamaranahalli 4.250 1 Satisfactory 3 Satisfactory"
+     }
+    ]
+   }
+  ],
+  "summary": "PMGSY-III road upgrade KN03-70, 4.250 km, in its 5-year maintenance stage."
+ },
+ {
+  "id": "pmgsy-kn03-63",
+  "name": "MRL03-Hebbagodi to Bangalore South Tq Border via Thirupalya, Hulimangala, S Bingipura, Hullahalli and C K Palya",
+  "roadNames": [
+   "Hebbagodi",
+   "Hulimangala",
+   "Thirupalya",
+   "Bingipura",
+   "Hullahalli"
+  ],
+  "locality": "Anekal block, Bengaluru Urban district",
+  "city": "Bengaluru Urban",
+  "state": "Karnataka",
+  "agencyId": "pmgsy-dpiu-bengaluru-urban",
+  "categories": [
+   "road_damage",
+   "pothole",
+   "drainage"
+  ],
+  "geometrySource": {
+   "kind": "official",
+   "note": "Road alignment from GeoSadak (PMGSY GIS, PRCD 2022 snapshot, GODL-India), matched to OMMAS by package number and road name.",
+   "url": "https://github.com/datameet/pmgsy-geosadak"
+  },
+  "documents": [
+   "ommas-slr-pmgsy3-bangalore-urban",
+   "ommas-quality-grading-bangalore-urban",
+   "pmgsy-programme-guidelines"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "OMMAS lists PMGSY-III work KN03-63 as “MRL03-Hebbagodi to Bangalore South Tq Border via Thirupalya, Hulimangala, S Bingipura, Hullahalli and C K Palya”, an upgrade sanctioned in 2019-2020.",
+    "value": "MRL03-Hebbagodi to Bangalore South Tq Border via Thirupalya, Hulimangala, S Bingipura, Hullahalli and C K Palya",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Anekal KN03-63 2019 - 2020 ROAD MRL03-Hebbagodi to Bangalore South Tq Border via Thirupalya, Hulimangala, S Bingipura, Hullahalli and C K Palya"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "OMMAS package number KN03-63.",
+    "value": "KN03-63",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Anekal KN03-63 2019 - 2020 ROAD MRL03-Hebbagodi to Bangalore South Tq Border via Thirupalya, Hulimangala, S Bingipura, Hullahalli and C K Palya"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The programme implementation unit is recorded as “DPIU Of Bangalore u” (District Programme Implementation Unit, PMGSY, Bengaluru Urban).",
+    "value": "DPIU Of Bangalore u",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "3 Bangalore U DPIU Of Bangalore u Anekal KN03-63"
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "OMMAS lists the contractor for this work as “Prakash Reddy V”.",
+    "value": "Prakash Reddy V",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "666.60 275.99 8.400 0.000 8.400 619.75 Maintenance Regular PMGSY Prakash Reddy V [08 Jul 2020]"
+     }
+    ],
+    "notes": "The date printed in brackets next to the name is not labelled in the report."
+   },
+   {
+    "field": "sanctioned_cost",
+    "text": "The sanction cost is recorded as 666.60 (₹ lakh); expenditure to date is 619.75 lakh.",
+    "value": "₹666.60 lakh",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "666.60 275.99 8.400 0.000 8.400 619.75"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "scope",
+    "text": "Upgrade of a 8.400 km road; 8.400 km recorded as completed.",
+    "value": "8.400 km",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "666.60 275.99 8.400 0.000 8.400 619.75"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "work_status",
+    "text": "OMMAS records the stage of progress as “Maintenance”.",
+    "value": "Maintenance",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "666.60 275.99 8.400 0.000 8.400 619.75 Maintenance Regular PMGSY"
+     }
+    ]
+   },
+   {
+    "field": "maintenance_cost",
+    "text": "The “5 Years Maintenance Cost Due” column shows 49.43 (₹ lakh).",
+    "value": "₹49.43 lakh",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "49.43 Financial: 10-02 -2025"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "completion_date",
+    "text": "The completion date column reads “Financial: 10-02-2025 / Physical: 22-04-2022”; the physical completion date is 22-04-2022.",
+    "value": "22-04-2022",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "49.43 Financial: 10-02 -2025/ Physical: 22-04-2022"
+     }
+    ]
+   },
+   {
+    "field": "defect_liability",
+    "text": "The PMGSY Programme Guidelines (para 17.2) state that all PMGSY roads are covered by 5-year maintenance contracts entered into with the same contractor as the construction contract.",
+    "value": "5 years",
+    "citations": [
+     {
+      "docId": "pmgsy-programme-guidelines",
+      "page": 40,
+      "quote": "All PMGSY roads (including associated Main Rural Links / Through Routes of PMGSY link routes) will be covered by 5-year maintenance contracts, (see Para 8.6) to be entered into along with the construction contract, with the same contractor, as per the Standard Bidding Document."
+     }
+    ],
+    "notes": "Programme-wide rule in the PMGSY Programme Guidelines; the specific contract for this road was not available to confirm its terms."
+   },
+   {
+    "field": "quality_grade",
+    "text": "Quality monitoring, Jan 2021 to Sep 2026: 2 National Quality Monitor inspections, last graded “Unsatisfactory”; 5 State Quality Monitor inspections, last graded “Satisfactory”.",
+    "value": "Unsatisfactory",
+    "citations": [
+     {
+      "docId": "ommas-quality-grading-bangalore-urban",
+      "page": 1,
+      "quote": "KN03-63 MRL03-Hebbagodi to Bangalore South Tq Border via Thirupalya, Hulimangala, S Bingipura, Hullahalli and C K Palya 8.400 2 Unsatisfactory 5 Satisfactory"
+     }
+    ]
+   }
+  ],
+  "summary": "PMGSY-III road upgrade KN03-63, 8.400 km, in its 5-year maintenance stage."
+ },
+ {
+  "id": "pmgsy-kn03-69",
+  "name": "MRL14-MDR ( Byrathi) to MDR ( Angalapura)via Doddagubbi Colony, Doddagubbi.",
+  "roadNames": [
+   "Byrathi",
+   "Doddagubbi",
+   "Angalapura",
+   "Anagalapura"
+  ],
+  "locality": "Bangalore(E) block, Bengaluru Urban district",
+  "city": "Bengaluru Urban",
+  "state": "Karnataka",
+  "agencyId": "pmgsy-dpiu-bengaluru-urban",
+  "categories": [
+   "road_damage",
+   "pothole",
+   "drainage"
+  ],
+  "geometrySource": {
+   "kind": "official",
+   "note": "Road alignment from GeoSadak (PMGSY GIS, PRCD 2022 snapshot, GODL-India), matched to OMMAS by package number and road name.",
+   "url": "https://github.com/datameet/pmgsy-geosadak"
+  },
+  "documents": [
+   "ommas-slr-pmgsy3-bangalore-urban",
+   "ommas-quality-grading-bangalore-urban",
+   "pmgsy-programme-guidelines"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "OMMAS lists PMGSY-III work KN03-69 as “MRL14-MDR ( Byrathi) to MDR ( Angalapura)via Doddagubbi Colony, Doddagubbi.”, an upgrade sanctioned in 2019-2020.",
+    "value": "MRL14-MDR ( Byrathi) to MDR ( Angalapura)via Doddagubbi Colony, Doddagubbi.",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Bangalore(E) KN03-69 2019 - 2020 ROAD MRL14-MDR ( Byrathi) to MDR ( Angalapura)via Doddagubbi Colony, Doddagubbi."
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "OMMAS package number KN03-69.",
+    "value": "KN03-69",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Bangalore(E) KN03-69 2019 - 2020 ROAD MRL14-MDR ( Byrathi) to MDR ( Angalapura)via Doddagubbi Colony, Doddagubbi."
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The programme implementation unit is recorded as “DPIU Of Bangalore u” (District Programme Implementation Unit, PMGSY, Bengaluru Urban).",
+    "value": "DPIU Of Bangalore u",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "4 Bangalore U DPIU Of Bangalore u Bangalore(E) KN03-69"
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "OMMAS lists the contractor for this work as “Venkatarama Reddy .M”.",
+    "value": "Venkatarama Reddy .M",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "248.36 106.42 3.500 0.000 3.500 210.49 Maintenance Regular PMGSY Venkatarama Reddy .M [29 Jun 2020]"
+     }
+    ],
+    "notes": "The date printed in brackets next to the name is not labelled in the report."
+   },
+   {
+    "field": "sanctioned_cost",
+    "text": "The sanction cost is recorded as 248.36 (₹ lakh); expenditure to date is 210.49 lakh.",
+    "value": "₹248.36 lakh",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "248.36 106.42 3.500 0.000 3.500 210.49"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "scope",
+    "text": "Upgrade of a 3.500 km road; 3.500 km recorded as completed.",
+    "value": "3.500 km",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "248.36 106.42 3.500 0.000 3.500 210.49"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "work_status",
+    "text": "OMMAS records the stage of progress as “Maintenance”.",
+    "value": "Maintenance",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "248.36 106.42 3.500 0.000 3.500 210.49 Maintenance Regular PMGSY"
+     }
+    ]
+   },
+   {
+    "field": "maintenance_cost",
+    "text": "The “5 Years Maintenance Cost Due” column shows 33.55 (₹ lakh).",
+    "value": "₹33.55 lakh",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "33.55 Financial: 27-05 -2024"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "completion_date",
+    "text": "The completion date column reads “Financial: 27-05-2024 / Physical: 05-03-2022”; the physical completion date is 05-03-2022.",
+    "value": "05-03-2022",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "33.55 Financial: 27-05 -2024/ Physical: 05-03-2022"
+     }
+    ]
+   },
+   {
+    "field": "defect_liability",
+    "text": "The PMGSY Programme Guidelines (para 17.2) state that all PMGSY roads are covered by 5-year maintenance contracts entered into with the same contractor as the construction contract.",
+    "value": "5 years",
+    "citations": [
+     {
+      "docId": "pmgsy-programme-guidelines",
+      "page": 40,
+      "quote": "All PMGSY roads (including associated Main Rural Links / Through Routes of PMGSY link routes) will be covered by 5-year maintenance contracts, (see Para 8.6) to be entered into along with the construction contract, with the same contractor, as per the Standard Bidding Document."
+     }
+    ],
+    "notes": "Programme-wide rule in the PMGSY Programme Guidelines; the specific contract for this road was not available to confirm its terms."
+   },
+   {
+    "field": "quality_grade",
+    "text": "Quality monitoring, Jan 2021 to Sep 2026: 1 National Quality Monitor inspection, last graded “Required Improvement”; 6 State Quality Monitor inspections, last graded “Satisfactory”.",
+    "value": "Required Improvement",
+    "citations": [
+     {
+      "docId": "ommas-quality-grading-bangalore-urban",
+      "page": 1,
+      "quote": "KN03-69 MRL14-MDR ( Byrathi) to MDR ( Angalapura)via Doddagubbi Colony, Doddagubbi. 3.500 1 Required Improvement 6 Satisfactory"
+     }
+    ]
+   }
+  ],
+  "summary": "PMGSY-III road upgrade KN03-69, 3.500 km, in its 5-year maintenance stage."
+ },
+ {
+  "id": "pmgsy-kn03-62",
+  "name": "T02-Chikkabanavara (SH-02) to Nagadasanahalli Via Ganigarahalli, Kasaghattapura, Mylappanahalli, Madappanahalli, Itgalapura, Adde, Sadenahalli, Adiganahalli and Rajanukunte",
+  "roadNames": [
+   "Chikkabanavara",
+   "Nagadasanahalli",
+   "Ganigarahalli",
+   "Rajanukunte",
+   "Madappanahalli"
+  ],
+  "locality": "Bangalore(N) block, Bengaluru Urban district",
+  "city": "Bengaluru Urban",
+  "state": "Karnataka",
+  "agencyId": "pmgsy-dpiu-bengaluru-urban",
+  "categories": [
+   "road_damage",
+   "pothole",
+   "drainage"
+  ],
+  "geometrySource": {
+   "kind": "official",
+   "note": "Road alignment from GeoSadak (PMGSY GIS, PRCD 2022 snapshot, GODL-India), matched to OMMAS by package number and road name.",
+   "url": "https://github.com/datameet/pmgsy-geosadak"
+  },
+  "documents": [
+   "ommas-slr-pmgsy3-bangalore-urban",
+   "ommas-quality-grading-bangalore-urban",
+   "pmgsy-programme-guidelines"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "OMMAS lists PMGSY-III work KN03-62 as “T02-Chikkabanavara (SH-02) to Nagadasanahalli Via Ganigarahalli, Kasaghattapura, Mylappanahalli, Madappanahalli, Itgalapura, Adde, Sadenahalli, Adiganahalli and Rajanukunte”, an upgrade sanctioned in 2019-2020.",
+    "value": "T02-Chikkabanavara (SH-02) to Nagadasanahalli Via Ganigarahalli, Kasaghattapura, Mylappanahalli, Madappanahalli, Itgalapura, Adde, Sadenahalli, Adiganahalli and Rajanukunte",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 3,
+      "quote": "Bangalore(N) KN03-62 2019 - 2020 ROAD T02-Chikkabanavara (SH-02) to Nagadasanahalli Via Ganigarahalli, Kasaghattapura, Mylappanahalli, Madappanahalli, Itgalapura, Adde, Sadenahalli, Adiganahalli and Rajanukunte"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "OMMAS package number KN03-62.",
+    "value": "KN03-62",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 3,
+      "quote": "Bangalore(N) KN03-62 2019 - 2020 ROAD T02-Chikkabanavara (SH-02) to Nagadasanahalli Via Ganigarahalli, Kasaghattapura, Mylappanahalli, Madappanahalli, Itgalapura, Adde, Sadenahalli, Adiganahalli and Rajanukunte"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The programme implementation unit is recorded as “DPIU Of Bangalore u” (District Programme Implementation Unit, PMGSY, Bengaluru Urban).",
+    "value": "DPIU Of Bangalore u",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 3,
+      "quote": "8 Bangalore U DPIU Of Bangalore u Bangalore(N) KN03-62"
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "OMMAS lists the contractor as “M/s. Ganesh Enterprises Sri K B Ramesh”.",
+    "value": "M/s. Ganesh Enterprises",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 3,
+      "quote": "1,617.40 671.12 19.730 0.000 21.700 1,486.90 Maintenance Regular PMGSY M/s. Ganesh Enterprises Sri K B Ramesh [04 Sep 2020]"
+     }
+    ],
+    "notes": "The date printed in brackets next to the name is not labelled in the report."
+   },
+   {
+    "field": "sanctioned_cost",
+    "text": "The sanction cost is recorded as 1,617.40 (₹ lakh); expenditure to date is 1,486.90 lakh.",
+    "value": "₹1,617.40 lakh",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 3,
+      "quote": "1,617.40 671.12 19.730 0.000 21.700 1,486.90"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "scope",
+    "text": "Upgrade of a 19.730 km road; 21.700 km recorded as completed.",
+    "value": "19.730 km",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 3,
+      "quote": "1,617.40 671.12 19.730 0.000 21.700 1,486.90"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "work_status",
+    "text": "OMMAS records the stage of progress as “Maintenance”.",
+    "value": "Maintenance",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 3,
+      "quote": "1,617.40 671.12 19.730 0.000 21.700 1,486.90 Maintenance Regular PMGSY"
+     }
+    ]
+   },
+   {
+    "field": "maintenance_cost",
+    "text": "The “5 Years Maintenance Cost Due” column shows 116.15 (₹ lakh).",
+    "value": "₹116.15 lakh",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 3,
+      "quote": "116.15 Financial: 01-07 -2024"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "completion_date",
+    "text": "The completion date column reads “Financial: 01-07-2024 / Physical: 17-03-2023”; the physical completion date is 17-03-2023.",
+    "value": "17-03-2023",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 3,
+      "quote": "116.15 Financial: 01-07 -2024/ Physical: 17-03-2023"
+     }
+    ]
+   },
+   {
+    "field": "defect_liability",
+    "text": "The PMGSY Programme Guidelines (para 17.2) state that all PMGSY roads are covered by 5-year maintenance contracts entered into with the same contractor as the construction contract.",
+    "value": "5 years",
+    "citations": [
+     {
+      "docId": "pmgsy-programme-guidelines",
+      "page": 40,
+      "quote": "All PMGSY roads (including associated Main Rural Links / Through Routes of PMGSY link routes) will be covered by 5-year maintenance contracts, (see Para 8.6) to be entered into along with the construction contract, with the same contractor, as per the Standard Bidding Document."
+     }
+    ],
+    "notes": "Programme-wide rule in the PMGSY Programme Guidelines; the specific contract for this road was not available to confirm its terms."
+   },
+   {
+    "field": "quality_grade",
+    "text": "Quality monitoring, Jan 2021 to Sep 2026: 3 National Quality Monitor inspections, last graded “Required Improvement”; 10 State Quality Monitor inspections, last graded “Satisfactory”.",
+    "value": "Required Improvement",
+    "citations": [
+     {
+      "docId": "ommas-quality-grading-bangalore-urban",
+      "page": 2,
+      "quote": "KN03-62 T02-Chikkabanavara (SH-02) to Nagadasanahalli Via Ganigarahalli, Kasaghattapura, Mylappanahalli, Madappanahalli, Itgalapura, Adde, Sadenahalli, Adiganahalli and Rajanukunte 19.730 3 Required Improvement 10 Satisfactory"
+     }
+    ]
+   }
+  ],
+  "summary": "PMGSY-III road upgrade KN03-62, 19.730 km, in its 5-year maintenance stage."
+ },
+ {
+  "id": "pmgsy-kn03-65",
+  "name": "MRL12-Tharalu To Kaggalipura- Bannerughatta Road Via Thataguppe,Alakabelalu And Gutte palya.",
+  "roadNames": [
+   "Tharalu",
+   "Kaggalipura",
+   "Thataguppe",
+   "Alakabelalu",
+   "Gutte palya"
+  ],
+  "locality": "Bangalore(S) block, Bengaluru Urban district",
+  "city": "Bengaluru Urban",
+  "state": "Karnataka",
+  "agencyId": "pmgsy-dpiu-bengaluru-urban",
+  "categories": [
+   "road_damage",
+   "pothole",
+   "drainage"
+  ],
+  "geometrySource": {
+   "kind": "official",
+   "note": "Road alignment from GeoSadak (PMGSY GIS, PRCD 2022 snapshot, GODL-India), matched to OMMAS by package number and road name.",
+   "url": "https://github.com/datameet/pmgsy-geosadak"
+  },
+  "documents": [
+   "ommas-slr-pmgsy3-bangalore-urban",
+   "ommas-quality-grading-bangalore-urban",
+   "pmgsy-programme-guidelines"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "OMMAS lists PMGSY-III work KN03-65 as “MRL12-Tharalu To Kaggalipura- Bannerughatta Road Via Thataguppe,Alakabelalu And Gutte palya.”, an upgrade sanctioned in 2019-2020.",
+    "value": "MRL12-Tharalu To Kaggalipura- Bannerughatta Road Via Thataguppe,Alakabelalu And Gutte palya.",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 4,
+      "quote": "Bangalore(S) KN03-65 2019 - 2020 ROAD MRL12-Tharalu To Kaggalipura- Bannerughatta Road Via Thataguppe,Alakabelalu And Gutte palya."
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "OMMAS package number KN03-65.",
+    "value": "KN03-65",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 4,
+      "quote": "Bangalore(S) KN03-65 2019 - 2020 ROAD MRL12-Tharalu To Kaggalipura- Bannerughatta Road Via Thataguppe,Alakabelalu And Gutte palya."
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The programme implementation unit is recorded as “DPIU Of Bangalore u” (District Programme Implementation Unit, PMGSY, Bengaluru Urban).",
+    "value": "DPIU Of Bangalore u",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 4,
+      "quote": "10 Bangalore U DPIU Of Bangalore u Bangalore(S) KN03-65"
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "OMMAS lists the contractor for this work as “K.C Shivaram”.",
+    "value": "K.C Shivaram",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 4,
+      "quote": "494.71 205.38 6.260 0.000 5.650 425.36 Maintenance Regular PMGSY K.C Shivaram [08 Jul 2020]"
+     }
+    ],
+    "notes": "The date printed in brackets next to the name is not labelled in the report."
+   },
+   {
+    "field": "sanctioned_cost",
+    "text": "The sanction cost is recorded as 494.71 (₹ lakh); expenditure to date is 425.36 lakh.",
+    "value": "₹494.71 lakh",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 4,
+      "quote": "494.71 205.38 6.260 0.000 5.650 425.36"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "scope",
+    "text": "Upgrade of a 6.260 km road; 5.650 km recorded as completed.",
+    "value": "6.260 km",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 4,
+      "quote": "494.71 205.38 6.260 0.000 5.650 425.36"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "work_status",
+    "text": "OMMAS records the stage of progress as “Maintenance”.",
+    "value": "Maintenance",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 4,
+      "quote": "494.71 205.38 6.260 0.000 5.650 425.36 Maintenance Regular PMGSY"
+     }
+    ]
+   },
+   {
+    "field": "maintenance_cost",
+    "text": "The “5 Years Maintenance Cost Due” column shows 36.85 (₹ lakh).",
+    "value": "₹36.85 lakh",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 4,
+      "quote": "36.85 Financial: 16-03 -2024"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "completion_date",
+    "text": "The completion date column reads “Financial: 16-03-2024 / Physical: 09-10-2023”; the physical completion date is 09-10-2023.",
+    "value": "09-10-2023",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 4,
+      "quote": "36.85 Financial: 16-03 -2024/ Physical: 09-10-2023"
+     }
+    ]
+   },
+   {
+    "field": "defect_liability",
+    "text": "The PMGSY Programme Guidelines (para 17.2) state that all PMGSY roads are covered by 5-year maintenance contracts entered into with the same contractor as the construction contract.",
+    "value": "5 years",
+    "citations": [
+     {
+      "docId": "pmgsy-programme-guidelines",
+      "page": 40,
+      "quote": "All PMGSY roads (including associated Main Rural Links / Through Routes of PMGSY link routes) will be covered by 5-year maintenance contracts, (see Para 8.6) to be entered into along with the construction contract, with the same contractor, as per the Standard Bidding Document."
+     }
+    ],
+    "notes": "Programme-wide rule in the PMGSY Programme Guidelines; the specific contract for this road was not available to confirm its terms."
+   },
+   {
+    "field": "quality_grade",
+    "text": "Quality monitoring, Jan 2021 to Sep 2026: 2 National Quality Monitor inspections, last graded “Satisfactory”; 8 State Quality Monitor inspections, last graded “Satisfactory”.",
+    "value": "Satisfactory",
+    "citations": [
+     {
+      "docId": "ommas-quality-grading-bangalore-urban",
+      "page": 2,
+      "quote": "KN03-65 MRL12-Tharalu To Kaggalipura- Bannerughatta Road Via Thataguppe,Alakabelalu And Gutte palya. 6.260 2 Satisfactory 8 Satisfactory"
+     }
+    ]
+   }
+  ],
+  "summary": "PMGSY-III road upgrade KN03-65, 6.260 km, in its 5-year maintenance stage."
+ },
+ {
+  "id": "pmgsy-kn03-67",
+  "name": "MRL04-NH 07 (Chandapura) to SH 35 (Attibele) via Lakshmisagara, Allibommasandra, Guddahatti and Jigala",
+  "roadNames": [
+   "Chandapura",
+   "Attibele",
+   "Lakshmisagara",
+   "Allibommasandra",
+   "Guddahatti",
+   "Jigala"
+  ],
+  "locality": "Anekal block, Bengaluru Urban district",
+  "city": "Bengaluru Urban",
+  "state": "Karnataka",
+  "agencyId": "pmgsy-dpiu-bengaluru-urban",
+  "categories": [
+   "road_damage",
+   "pothole",
+   "drainage"
+  ],
+  "geometrySource": {
+   "kind": "official",
+   "note": "Road alignment from GeoSadak (PMGSY GIS, PRCD 2022 snapshot, GODL-India), matched to OMMAS by package number and road name.",
+   "url": "https://github.com/datameet/pmgsy-geosadak"
+  },
+  "documents": [
+   "ommas-slr-pmgsy3-bangalore-urban",
+   "ommas-quality-grading-bangalore-urban",
+   "pmgsy-programme-guidelines"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "OMMAS lists PMGSY-III work KN03-67 as “MRL04-NH 07 (Chandapura) to SH 35 (Attibele) via Lakshmisagara, Allibommasandra, Guddahatti and Jigala”, an upgrade sanctioned in 2019-2020.",
+    "value": "MRL04-NH 07 (Chandapura) to SH 35 (Attibele) via Lakshmisagara, Allibommasandra, Guddahatti and Jigala",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Anekal KN03-67 2019 - 2020 ROAD MRL04-NH 07 (Chandapura) to SH 35 (Attibele) via Lakshmisagara, Allibommasandra, Guddahatti and Jigala"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "OMMAS package number KN03-67.",
+    "value": "KN03-67",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Anekal KN03-67 2019 - 2020 ROAD MRL04-NH 07 (Chandapura) to SH 35 (Attibele) via Lakshmisagara, Allibommasandra, Guddahatti and Jigala"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The programme implementation unit is recorded as “DPIU Of Bangalore u” (District Programme Implementation Unit, PMGSY, Bengaluru Urban).",
+    "value": "DPIU Of Bangalore u",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "1 Bangalore U DPIU Of Bangalore u Anekal KN03-67"
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "OMMAS lists the contractor for this work as “Prakash Reddy V”.",
+    "value": "Prakash Reddy V",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "614.39 249.99 7.420 0.000 5.710 510.64 Maintenance Regular PMGSY Prakash Reddy V [08 Jul 2020]"
+     }
+    ],
+    "notes": "The date printed in brackets next to the name is not labelled in the report."
+   },
+   {
+    "field": "sanctioned_cost",
+    "text": "The sanction cost is recorded as 614.39 (₹ lakh); expenditure to date is 510.64 lakh.",
+    "value": "₹614.39 lakh",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "614.39 249.99 7.420 0.000 5.710 510.64"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "scope",
+    "text": "Upgrade of a 7.420 km road; 5.710 km recorded as completed.",
+    "value": "7.420 km",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "614.39 249.99 7.420 0.000 5.710 510.64"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "work_status",
+    "text": "OMMAS records the stage of progress as “Maintenance”.",
+    "value": "Maintenance",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "614.39 249.99 7.420 0.000 5.710 510.64 Maintenance Regular PMGSY"
+     }
+    ]
+   },
+   {
+    "field": "maintenance_cost",
+    "text": "The “5 Years Maintenance Cost Due” column shows 44.45 (₹ lakh).",
+    "value": "₹44.45 lakh",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "44.45 Financial: 25-02 -2026"
+     },
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "Note : All Costs are in Lakhs and All Lengths are in Kms."
+     }
+    ]
+   },
+   {
+    "field": "completion_date",
+    "text": "The completion date column reads “Financial: 25-02-2026 / Physical: 10-12-2025”; the physical completion date is 10-12-2025. Only 5.710 of 7.420 km is recorded as completed.",
+    "value": "10-12-2025",
+    "citations": [
+     {
+      "docId": "ommas-slr-pmgsy3-bangalore-urban",
+      "page": 1,
+      "quote": "44.45 Financial: 25-02 -2026/ Physical: 10-12-2025"
+     }
+    ]
+   },
+   {
+    "field": "defect_liability",
+    "text": "The PMGSY Programme Guidelines (para 17.2) state that all PMGSY roads are covered by 5-year maintenance contracts entered into with the same contractor as the construction contract.",
+    "value": "5 years",
+    "citations": [
+     {
+      "docId": "pmgsy-programme-guidelines",
+      "page": 40,
+      "quote": "All PMGSY roads (including associated Main Rural Links / Through Routes of PMGSY link routes) will be covered by 5-year maintenance contracts, (see Para 8.6) to be entered into along with the construction contract, with the same contractor, as per the Standard Bidding Document."
+     }
+    ],
+    "notes": "Programme-wide rule in the PMGSY Programme Guidelines; the specific contract for this road was not available to confirm its terms."
+   },
+   {
+    "field": "quality_grade",
+    "text": "Quality monitoring, Jan 2021 to Sep 2026: 3 National Quality Monitor inspections, last graded “Satisfactory”; 4 State Quality Monitor inspections, last graded “Satisfactory”.",
+    "value": "Satisfactory",
+    "citations": [
+     {
+      "docId": "ommas-quality-grading-bangalore-urban",
+      "page": 1,
+      "quote": "KN03-67 MRL04-NH 07 (Chandapura) to SH 35 (Attibele) via Lakshmisagara, Allibommasandra, Guddahatti and Jigala 7.420 3 Satisfactory 4 Satisfactory"
+     }
+    ]
+   }
+  ],
+  "summary": "PMGSY-III road upgrade KN03-67, 7.420 km, in its 5-year maintenance stage."
+ },
+ {
+  "id": "bbmp-whitetopping-2023-24-pkg2",
+  "name": "White Topping of Selected Roads under GoK Grants 2023-24, Package-2 (BBMP)",
+  "roadNames": [
+   "Mahatma Gandhi Road",
+   "MG Road",
+   "M.G. Road",
+   "Residency Road",
+   "Lower Agram Road",
+   "Lower Agaram Road",
+   "Old Post Office Road",
+   "City Civil Court Road",
+   "Thimmaiah Road",
+   "Narayanapillai Street",
+   "Narayan Pillai Street",
+   "Trinity Circle"
+  ],
+  "locality": "Central Bengaluru (MG Road, Residency Road and four other roads)",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "agencyId": "bbmp",
+  "officer": "The Executive Engineer, Project Central-8, Bruhat Bengaluru Mahanagara Palike, N. R. Square, Bengaluru 560 002",
+  "categories": [
+   "road_damage",
+   "pothole",
+   "drainage",
+   "streetlight"
+  ],
+  "geometrySource": {
+   "kind": "openstreetmap",
+   "note": "Alignments traced from OpenStreetMap by the road names in the tender (© OpenStreetMap contributors, ODbL). The tender's key map defines the exact reaches and has not been digitised, so distances are approximate."
+  },
+  "documents": [
+   "kppp-bbmp-wt-pkg2-bid",
+   "kppp-bbmp-wt-pkg2-award",
+   "kppp-bbmp-wt-pkg2-tender"
+  ],
+  "summary": "BBMP white-topping package covering 7.38 km across six central Bengaluru roads, awarded on KPPP in February 2025.",
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "The tender is for the “Comprehensive Development of Selected Roads by Providing White Topping Under GoK Grants Package – 2”.",
+    "value": "Comprehensive Development of Selected Roads by Providing White Topping Under GoK Grants Package - 2",
+    "citations": [
+     {
+      "docId": "kppp-bbmp-wt-pkg2-bid",
+      "page": 1,
+      "quote": "TENDERS FOR THE WORK OF Comprehensive Development of Selected Roads by Providing White Topping Under GoK Grants Package – 2"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "KPPP tender number BBMP/2023-24/RD/WORK_INDENT1733; the tender notice reference is No. EE/PC–8/TEND/02/2023–24.",
+    "value": "BBMP/2023-24/RD/WORK_INDENT1733",
+    "citations": [
+     {
+      "docId": "kppp-bbmp-wt-pkg2-award",
+      "page": 1,
+      "quote": "tenderNumber: BBMP/2023-24/RD/WORK_INDENT1733"
+     },
+     {
+      "docId": "kppp-bbmp-wt-pkg2-bid",
+      "page": 3,
+      "quote": "No. EE/PC–8/TEND/02/2023–24 Office of the Executive Engineer Project Central–8"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The work was tendered by Bruhat Bengaluru Mahanagara Palike through its Executive Engineer, Project Central–8.",
+    "value": "Bruhat Bengaluru Mahanagara Palike",
+    "citations": [
+     {
+      "docId": "kppp-bbmp-wt-pkg2-tender",
+      "page": 1,
+      "quote": "tenderSchedule.deptName: Bruhat Bengaluru Mahanagara Palike"
+     },
+     {
+      "docId": "kppp-bbmp-wt-pkg2-bid",
+      "page": 3,
+      "quote": "The Executive Engineer (Project Central–8), BBMP, Bengaluru invites tenders from eligible Tenderers"
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "KPPP's selected-bid record for this tender names “SHARFUDDIN ALI (1)( OCEAN CONSTRUCTIONS INDIA PRIVATE LIMITED )” with bid status AWARDED.",
+    "value": "SHARFUDDIN ALI (1)( OCEAN CONSTRUCTIONS INDIA PRIVATE LIMITED )",
+    "citations": [
+     {
+      "docId": "kppp-bbmp-wt-pkg2-award",
+      "page": 1,
+      "quote": "supplierName: SHARFUDDIN ALI (1)( OCEAN CONSTRUCTIONS INDIA PRIVATE LIMITED )"
+     },
+     {
+      "docId": "kppp-bbmp-wt-pkg2-award",
+      "page": 1,
+      "quote": "bidStatus: AWARDED"
+     }
+    ],
+    "notes": "This is the procurement portal's award record. The signed contract agreement was not available."
+   },
+   {
+    "field": "contract_value",
+    "text": "The award record lists a negotiated value of Rs 1,07,57,95,478.14 (about ₹107.58 crore). The bid as submitted was Rs 1,24,11,03,936.96.",
+    "value": "Rs 1,07,57,95,478.14",
+    "citations": [
+     {
+      "docId": "kppp-bbmp-wt-pkg2-award",
+      "page": 1,
+      "quote": "negotiatedValue: 1.07579547814E9 (= 1075795478.14)"
+     },
+     {
+      "docId": "kppp-bbmp-wt-pkg2-award",
+      "page": 1,
+      "quote": "bidValue: 1241103936.96"
+     }
+    ],
+    "notes": "Negotiated bid value on KPPP; the final agreement value was not available."
+   },
+   {
+    "field": "estimated_cost",
+    "text": "The tender notice put the work to tender at an approximate amount of ₹10,255.00 lakh (about ₹102.55 crore).",
+    "value": "₹10255.00 lakh",
+    "citations": [
+     {
+      "docId": "kppp-bbmp-wt-pkg2-bid",
+      "page": 3,
+      "quote": "Grants Package - 2 10255.00 102.55"
+     },
+     {
+      "docId": "kppp-bbmp-wt-pkg2-bid",
+      "page": 3,
+      "quote": "Approx. Amount put to tender (Rs. In Lakh)"
+     }
+    ]
+   },
+   {
+    "field": "award_date",
+    "text": "KPPP records the tender as awarded on 20 Feb 2025 (08:29 UTC).",
+    "value": "2025-02-20",
+    "citations": [
+     {
+      "docId": "kppp-bbmp-wt-pkg2-tender",
+      "page": 22,
+      "quote": "tenderAwardDatesDTO.awardedDates: 1740040199819 (2025-02-20 08:29:59 UTC)"
+     }
+    ]
+   },
+   {
+    "field": "completion_period",
+    "text": "The tender notice sets a completion period of 11 months including the monsoon season.",
+    "value": "11 Months",
+    "citations": [
+     {
+      "docId": "kppp-bbmp-wt-pkg2-bid",
+      "page": 3,
+      "quote": "11 Months (including Monsoon Season)"
+     }
+    ]
+   },
+   {
+    "field": "roads_covered",
+    "text": "The tender covers six roads totalling 7.38 km, including Mahatma Gandhi Road from Mahatma Gandhi Circle to Trinity Circle (2.25 km) and Residency Road from Richmond Circle to MG Road (0.20 km).",
+    "value": "7.38 km",
+    "citations": [
+     {
+      "docId": "kppp-bbmp-wt-pkg2-bid",
+      "page": 7,
+      "quote": "Narayanapillai Street from St.Johns Road to Commercial Street 1.30 Total 7.38"
+     },
+     {
+      "docId": "kppp-bbmp-wt-pkg2-bid",
+      "page": 7,
+      "quote": "Name of the Road Project Length Considered In Km"
+     },
+     {
+      "docId": "kppp-bbmp-wt-pkg2-bid",
+      "page": 7,
+      "quote": "2 Mahatma Gandhi Road from Mahatma Gandhi Circle to Trinity Circle 2.25 3 Residency Road from Richmond circle to MG Road 0.20"
+     }
+    ]
+   },
+   {
+    "field": "scope",
+    "text": "The Contract Data lists the work as including milling of the existing bituminous surface, filling of potholes and cracks with bituminous macadam, white topping, footpaths, drains and street lighting.",
+    "citations": [
+     {
+      "docId": "kppp-bbmp-wt-pkg2-bid",
+      "page": 56,
+      "quote": "Milling of Existing Bituminous Surface; Providing and Laying of Bituminous Macadam for Filling of Potholes, Cracks, etc. and for Profile Correction as well; Providing and Laying of White Topping"
+     }
+    ]
+   },
+   {
+    "field": "defect_liability",
+    "text": "The Contract Data requires maintenance of all facilities developed for a defect liability period of 5 years.",
+    "value": "5 years",
+    "citations": [
+     {
+      "docId": "kppp-bbmp-wt-pkg2-bid",
+      "page": 56,
+      "quote": "Maintenance of all the Infrastructural Facilities developed for a Defect Liability Period of 5 years as per annexure-1."
+     }
+    ],
+    "notes": "Stated in the tender's Contract Data (Section 6). The executed agreement was not available to confirm it."
+   }
+  ]
+ },
+ {
+  "id": "bscl-tender-sure-phase-a-pkg7",
+  "name": "Tender SURE Phase A, Package 7 — RRM Road, Lavelle Road, Brigade Road (Bengaluru Smart City)",
+  "roadNames": [
+   "Lavelle Road",
+   "Brigade Road",
+   "Raja Ram Mohan Roy Road",
+   "RRM Road",
+   "Richmond Circle",
+   "Hudson Circle"
+  ],
+  "locality": "Central Bengaluru (Lavelle Road, Brigade Road, Raja Ram Mohan Roy Road)",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "agencyId": "bscl",
+  "categories": [
+   "road_damage",
+   "pothole",
+   "drainage",
+   "streetlight"
+  ],
+  "geometrySource": {
+   "kind": "openstreetmap",
+   "note": "Alignments traced from OpenStreetMap by the road names in the Smart City presentation (© OpenStreetMap contributors, ODbL). Approximate."
+  },
+  "documents": [
+   "bscl-tender-sure-status-2021",
+   "cag-karnataka-2025-11"
+  ],
+  "summary": "Smart City (Tender SURE) redevelopment of three central roads, reported as completed in the Feb 2021 status presentation.",
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "Bengaluru Smart City's Tender SURE Phase A, Package 7.",
+    "value": "Phase A Package 7",
+    "citations": [
+     {
+      "docId": "bscl-tender-sure-status-2021",
+      "page": 29,
+      "quote": "P H A S E A PA C K A G E 7"
+     }
+    ]
+   },
+   {
+    "field": "roads_covered",
+    "text": "Package 7 covers Raja Ram Mohan Roy Road (Richmond Circle to Hudson Circle, 1.00 km), Lavelle Road (M.G. Road to Richmond Circle, 1.38 km) and Brigade Road (M.G. Road to War Memorial Junction, 0.32 km).",
+    "citations": [
+     {
+      "docId": "bscl-tender-sure-status-2021",
+      "page": 2,
+      "quote": "Package 7 1. Raja Ram Mohan Roy Road from Richmond Circle to Hudson Circle. 1.00 19 2. Lavelle Road from M.G.Road to Richmond Circle. 1.38 20 3. Brigade Road from M.G.Road to War Memorial Junction. 0.32"
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "The presentation lists the Package 7 agency as “M/s B K Vinod Kumar”.",
+    "value": "M/s B K Vinod Kumar",
+    "citations": [
+     {
+      "docId": "bscl-tender-sure-status-2021",
+      "page": 29,
+      "quote": "Agency : M/s B K Vinod Kumar"
+     }
+    ],
+    "notes": "The presentation labels the contracted firm “Agency”."
+   },
+   {
+    "field": "contract_value",
+    "text": "The project status table gives an awarded amount of ₹35.41 crore against a DPR cost of ₹39.97 crore; the package summary gives a project cost of 35.41 Cr.",
+    "value": "₹35.41 crore",
+    "citations": [
+     {
+      "docId": "bscl-tender-sure-status-2021",
+      "page": 29,
+      "quote": "Project Cost : 35.41 Cr"
+     },
+     {
+      "docId": "bscl-tender-sure-status-2021",
+      "page": 8,
+      "quote": "Raja Ram Mohan Roy Road from Richmond Circle to Hudson Circle 1.000 39.97 35.41"
+     }
+    ]
+   },
+   {
+    "field": "work_order_date",
+    "text": "The work order is dated 01.03.2019; the site was handed over on 25.04.2019.",
+    "value": "01.03.2019",
+    "citations": [
+     {
+      "docId": "bscl-tender-sure-status-2021",
+      "page": 29,
+      "quote": "Work Order Date: 01.03.2019"
+     },
+     {
+      "docId": "bscl-tender-sure-status-2021",
+      "page": 29,
+      "quote": "Site Handover Date:25.04.2019"
+     }
+    ]
+   },
+   {
+    "field": "completion_period",
+    "text": "The package duration is given as 15 months.",
+    "value": "15 Months",
+    "citations": [
+     {
+      "docId": "bscl-tender-sure-status-2021",
+      "page": 29,
+      "quote": "Duration: 15 Months"
+     }
+    ]
+   },
+   {
+    "field": "work_status",
+    "text": "As of the presentation (dated 9 Feb 2021), the status of work is “Completed”, with financial progress of 99% (₹34.89 crore).",
+    "value": "Completed",
+    "citations": [
+     {
+      "docId": "bscl-tender-sure-status-2021",
+      "page": 29,
+      "quote": "Financial Progress: 99% (34.89Cr)"
+     },
+     {
+      "docId": "bscl-tender-sure-status-2021",
+      "page": 29,
+      "quote": "Status of Work: Completed"
+     }
+    ]
+   },
+   {
+    "field": "audit_finding",
+    "text": "CAG Report No. 11 of 2025 notes that the Tender SURE guidelines aimed to stop repeated civil works by utility agencies, and records that BBMP's construction of a foot bridge on a Bengaluru smart road without informing BenSCL violated those guidelines. The finding is not specific to Package 7.",
+    "citations": [
+     {
+      "docId": "cag-karnataka-2025-11",
+      "page": 28,
+      "quote": "The Tender SURE Guidelines aimed at solving issues of non-usability of road network due to frequent civil works undertaken by multiple utility agencies"
+     },
+     {
+      "docId": "cag-karnataka-2025-11",
+      "page": 28,
+      "quote": "construction of foot bridge by BBMP without informing BenSCL, violated SCM/Tender SURE guidelines"
+     }
+    ]
+   }
+  ]
+ }
+]

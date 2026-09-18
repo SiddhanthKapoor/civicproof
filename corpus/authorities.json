@@ -1,0 +1,56 @@
+[
+ {
+  "id": "bbmp",
+  "name": "Bruhat Bengaluru Mahanagara Palike (BBMP), now under the Greater Bengaluru Authority",
+  "shortName": "BBMP / GBA",
+  "jurisdiction": "Municipal roads in Bengaluru",
+  "grievance": {
+   "name": "Greater Bengaluru Authority (BBMP) civic grievance channels",
+   "url": "https://gba.karnataka.gov.in",
+   "note": "BBMP's Sahaaya websites failed TLS checks when tested on 18 Sep 2026. The 1533 civic helpline is widely cited for BBMP complaints; confirm the current channel on the GBA website."
+  },
+  "rti": {
+   "addressee": "The Public Information Officer, Bruhat Bengaluru Mahanagara Palike",
+   "portalUrl": "https://rtionline.karnataka.gov.in",
+   "fee": "The Karnataka RTI Rules prescribe a ₹10 application fee; applicants below the poverty line are exempt.",
+   "note": "Karnataka's RTI Online portal accepts applications and first appeals for Government of Karnataka public authorities only.",
+   "sourceUrl": "https://rtionline.karnataka.gov.in/index.php?lan=E"
+  }
+ },
+ {
+  "id": "pmgsy-dpiu-bengaluru-urban",
+  "name": "District Programme Implementation Unit (PMGSY), Bengaluru Urban",
+  "shortName": "PMGSY DPIU Bengaluru Urban",
+  "jurisdiction": "PMGSY rural roads in Bengaluru Urban district",
+  "officer": "The Executive Engineer, District Programme Implementation Unit (PMGSY), Bengaluru Urban",
+  "grievance": {
+   "name": "CPGRAMS (Department of Rural Development)",
+   "url": "https://pgportal.gov.in",
+   "note": "PMGSY is a centrally sponsored scheme of the Ministry of Rural Development; CPGRAMS accepts grievances and forwards state matters to the state government."
+  },
+  "rti": {
+   "addressee": "The Public Information Officer, District Programme Implementation Unit (PMGSY), Bengaluru Urban",
+   "portalUrl": "https://rtionline.karnataka.gov.in",
+   "fee": "The Karnataka RTI Rules prescribe a ₹10 application fee; applicants below the poverty line are exempt.",
+   "note": "The DPIU works under the state's rural roads agency, so the Karnataka RTI Online portal applies.",
+   "sourceUrl": "https://rtionline.karnataka.gov.in/index.php?lan=E"
+  }
+ },
+ {
+  "id": "bscl",
+  "name": "Bengaluru Smart City Limited (BSCL)",
+  "shortName": "Bengaluru Smart City",
+  "jurisdiction": "Smart City (Tender SURE) roads in central Bengaluru",
+  "grievance": {
+   "name": "Greater Bengaluru Authority (BBMP) civic grievance channels",
+   "url": "https://gba.karnataka.gov.in",
+   "note": "BSCL's website (smartcitybengaluru.in) did not resolve on 18 Sep 2026. Completed Smart City roads may now be maintained by BBMP/GBA; confirm which office maintains this stretch."
+  },
+  "rti": {
+   "addressee": "The Public Information Officer, Bengaluru Smart City Limited",
+   "portalUrl": "https://rtionline.karnataka.gov.in",
+   "fee": "The Karnataka RTI Rules prescribe a ₹10 application fee; applicants below the poverty line are exempt.",
+   "sourceUrl": "https://rtionline.karnataka.gov.in/index.php?lan=E"
+  }
+ }
+]

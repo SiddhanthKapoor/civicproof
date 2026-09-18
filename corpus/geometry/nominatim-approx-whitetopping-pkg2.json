@@ -1,0 +1,128 @@
+{
+ "Mahatma Gandhi Road, Bengaluru": {
+  "place_id": 253302823,
+  "licence": "Data \u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+  "osm_type": "node",
+  "osm_id": 6400857554,
+  "lat": "12.9755264",
+  "lon": "77.6067902",
+  "category": "railway",
+  "type": "station",
+  "place_rank": 30,
+  "importance": 0.2772938966131108,
+  "addresstype": "railway",
+  "name": "Mahatma Gandhi Road",
+  "display_name": "Mahatma Gandhi Road, Shanthala Nagar, Ashokanagar, Bengaluru Central City Corporation, Bengaluru, Bangalore North, Bengaluru Urban, Karnataka, 560001, India",
+  "boundingbox": [
+   "12.9705264",
+   "12.9805264",
+   "77.6017902",
+   "77.6117902"
+  ]
+ },
+ "Residency Road, Bengaluru": {
+  "place_id": 252399663,
+  "licence": "Data \u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+  "osm_type": "way",
+  "osm_id": 124316745,
+  "lat": "12.9728474",
+  "lon": "77.6087738",
+  "category": "highway",
+  "type": "primary",
+  "place_rank": 26,
+  "importance": 0.0534042778667887,
+  "addresstype": "road",
+  "name": "Residency Road",
+  "display_name": "Residency Road, Ashok Nagar, Ashokanagar, Bengaluru Central City Corporation, Bengaluru, Bangalore North, Bengaluru Urban, Karnataka, 560025, India",
+  "boundingbox": [
+   "12.9720722",
+   "12.9734712",
+   "77.6073585",
+   "77.6102613"
+  ]
+ },
+ "Thimmaiah Road, Bengaluru": {
+  "place_id": 252809099,
+  "licence": "Data \u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+  "osm_type": "way",
+  "osm_id": 1246410562,
+  "lat": "12.9900215",
+  "lon": "77.6033352",
+  "category": "highway",
+  "type": "tertiary",
+  "place_rank": 26,
+  "importance": 0.0534042778667887,
+  "addresstype": "road",
+  "name": "Thimmaiah Road",
+  "display_name": "Thimmaiah Road, Benson Town, Jayamahal, Bengaluru Central City Corporation, Bengaluru, Bangalore North, Bengaluru Urban, Karnataka, 560051, India",
+  "boundingbox": [
+   "12.9899897",
+   "12.9900532",
+   "77.6028643",
+   "77.6038061"
+  ]
+ },
+ "Narayan Pillai Street, Bengaluru": {
+  "place_id": 251871807,
+  "licence": "Data \u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+  "osm_type": "way",
+  "osm_id": 46703709,
+  "lat": "12.9889900",
+  "lon": "77.6098162",
+  "category": "highway",
+  "type": "tertiary",
+  "place_rank": 26,
+  "importance": 0.0534042778667887,
+  "addresstype": "road",
+  "name": "Narayan Pillai Street",
+  "display_name": "Narayan Pillai Street, Bharathi Nagar, Bengaluru Central City Corporation, Bengaluru, Bangalore North, Bengaluru Urban, Karnataka, 560001, India",
+  "boundingbox": [
+   "12.9858553",
+   "12.9921246",
+   "77.6091488",
+   "77.6104837"
+  ]
+ },
+ "Lower Agaram Road, Bengaluru": {
+  "place_id": 253168131,
+  "licence": "Data \u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+  "osm_type": "way",
+  "osm_id": 27946101,
+  "lat": "12.9595052",
+  "lon": "77.6201472",
+  "category": "highway",
+  "type": "secondary",
+  "place_rank": 26,
+  "importance": 0.0534042778667887,
+  "addresstype": "road",
+  "name": "Lower Agaram Road",
+  "display_name": "Lower Agaram Road, Vannarapete, Vannarpet, Bengaluru Central City Corporation, Bengaluru, Bangalore North, Bengaluru Urban, Karnataka, 560047, India",
+  "boundingbox": [
+   "12.9565828",
+   "12.9624708",
+   "77.6188971",
+   "77.6211715"
+  ]
+ },
+ "Lavelle Road, Bengaluru": {
+  "place_id": 252979369,
+  "licence": "Data \u00a9 OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+  "osm_type": "way",
+  "osm_id": 45308260,
+  "lat": "12.9722287",
+  "lon": "77.5986661",
+  "category": "highway",
+  "type": "tertiary",
+  "place_rank": 26,
+  "importance": 0.0534042778667887,
+  "addresstype": "road",
+  "name": "Lavelle Road",
+  "display_name": "Lavelle Road, D'Souza Layout, Shanthala Nagar, Ashokanagar, Bengaluru Central City Corporation, Bengaluru, Bangalore North, Bengaluru Urban, Karnataka, 560001, India",
+  "boundingbox": [
+   "12.9712399",
+   "12.9733756",
+   "77.5977446",
+   "77.5993501"
+  ]
+ }
+}

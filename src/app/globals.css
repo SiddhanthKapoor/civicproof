@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+/*
+ * CivicProof design tokens.
+ * Paper-and-ink editorial palette. Colour carries meaning, so it is used sparingly:
+ *   cobalt  – actions, links, AI suggestions
+ *   green   – verified (only)
+ *   amber   – partially verified / unverified / missing
+ *   red     – contradicted (only)
+ *   marker  – the highlighter behind quoted evidence
+ */
+:root {
+  --paper: #f6f4ef;
+  --paper-2: #efece5;
+  --paper-3: #e6e2d8;
+  --card: #fffefb;
+  --ink: #16181d;
+  --ink-2: #444954;
+  --ink-3: #737987;
+  --rule: #dedad0;
+  --rule-strong: #c9c3b5;
+
+  --accent: #2542c8;
+  --accent-ink: #1a2f94;
+  --accent-soft: #e8ecfb;
+
+  --verified: #17744a;
+  --verified-soft: #e3f1e9;
+  --partial: #a3620a;
+  --partial-soft: #f8eedc;
+  --unverified: #8a6d3b;
+  --missing: #8b8474;
+  --missing-soft: #efece4;
+  --contradicted: #b42318;
+  --contradicted-soft: #fbe9e7;
+
+  --marker: #fbe7a1;
+  --marker-strong: #f5d66b;
+
+  --shadow-card: 0 1px 0 rgba(22, 24, 29, 0.04), 0 1px 2px rgba(22, 24, 29, 0.06);
+  --shadow-lift: 0 1px 0 rgba(22, 24, 29, 0.04), 0 8px 24px -8px rgba(22, 24, 29, 0.16);
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-paper-3: var(--paper-3);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-verified: var(--verified);
+  --color-verified-soft: var(--verified-soft);
+  --color-partial: var(--partial);
+  --color-partial-soft: var(--partial-soft);
+  --color-missing: var(--missing);
+  --color-missing-soft: var(--missing-soft);
+  --color-contradicted: var(--contradicted);
+  --color-contradicted-soft: var(--contradicted-soft);
+  --color-marker: var(--marker);
+  --color-marker-strong: var(--marker-strong);
+
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", Menlo, monospace;
+
+  --shadow-card: var(--shadow-card);
+  --shadow-lift: var(--shadow-lift);
+
+  --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.8); }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+}
+
+::selection {
+  background: var(--marker);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Highlighter mark used for quoted evidence and the value inside it. */
+.mark {
+  background: linear-gradient(transparent 12%, var(--marker) 12%, var(--marker) 88%, transparent 88%);
+  padding: 0 0.12em;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.mark-strong {
+  background: linear-gradient(transparent 8%, var(--marker-strong) 8%, var(--marker-strong) 92%, transparent 92%);
+}
+
+/* Fine paper grain on large surfaces, kept subtle. */
+.grain {
+  background-image: radial-gradient(rgba(22, 24, 29, 0.035) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+.rule-x {
+  background-image: linear-gradient(var(--rule), var(--rule));
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: bottom;
+}
+
+/* Tabular figures wherever numbers line up. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.maplibregl-ctrl-attrib {
+  font-family: var(--font-sans);
+  font-size: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@media print {
+  body { background: #fff; }
+  .no-print { display: none !important; }
+}

@@ -1,0 +1,216 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  CivicProof: turns a reported road problem into an evidence-backed case.
+  Next.js on AWS Lambda (Lambda Web Adapter, response streaming Function URL),
+  DynamoDB for cases, S3 for photos and packet PDFs, Amazon Bedrock for the investigator,
+  CloudWatch for logs and an error alarm.
+
+Parameters:
+  Planner:
+    Type: String
+    Default: bedrock
+    AllowedValues: [bedrock, rules]
+    Description: "bedrock = Claude on Amazon Bedrock via Strands Agents; rules = deterministic planner (no model calls)."
+  BedrockModelId:
+    Type: String
+    Default: global.anthropic.claude-opus-5
+    Description: Bedrock model or inference profile ID used by the investigator.
+  MaxRunsPerDay:
+    Type: Number
+    Default: 150
+    Description: Cap on investigations per day across the whole deployment (protects the Bedrock budget).
+  MaxRunsPerCase:
+    Type: Number
+    Default: 5
+  NominatimContact:
+    Type: String
+    Default: civicproof-hackathon
+    Description: Contact string sent to OpenStreetMap Nominatim in the User-Agent, per its usage policy.
+  LogRetentionDays:
+    Type: Number
+    Default: 30
+
+Resources:
+  CasesTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: PK, AttributeType: S }
+        - { AttributeName: SK, AttributeType: S }
+        - { AttributeName: GSI1PK, AttributeType: S }
+        - { AttributeName: GSI1SK, AttributeType: S }
+      KeySchema:
+        - { AttributeName: PK, KeyType: HASH }
+        - { AttributeName: SK, KeyType: RANGE }
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - { AttributeName: GSI1PK, KeyType: HASH }
+            - { AttributeName: GSI1SK, KeyType: RANGE }
+          Projection:
+            ProjectionType: INCLUDE
+            NonKeyAttributes: [summary]
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+
+  BlobBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+
+  BlobBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref BlobBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !GetAtt BlobBucket.Arn
+              - !Sub "${BlobBucket.Arn}/*"
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+
+  AppLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: !Ref LogRetentionDays
+
+  AppFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: CivicProof web app and investigation agent
+      CodeUri: ../.lambda
+      Handler: run.sh
+      Runtime: nodejs22.x
+      Architectures: [arm64]
+      MemorySize: 2048
+      Timeout: 300
+      LoggingConfig:
+        LogGroup: !Ref AppLogGroup
+        LogFormat: Text
+      Layers:
+        # AWS Lambda Web Adapter (awslabs/aws-lambda-web-adapter), arm64
+        - !Sub arn:aws:lambda:${AWS::Region}:753240598075:layer:LambdaAdapterLayerArm64:28
+      Environment:
+        Variables:
+          AWS_LAMBDA_EXEC_WRAPPER: /opt/bootstrap
+          AWS_LWA_INVOKE_MODE: response_stream
+          AWS_LWA_PORT: "8080"
+          AWS_LWA_READINESS_CHECK_PATH: /api/health
+          PORT: "8080"
+          NODE_ENV: production
+          CIVICPROOF_STORE: dynamodb
+          CIVICPROOF_TABLE: !Ref CasesTable
+          CIVICPROOF_BLOBS: s3
+          CIVICPROOF_BUCKET: !Ref BlobBucket
+          CIVICPROOF_PLANNER: !Ref Planner
+          CIVICPROOF_MAX_RUNS_PER_DAY: !Ref MaxRunsPerDay
+          CIVICPROOF_MAX_RUNS_PER_CASE: !Ref MaxRunsPerCase
+          BEDROCK_MODEL_ID: !Ref BedrockModelId
+          BEDROCK_REGION: !Ref AWS::Region
+          NOMINATIM_CONTACT: !Ref NominatimContact
+      FunctionUrlConfig:
+        AuthType: NONE
+        InvokeMode: RESPONSE_STREAM
+      Policies:
+        # Least privilege: one table, one bucket, one model family. Nothing else.
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CasesTable
+        - S3CrudPolicy:
+            BucketName: !Ref BlobBucket
+        - Statement:
+            - Sid: InvokeInvestigatorModel
+              Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource:
+                - !Sub arn:aws:bedrock:*:${AWS::AccountId}:inference-profile/${BedrockModelId}
+                - arn:aws:bedrock:*::foundation-model/anthropic.claude-*
+                - arn:aws:bedrock:*::foundation-model/amazon.nova-*
+
+  # Since Oct 2025 a public Function URL also needs lambda:InvokeFunction, restricted here
+  # to invocations that arrive through the URL.
+  AppFunctionUrlInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref AppFunction
+      Action: lambda:InvokeFunction
+      Principal: "*"
+      InvokedViaFunctionUrl: true
+
+  AppErrorsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: CivicProof Lambda errors (5+ in 5 minutes)
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - { Name: FunctionName, Value: !Ref AppFunction }
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 5
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+  InvestigationFailuresMetric:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref AppLogGroup
+      FilterPattern: '{ $.event = "investigation.failed" }'
+      MetricTransformations:
+        - MetricNamespace: CivicProof
+          MetricName: InvestigationFailures
+          MetricValue: "1"
+
+  CedarDenialsMetric:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref AppLogGroup
+      FilterPattern: '{ $.event = "investigation.denied" }'
+      MetricTransformations:
+        - MetricNamespace: CivicProof
+          MetricName: InvestigationBudgetDenials
+          MetricValue: "1"
+
+Outputs:
+  AppUrl:
+    Description: Public URL of the app
+    Value: !GetAtt AppFunctionUrl.FunctionUrl
+  TableName:
+    Value: !Ref CasesTable
+  BucketName:
+    Value: !Ref BlobBucket
+  LogGroup:
+    Value: !Ref AppLogGroup

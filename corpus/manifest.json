@@ -1,0 +1,108 @@
+{
+ "version": 1,
+ "description": "CivicProof source corpus: public records for Bengaluru road works, retrieved 18 Sep 2026. Every file is checked against its SHA-256 at ingest.",
+ "documents": [
+  {
+   "id": "ommas-slr-pmgsy3-bangalore-urban",
+   "title": "SLR: Statewise List of Works — Karnataka, Bangalore U, PMGSY-III",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_pdf",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-18",
+   "file": "ommas-slr-pmgsy3-bangalore-urban.pdf",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Report generated 18/09/2026 08:01 AM from the OMMAS citizen report viewer and exported as PDF. Costs in ₹ lakh, lengths in km.",
+   "sha256": "26a6fb268acbdfb9e7e408b94ef58f4005cbf77a666a21757bf8a70fffa90309"
+  },
+  {
+   "id": "ommas-quality-grading-bangalore-urban",
+   "title": "Works Wise Grading Abstract — NQM/SQM inspections, Bangalore U, Jan 2021 to Sep 2026",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_pdf",
+   "url": "https://pmgsy.dord.gov.in/QualityMonitoringArea/QualityMonitoring/QMMonWorksDetailLayout",
+   "retrievedAt": "2026-09-18",
+   "file": "ommas-quality-grading-bangalore-urban.pdf",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Report generated 18/09/2026 08:04 AM. NQM = National Quality Monitor, SQM = State Quality Monitor.",
+   "sha256": "1ed0da333971bef26816ff8047d1bb6379b3b82a844a59422426866827d1818d"
+  },
+  {
+   "id": "pmgsy-programme-guidelines",
+   "title": "Pradhan Mantri Gram Sadak Yojana — Programme Guidelines",
+   "publisher": "Ministry of Rural Development, Government of India",
+   "sourceType": "official_pdf",
+   "url": "https://pmgsy.dord.gov.in/ReferenceDocs/PMGSY_Guidelines.pdf",
+   "retrievedAt": "2026-09-18",
+   "file": "pmgsy-programme-guidelines.pdf",
+   "notes": "2014 edition. The PMGSY-III guidelines could not be retrieved (pmgsy.nic.in timed out).",
+   "sha256": "e94a8eaba3392497a46ee575b870442da6db9c94f0dea082c7d736e39990d761"
+  },
+  {
+   "id": "kppp-bbmp-wt-pkg2-bid",
+   "title": "Tender document — White Topping of Selected Roads under GoK Grants, Package-2 (BBMP, Project Central-8)",
+   "publisher": "Bruhat Bengaluru Mahanagara Palike, via Karnataka Public Procurement Portal",
+   "sourceType": "official_pdf",
+   "url": "https://kppp.karnataka.gov.in/supplier-registration-service/v1/api/portal-service/59700/works-tender-file/d05b1383-c226-4494-862a-f8d030a7e94a/download-file",
+   "retrievedAt": "2026-09-18",
+   "file": "kppp-bbmp-whitetopping-pkg2-bid-document.pdf",
+   "notes": "65-page technical bid document for tender BBMP/2023-24/RD/WORK_INDENT1733.",
+   "sha256": "ed2b9e29e16e1b4f44419a163d3389eaff0fb09f52280376b056223615dc41d2"
+  },
+  {
+   "id": "kppp-bbmp-wt-pkg2-award",
+   "title": "KPPP selected-bid (award) record — tender BBMP/2023-24/RD/WORK_INDENT1733",
+   "publisher": "Karnataka Public Procurement Portal (Government of Karnataka)",
+   "sourceType": "official_web",
+   "url": "https://kppp.karnataka.gov.in/supplier-registration-service/v1/api/portal-service/bids/59700/tender-category/WORKS/get-selected-bid-for-lumpsum",
+   "retrievedAt": "2026-09-18",
+   "file": "kppp-bbmp-whitetopping-pkg2-selected-bid.json",
+   "notes": "Official public API response, rendered as \"field: value\" lines. Encrypted fields are omitted; E-notation amounts are annotated with their plain value.",
+   "sha256": "128e142ae3ca9ebd1e071df1f58d99a9281ea22a0d39bf3af2f6dfe324716e5a"
+  },
+  {
+   "id": "kppp-bbmp-wt-pkg2-tender",
+   "title": "KPPP tender record (full view) — BBMP/2023-24/RD/WORK_INDENT1733",
+   "publisher": "Karnataka Public Procurement Portal (Government of Karnataka)",
+   "sourceType": "official_web",
+   "url": "https://kppp.karnataka.gov.in/supplier-registration-service/v1/api/portal-service/59700/works-tender-full-view",
+   "retrievedAt": "2026-09-18",
+   "file": "kppp-bbmp-whitetopping-pkg2-tender-full-view.json",
+   "notes": "Official public API response, rendered as \"field: value\" lines. Epoch-millisecond timestamps are annotated with their UTC date.",
+   "sha256": "4f0b23afbab59bd06cb34e814cc8e1e353102f4e22a1a63957b75dd3b37f8df9"
+  },
+  {
+   "id": "bscl-tender-sure-status-2021",
+   "title": "Tender SURE Phase A roads — project status presentation (Feb 2021)",
+   "publisher": "Bengaluru Smart City Limited (copy hosted by OpenCity.in)",
+   "sourceType": "official_pdf",
+   "url": "https://data.opencity.in/dataset/865313bc-c287-406a-be69-1b23c8392fca/resource/adb616c4-1f8a-4d39-93c7-53f651caf783/download/1d272e9b-4926-4ffc-836f-01c476ac5022.pdf",
+   "retrievedAt": "2026-09-18",
+   "file": "bscl-tender-sure-status-2021.pdf",
+   "notes": "Slides dated 9/2/2021. BSCL's own site (smartcitybengaluru.in) did not resolve on 18 Sep 2026, so this copy comes from OpenCity, a civic data portal.",
+   "sha256": "90c43c0f22d4ddad5dc8c36276ac089d99905f9ab5f60542c365578592325f38"
+  },
+  {
+   "id": "cag-karnataka-2025-11",
+   "title": "CAG Report No. 11 of 2025 — Implementation of Smart City Mission, Government of Karnataka",
+   "publisher": "Comptroller and Auditor General of India",
+   "sourceType": "audit_report",
+   "url": "https://cag.gov.in/ag1/karnataka/en/audit-report",
+   "retrievedAt": "2026-09-18",
+   "file": "cag-karnataka-report-11-2025-smart-cities.pdf",
+   "notes": "Performance audit. Linked page is the CAG Karnataka audit-report listing.",
+   "sha256": "275e0254bc4276bf1f58ada8c7852e9f629a54bbb5cfd62e12d0944e262ba189"
+  },
+  {
+   "id": "datagovin-pmgsy3-karnataka",
+   "title": "District-wise road works sanctioned under PMGSY-III in Karnataka (as on 10 Mar 2023)",
+   "publisher": "Rajya Sabha, via Open Government Data Platform India",
+   "sourceType": "open_data",
+   "url": "https://api.data.gov.in/resource/e8ccbaa7-f9eb-4ebb-9f4e-3ff34a102b6b",
+   "retrievedAt": "2026-09-18",
+   "file": "datagovin-pmgsy3-karnataka-districtwise.json",
+   "licence": "Government Open Data License – India (GODL)",
+   "notes": "Aggregate cross-check: Bangalore U = 12 roads, 108.44 km, matching the OMMAS list.",
+   "sha256": "9d042bcc07ffbbdb23008d0bcf8da11d6468d8bed82cf496db7619e56e77f100"
+  }
+ ]
+}

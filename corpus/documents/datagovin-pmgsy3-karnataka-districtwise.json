@@ -1,0 +1,118 @@
+{
+    "index_name": "e8ccbaa7-f9eb-4ebb-9f4e-3ff34a102b6b",
+    "title": "District-wise Road Works Sanctioned under Pradhan Mantri Gram Sadak Yojana (PMGSY-III) in State of Karnataka as on 10th March, 2023",
+    "desc": "District-wise Road Works Sanctioned under Pradhan Mantri Gram Sadak Yojana (PMGSY-III) in State of Karnataka as on 10th March, 2023",
+    "org_type": "Central",
+    "org": [
+        "Rajya Sabha"
+    ],
+    "sector": [
+        "All"
+    ],
+    "source": "data.gov.in",
+    "catalog_uuid": "646eeed7-710f-4e3f-bf09-6b410bbc7d19",
+    "visualizable": "1",
+    "active": "1",
+    "created": 1745510365,
+    "updated": 1745510365,
+    "created_date": "2025-04-24T17:59:25Z",
+    "updated_date": "2025-04-24T17:59:25Z",
+    "external_ws": 0,
+    "external_ws_url": "",
+    "target_bucket": {
+        "index": "api",
+        "type": "646eeed7-710f-4e3f-bf09-6b410bbc7d19",
+        "field": "e8ccbaa7-f9eb-4ebb-9f4e-3ff34a102b6b"
+    },
+    "field": [
+        {
+            "id": "sl__no_",
+            "name": "Sl. No.",
+            "type": "keyword"
+        },
+        {
+            "id": "district_name",
+            "name": "District Name",
+            "type": "keyword"
+        },
+        {
+            "id": "details_of_projects_sanctioned___no__of_roads",
+            "name": "Details of Projects Sanctioned - No. of Roads",
+            "type": "double"
+        },
+        {
+            "id": "details_of_projects_sanctioned___road_length__in_km_",
+            "name": "Details of Projects Sanctioned - Road Length (In Km)",
+            "type": "double"
+        }
+    ],
+    "message": "Resource lists",
+    "version": "2.2.0",
+    "status": "ok",
+    "total": 31,
+    "count": 10,
+    "limit": 10,
+    "offset": "0",
+    "records": [
+        {
+            "sl__no_": "1",
+            "district_name": "Bagalkot",
+            "details_of_projects_sanctioned___no__of_roads": 34,
+            "details_of_projects_sanctioned___road_length__in_km_": 208.75999999999999
+        },
+        {
+            "sl__no_": "2",
+            "district_name": "Bangalore R",
+            "details_of_projects_sanctioned___no__of_roads": 16,
+            "details_of_projects_sanctioned___road_length__in_km_": 105.25
+        },
+        {
+            "sl__no_": "3",
+            "district_name": "Bangalore U",
+            "details_of_projects_sanctioned___no__of_roads": 12,
+            "details_of_projects_sanctioned___road_length__in_km_": 108.44
+        },
+        {
+            "sl__no_": "4",
+            "district_name": "Belgaum",
+            "details_of_projects_sanctioned___no__of_roads": 52,
+            "details_of_projects_sanctioned___road_length__in_km_": 360.32999999999998
+        },
+        {
+            "sl__no_": "5",
+            "district_name": "Bellary",
+            "details_of_projects_sanctioned___no__of_roads": 29,
+            "details_of_projects_sanctioned___road_length__in_km_": 214.02000000000001
+        },
+        {
+            "sl__no_": "6",
+            "district_name": "Bidar",
+            "details_of_projects_sanctioned___no__of_roads": 35,
+            "details_of_projects_sanctioned___road_length__in_km_": 189.06
+        },
+        {
+            "sl__no_": "7",
+            "district_name": "Bijapur",
+            "details_of_projects_sanctioned___no__of_roads": 33,
+            "details_of_projects_sanctioned___road_length__in_km_": 238.02000000000001
+        },
+        {
+            "sl__no_": "8",
+            "district_name": "Chamarajanagar",
+            "details_of_projects_sanctioned___no__of_roads": 17,
+            "details_of_projects_sanctioned___road_length__in_km_": 111.29000000000001
+        },
+        {
+            "sl__no_": "9",
+            "district_name": "Chickballapur",
+            "details_of_projects_sanctioned___no__of_roads": 17,
+            "details_of_projects_sanctioned___road_length__in_km_": 157.78999999999999
+        },
+        {
+            "sl__no_": "10",
+            "district_name": "Chickmagalur",
+            "details_of_projects_sanctioned___no__of_roads": 29,
+            "details_of_projects_sanctioned___road_length__in_km_": 223.91999999999999
+        }
+    ]
+}

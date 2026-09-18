@@ -1,0 +1,3589 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-18T02:53:05Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "way",
+  "id": 23029284,
+  "bounds": {
+    "minlat": 12.9684742,
+    "minlon": 77.6062418,
+    "maxlat": 12.9713033,
+    "maxlon": 77.6069998
+  },
+  "geometry": [
+    { "lat": 12.9713033, "lon": 77.6069998 },
+    { "lat": 12.9712499, "lon": 77.6069845 },
+    { "lat": 12.9710935, "lon": 77.6069397 },
+    { "lat": 12.9709787, "lon": 77.6069092 },
+    { "lat": 12.9709431, "lon": 77.6068998 },
+    { "lat": 12.9702587, "lon": 77.6066833 },
+    { "lat": 12.9701373, "lon": 77.6066431 },
+    { "lat": 12.9700696, "lon": 77.6066207 },
+    { "lat": 12.9700254, "lon": 77.6066075 },
+    { "lat": 12.9699693, "lon": 77.6065914 },
+    { "lat": 12.9696870, "lon": 77.6065090 },
+    { "lat": 12.9695320, "lon": 77.6064575 },
+    { "lat": 12.9692869, "lon": 77.6063807 },
+    { "lat": 12.9692295, "lon": 77.6063626 },
+    { "lat": 12.9687502, "lon": 77.6062608 },
+    { "lat": 12.9685620, "lon": 77.6062449 },
+    { "lat": 12.9684742, "lon": 77.6062418 }
+  ],
+  "tags": {
+    "auto_rickshaw": "no",
+    "highway": "secondary",
+    "lanes": "3",
+    "name": "Brigade Road",
+    "name:kn": "ಬ್ರಿಗೇಡ್ ರಸ್ತೆ",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 23029690,
+  "bounds": {
+    "minlat": 12.9720722,
+    "minlon": 77.6070825,
+    "maxlat": 12.9723313,
+    "maxlon": 77.6073585
+  },
+  "geometry": [
+    { "lat": 12.9723313, "lon": 77.6070825 },
+    { "lat": 12.9722005, "lon": 77.6071436 },
+    { "lat": 12.9721538, "lon": 77.6072047 },
+    { "lat": 12.9721282, "lon": 77.6072434 },
+    { "lat": 12.9721151, "lon": 77.6072661 },
+    { "lat": 12.9720722, "lon": 77.6073585 }
+  ],
+  "tags": {
+    "highway": "secondary_link",
+    "lanes": "1",
+    "name": "Brigade Road",
+    "name:kn": "ಬ್ರಿಗೇಡ್ ರಸ್ತೆ",
+    "oneway": "yes",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 26807590,
+  "bounds": {
+    "minlat": 12.9892151,
+    "minlon": 77.6071284,
+    "maxlat": 12.9903782,
+    "maxlon": 77.6132134
+  },
+  "geometry": [
+    { "lat": 12.9892151, "lon": 77.6132134 },
+    { "lat": 12.9892226, "lon": 77.6131783 },
+    { "lat": 12.9892773, "lon": 77.6129237 },
+    { "lat": 12.9893046, "lon": 77.6127861 },
+    { "lat": 12.9893318, "lon": 77.6126493 },
+    { "lat": 12.9893444, "lon": 77.6125911 },
+    { "lat": 12.9893907, "lon": 77.6123781 },
+    { "lat": 12.9894459, "lon": 77.6120667 },
+    { "lat": 12.9894654, "lon": 77.6119705 },
+    { "lat": 12.9894959, "lon": 77.6118485 },
+    { "lat": 12.9895514, "lon": 77.6115328 },
+    { "lat": 12.9895697, "lon": 77.6114286 },
+    { "lat": 12.9895756, "lon": 77.6114007 },
+    { "lat": 12.9896031, "lon": 77.6112818 },
+    { "lat": 12.9896382, "lon": 77.6111053 },
+    { "lat": 12.9896719, "lon": 77.6109623 },
+    { "lat": 12.9896926, "lon": 77.6108438 },
+    { "lat": 12.9897193, "lon": 77.6107172 },
+    { "lat": 12.9897454, "lon": 77.6105935 },
+    { "lat": 12.9898049, "lon": 77.6103089 },
+    { "lat": 12.9898616, "lon": 77.6100018 },
+    { "lat": 12.9899690, "lon": 77.6094699 },
+    { "lat": 12.9900340, "lon": 77.6091471 },
+    { "lat": 12.9900710, "lon": 77.6089721 },
+    { "lat": 12.9901209, "lon": 77.6087366 },
+    { "lat": 12.9901606, "lon": 77.6085489 },
+    { "lat": 12.9901785, "lon": 77.6084645 },
+    { "lat": 12.9901871, "lon": 77.6084339 },
+    { "lat": 12.9902200, "lon": 77.6082785 },
+    { "lat": 12.9902439, "lon": 77.6081714 },
+    { "lat": 12.9903025, "lon": 77.6077995 },
+    { "lat": 12.9903500, "lon": 77.6074240 },
+    { "lat": 12.9903782, "lon": 77.6071284 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "name": "Thimmaiah Road",
+    "name:kn": "ತಿಮ್ಮಯ್ಯ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 27946101,
+  "bounds": {
+    "minlat": 12.9565828,
+    "minlon": 77.6188971,
+    "maxlat": 12.9624708,
+    "maxlon": 77.6211715
+  },
+  "geometry": [
+    { "lat": 12.9565828, "lon": 77.6210768 },
+    { "lat": 12.9567416, "lon": 77.6211073 },
+    { "lat": 12.9569806, "lon": 77.6211595 },
+    { "lat": 12.9571748, "lon": 77.6211703 },
+    { "lat": 12.9574046, "lon": 77.6211715 },
+    { "lat": 12.9577074, "lon": 77.6211567 },
+    { "lat": 12.9578227, "lon": 77.6211389 },
+    { "lat": 12.9579582, "lon": 77.6211034 },
+    { "lat": 12.9587858, "lon": 77.6205028 },
+    { "lat": 12.9589487, "lon": 77.6203902 },
+    { "lat": 12.9595055, "lon": 77.6201471 },
+    { "lat": 12.9597396, "lon": 77.6200449 },
+    { "lat": 12.9614163, "lon": 77.6193402 },
+    { "lat": 12.9622589, "lon": 77.6189861 },
+    { "lat": 12.9624708, "lon": 77.6188971 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed:type": "IN:urban",
+    "name": "Lower Agaram Road",
+    "name:kn": "ಅಗರಂ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "oneway": "yes",
+    "sidewalk": "left",
+    "sidewalk:left:surface": "concrete",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 28137491,
+  "bounds": {
+    "minlat": 12.9654186,
+    "minlon": 77.6142406,
+    "maxlat": 12.9684789,
+    "maxlon": 77.6177082
+  },
+  "geometry": [
+    { "lat": 12.9684789, "lon": 77.6142406 },
+    { "lat": 12.9684273, "lon": 77.6143093 },
+    { "lat": 12.9683899, "lon": 77.6143560 },
+    { "lat": 12.9677597, "lon": 77.6151428 },
+    { "lat": 12.9675247, "lon": 77.6154436 },
+    { "lat": 12.9674308, "lon": 77.6155632 },
+    { "lat": 12.9669643, "lon": 77.6161405 },
+    { "lat": 12.9666993, "lon": 77.6164883 },
+    { "lat": 12.9665806, "lon": 77.6166305 },
+    { "lat": 12.9665261, "lon": 77.6166863 },
+    { "lat": 12.9664681, "lon": 77.6167431 },
+    { "lat": 12.9659936, "lon": 77.6171081 },
+    { "lat": 12.9656667, "lon": 77.6173923 },
+    { "lat": 12.9656066, "lon": 77.6174445 },
+    { "lat": 12.9655368, "lon": 77.6175137 },
+    { "lat": 12.9654186, "lon": 77.6177082 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lane_markings": "no",
+    "lit": "yes",
+    "name": "Lower Agaram Road",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 28800884,
+  "bounds": {
+    "minlat": 12.9905185,
+    "minlon": 77.5957044,
+    "maxlat": 12.9935470,
+    "maxlon": 77.5995661
+  },
+  "geometry": [
+    { "lat": 12.9905185, "lon": 77.5995661 },
+    { "lat": 12.9905317, "lon": 77.5995314 },
+    { "lat": 12.9905820, "lon": 77.5993990 },
+    { "lat": 12.9907572, "lon": 77.5989379 },
+    { "lat": 12.9909432, "lon": 77.5984864 },
+    { "lat": 12.9912028, "lon": 77.5978303 },
+    { "lat": 12.9913602, "lon": 77.5974928 },
+    { "lat": 12.9914110, "lon": 77.5974193 },
+    { "lat": 12.9917203, "lon": 77.5971815 },
+    { "lat": 12.9919192, "lon": 77.5970286 },
+    { "lat": 12.9919604, "lon": 77.5969970 },
+    { "lat": 12.9927907, "lon": 77.5963587 },
+    { "lat": 12.9933190, "lon": 77.5959281 },
+    { "lat": 12.9933678, "lon": 77.5958884 },
+    { "lat": 12.9933945, "lon": 77.5958373 },
+    { "lat": 12.9935470, "lon": 77.5957044 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "name": "Thimmaiah Road",
+    "name:kn": "ತಿಮ್ಮಯ್ಯ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 36970818,
+  "bounds": {
+    "minlat": 12.9844973,
+    "minlon": 77.6117931,
+    "maxlat": 12.9905649,
+    "maxlon": 77.6139065
+  },
+  "geometry": [
+    { "lat": 12.9844973, "lon": 77.6117965 },
+    { "lat": 12.9846631, "lon": 77.6118098 },
+    { "lat": 12.9849575, "lon": 77.6118043 },
+    { "lat": 12.9850975, "lon": 77.6118017 },
+    { "lat": 12.9852617, "lon": 77.6117986 },
+    { "lat": 12.9855533, "lon": 77.6117931 },
+    { "lat": 12.9855806, "lon": 77.6117966 },
+    { "lat": 12.9857906, "lon": 77.6118336 },
+    { "lat": 12.9859296, "lon": 77.6118789 },
+    { "lat": 12.9859558, "lon": 77.6118857 },
+    { "lat": 12.9862029, "lon": 77.6119895 },
+    { "lat": 12.9863307, "lon": 77.6120530 },
+    { "lat": 12.9869846, "lon": 77.6124415 },
+    { "lat": 12.9871915, "lon": 77.6125587 },
+    { "lat": 12.9872840, "lon": 77.6125918 },
+    { "lat": 12.9875536, "lon": 77.6126898 },
+    { "lat": 12.9878290, "lon": 77.6127764 },
+    { "lat": 12.9879807, "lon": 77.6128215 },
+    { "lat": 12.9885116, "lon": 77.6129867 },
+    { "lat": 12.9892151, "lon": 77.6132134 },
+    { "lat": 12.9904468, "lon": 77.6138361 },
+    { "lat": 12.9905046, "lon": 77.6138653 },
+    { "lat": 12.9905649, "lon": 77.6139065 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Kamaraj Road",
+    "name:etymology:wikidata": "Q522048",
+    "name:kn": "ಕಾಮರಾಜ ರಸ್ತೆ",
+    "old_name": "Cavalry Road",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 38522039,
+  "bounds": {
+    "minlat": 12.9738898,
+    "minlon": 77.6126693,
+    "maxlat": 12.9739603,
+    "maxlon": 77.6129703
+  },
+  "geometry": [
+    { "lat": 12.9738898, "lon": 77.6129703 },
+    { "lat": 12.9739041, "lon": 77.6129091 },
+    { "lat": 12.9739603, "lon": 77.6126693 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 38772795,
+  "bounds": {
+    "minlat": 12.9525106,
+    "minlon": 77.6201835,
+    "maxlat": 12.9545784,
+    "maxlon": 77.6206880
+  },
+  "geometry": [
+    { "lat": 12.9545784, "lon": 77.6206880 },
+    { "lat": 12.9545460, "lon": 77.6206762 },
+    { "lat": 12.9544439, "lon": 77.6206389 },
+    { "lat": 12.9542303, "lon": 77.6205764 },
+    { "lat": 12.9540043, "lon": 77.6205102 },
+    { "lat": 12.9538896, "lon": 77.6204770 },
+    { "lat": 12.9537615, "lon": 77.6204419 },
+    { "lat": 12.9536059, "lon": 77.6204014 },
+    { "lat": 12.9533641, "lon": 77.6203471 },
+    { "lat": 12.9532255, "lon": 77.6203109 },
+    { "lat": 12.9531367, "lon": 77.6202908 },
+    { "lat": 12.9530098, "lon": 77.6202647 },
+    { "lat": 12.9529210, "lon": 77.6202465 },
+    { "lat": 12.9526887, "lon": 77.6202094 },
+    { "lat": 12.9525106, "lon": 77.6201835 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Lower Agaram Road",
+    "name:kn": "ಅಗರಂ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 45308260,
+  "bounds": {
+    "minlat": 12.9712399,
+    "minlon": 77.5977446,
+    "maxlat": 12.9733756,
+    "maxlon": 77.5993501
+  },
+  "geometry": [
+    { "lat": 12.9712399, "lon": 77.5977446 },
+    { "lat": 12.9713572, "lon": 77.5979673 },
+    { "lat": 12.9713803, "lon": 77.5979850 },
+    { "lat": 12.9718496, "lon": 77.5983669 },
+    { "lat": 12.9720412, "lon": 77.5985228 },
+    { "lat": 12.9722829, "lon": 77.5987076 },
+    { "lat": 12.9723360, "lon": 77.5987483 },
+    { "lat": 12.9725983, "lon": 77.5989622 },
+    { "lat": 12.9727687, "lon": 77.5991388 },
+    { "lat": 12.9728409, "lon": 77.5991885 },
+    { "lat": 12.9729131, "lon": 77.5992218 },
+    { "lat": 12.9729885, "lon": 77.5992566 },
+    { "lat": 12.9731214, "lon": 77.5992962 },
+    { "lat": 12.9732614, "lon": 77.5993380 },
+    { "lat": 12.9733756, "lon": 77.5993501 }
+  ],
+  "tags": {
+    "abutters": "mixed",
+    "alt_name": "Subbaraju Road",
+    "highway": "tertiary",
+    "lanes": "2",
+    "name": "Lavelle Road",
+    "name:kn": "ಲಾವೆಲ್ ರಸ್ತೆ",
+    "official_name": "Sri. M. L. Subbaraju Road",
+    "oneway": "no",
+    "sidewalk:both": "yes",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 46703709,
+  "bounds": {
+    "minlat": 12.9858553,
+    "minlon": 77.6091488,
+    "maxlat": 12.9921246,
+    "maxlon": 77.6104837
+  },
+  "geometry": [
+    { "lat": 12.9921246, "lon": 77.6104837 },
+    { "lat": 12.9920854, "lon": 77.6104753 },
+    { "lat": 12.9914753, "lon": 77.6103454 },
+    { "lat": 12.9909762, "lon": 77.6102392 },
+    { "lat": 12.9906855, "lon": 77.6101773 },
+    { "lat": 12.9904329, "lon": 77.6101235 },
+    { "lat": 12.9898616, "lon": 77.6100018 },
+    { "lat": 12.9894642, "lon": 77.6099172 },
+    { "lat": 12.9893426, "lon": 77.6098913 },
+    { "lat": 12.9892324, "lon": 77.6098679 },
+    { "lat": 12.9891405, "lon": 77.6098483 },
+    { "lat": 12.9887123, "lon": 77.6097571 },
+    { "lat": 12.9886324, "lon": 77.6097401 },
+    { "lat": 12.9881511, "lon": 77.6096376 },
+    { "lat": 12.9879402, "lon": 77.6095927 },
+    { "lat": 12.9877179, "lon": 77.6095454 },
+    { "lat": 12.9873453, "lon": 77.6094660 },
+    { "lat": 12.9870557, "lon": 77.6094044 },
+    { "lat": 12.9867783, "lon": 77.6093453 },
+    { "lat": 12.9859941, "lon": 77.6091783 },
+    { "lat": 12.9858553, "lon": 77.6091488 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "maxspeed": "30",
+    "name": "Narayan Pillai Street",
+    "name:kn": "ನಾರಾಯಣ ಪಿಳ್ಳೈ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing",
+    "oneway": "yes",
+    "smoothness": "good",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 46728567,
+  "bounds": {
+    "minlat": 12.9733756,
+    "minlon": 77.5993501,
+    "maxlat": 12.9764466,
+    "maxlon": 77.5998782
+  },
+  "geometry": [
+    { "lat": 12.9764466, "lon": 77.5993603 },
+    { "lat": 12.9763339, "lon": 77.5994136 },
+    { "lat": 12.9762755, "lon": 77.5994435 },
+    { "lat": 12.9760750, "lon": 77.5995596 },
+    { "lat": 12.9758171, "lon": 77.5997216 },
+    { "lat": 12.9756732, "lon": 77.5998132 },
+    { "lat": 12.9755781, "lon": 77.5998782 },
+    { "lat": 12.9754521, "lon": 77.5998708 },
+    { "lat": 12.9753758, "lon": 77.5998571 },
+    { "lat": 12.9749487, "lon": 77.5997248 },
+    { "lat": 12.9745327, "lon": 77.5995970 },
+    { "lat": 12.9745036, "lon": 77.5995887 },
+    { "lat": 12.9744875, "lon": 77.5995841 },
+    { "lat": 12.9741679, "lon": 77.5994932 },
+    { "lat": 12.9740375, "lon": 77.5994652 },
+    { "lat": 12.9736158, "lon": 77.5993824 },
+    { "lat": 12.9733756, "lon": 77.5993501 }
+  ],
+  "tags": {
+    "alt_name": "Subbaraju Road",
+    "hgv": "no",
+    "highway": "tertiary",
+    "lanes": "2",
+    "maxspeed": "30",
+    "name": "Lavelle Road",
+    "name:kn": "ಲಾವೆಲ್ ರಸ್ತೆ",
+    "official_name": "Sri. M. L. Subbaraju Road",
+    "oneway": "yes",
+    "parking:left": "lane",
+    "parking:left:orientation": "parallel",
+    "parking:right": "no",
+    "sidewalk:both": "separate",
+    "smoothness": "excellent",
+    "source:maxspeed": "sign",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 103639924,
+  "bounds": {
+    "minlat": 12.9749558,
+    "minlon": 77.6079254,
+    "maxlat": 12.9750849,
+    "maxlon": 77.6079337
+  },
+  "geometry": [
+    { "lat": 12.9750849, "lon": 77.6079337 },
+    { "lat": 12.9749558, "lon": 77.6079254 }
+  ],
+  "tags": {
+    "auto_rickshaw": "no",
+    "hgv": "no",
+    "highway": "secondary",
+    "name": "Brigade Road",
+    "name:kn": "ಬ್ರಿಗೇಡ್ ರಸ್ತೆ",
+    "oneway": "yes",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 112657835,
+  "bounds": {
+    "minlat": 12.9651450,
+    "minlon": 77.5964192,
+    "maxlat": 12.9712043,
+    "maxlon": 77.5977545
+  },
+  "geometry": [
+    { "lat": 12.9712043, "lon": 77.5977545 },
+    { "lat": 12.9711455, "lon": 77.5977142 },
+    { "lat": 12.9710601, "lon": 77.5976912 },
+    { "lat": 12.9710266, "lon": 77.5976870 },
+    { "lat": 12.9703961, "lon": 77.5976076 },
+    { "lat": 12.9697962, "lon": 77.5975210 },
+    { "lat": 12.9696251, "lon": 77.5974964 },
+    { "lat": 12.9693430, "lon": 77.5972801 },
+    { "lat": 12.9692286, "lon": 77.5971996 },
+    { "lat": 12.9689910, "lon": 77.5969772 },
+    { "lat": 12.9687859, "lon": 77.5968014 },
+    { "lat": 12.9685534, "lon": 77.5966132 },
+    { "lat": 12.9683025, "lon": 77.5964879 },
+    { "lat": 12.9680663, "lon": 77.5964192 },
+    { "lat": 12.9675143, "lon": 77.5964309 },
+    { "lat": 12.9674562, "lon": 77.5964360 },
+    { "lat": 12.9669374, "lon": 77.5964813 },
+    { "lat": 12.9666729, "lon": 77.5965095 },
+    { "lat": 12.9664436, "lon": 77.5965335 },
+    { "lat": 12.9658521, "lon": 77.5965955 },
+    { "lat": 12.9657718, "lon": 77.5966039 },
+    { "lat": 12.9651907, "lon": 77.5967368 },
+    { "lat": 12.9651450, "lon": 77.5967546 }
+  ],
+  "tags": {
+    "abutters": "mixed",
+    "alt_name": "Subbaraju Road",
+    "highway": "tertiary",
+    "lanes": "2",
+    "maxspeed": "30",
+    "name": "Lavelle Road",
+    "name:kn": "ಲಾವೆಲ್ ರಸ್ತೆ",
+    "official_name": "Sri. M. L. Subbaraju Road",
+    "sidewalk": "both",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 124316745,
+  "bounds": {
+    "minlat": 12.9720722,
+    "minlon": 77.6073585,
+    "maxlat": 12.9734712,
+    "maxlon": 77.6102613
+  },
+  "geometry": [
+    { "lat": 12.9720722, "lon": 77.6073585 },
+    { "lat": 12.9721161, "lon": 77.6074419 },
+    { "lat": 12.9721269, "lon": 77.6074629 },
+    { "lat": 12.9722978, "lon": 77.6077330 },
+    { "lat": 12.9723611, "lon": 77.6078395 },
+    { "lat": 12.9725313, "lon": 77.6081348 },
+    { "lat": 12.9725750, "lon": 77.6082170 },
+    { "lat": 12.9726162, "lon": 77.6083027 },
+    { "lat": 12.9726607, "lon": 77.6083918 },
+    { "lat": 12.9727128, "lon": 77.6084988 },
+    { "lat": 12.9728171, "lon": 77.6087155 },
+    { "lat": 12.9729116, "lon": 77.6088972 },
+    { "lat": 12.9729785, "lon": 77.6090495 },
+    { "lat": 12.9730099, "lon": 77.6091180 },
+    { "lat": 12.9731194, "lon": 77.6093556 },
+    { "lat": 12.9731757, "lon": 77.6094835 },
+    { "lat": 12.9732225, "lon": 77.6095921 },
+    { "lat": 12.9733065, "lon": 77.6097827 },
+    { "lat": 12.9733493, "lon": 77.6098914 },
+    { "lat": 12.9733781, "lon": 77.6099704 },
+    { "lat": 12.9734088, "lon": 77.6100833 },
+    { "lat": 12.9734319, "lon": 77.6101501 },
+    { "lat": 12.9734351, "lon": 77.6101595 },
+    { "lat": 12.9734712, "lon": 77.6102613 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "3",
+    "maxspeed": "30",
+    "name": "Residency Road",
+    "name:etymology:wikidata": "Q3630913",
+    "name:kn": "ರೆಸಿಡೆನ್ಸಿ ರಸ್ತೆ",
+    "official_name": "Field Marshal Cariappa Road",
+    "official_name:etymology:wikidata": "Q3630913",
+    "official_name:kn": "ಕಾರಿಯಪ್ಪ ರಸ್ತೆ",
+    "old_name": "Residency Road",
+    "oneway": "yes",
+    "short_name": "F M Cariappa Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 133358657,
+  "bounds": {
+    "minlat": 12.9816235,
+    "minlon": 77.6082407,
+    "maxlat": 12.9848433,
+    "maxlon": 77.6089338
+  },
+  "geometry": [
+    { "lat": 12.9848433, "lon": 77.6089338 },
+    { "lat": 12.9846490, "lon": 77.6089115 },
+    { "lat": 12.9844675, "lon": 77.6088786 },
+    { "lat": 12.9841188, "lon": 77.6087987 },
+    { "lat": 12.9837195, "lon": 77.6086527 },
+    { "lat": 12.9829184, "lon": 77.6084736 },
+    { "lat": 12.9822215, "lon": 77.6083522 },
+    { "lat": 12.9821818, "lon": 77.6083460 },
+    { "lat": 12.9821483, "lon": 77.6083416 },
+    { "lat": 12.9816861, "lon": 77.6082512 },
+    { "lat": 12.9816235, "lon": 77.6082407 }
+  ],
+  "tags": {
+    "access": "yes",
+    "foot": "yes",
+    "highway": "residential",
+    "lane_markings": "no",
+    "maxspeed": "30",
+    "motor_vehicle": "yes",
+    "name": "Narayan Pillai Street",
+    "name:kn": "ನಾರಾಯಣ ಪಿಲ್ಲೈ ಸ್ಟ್ರೀಟ್‌",
+    "note": "Whitetopping work ongoing",
+    "oneway": "yes",
+    "smoothness": "good",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 143240402,
+  "bounds": {
+    "minlat": 12.9815371,
+    "minlon": 77.6062389,
+    "maxlat": 12.9829181,
+    "maxlon": 77.6102719
+  },
+  "geometry": [
+    { "lat": 12.9815371, "lon": 77.6102719 },
+    { "lat": 12.9815520, "lon": 77.6102270 },
+    { "lat": 12.9816826, "lon": 77.6098421 },
+    { "lat": 12.9816904, "lon": 77.6098182 },
+    { "lat": 12.9817019, "lon": 77.6097827 },
+    { "lat": 12.9817074, "lon": 77.6097659 },
+    { "lat": 12.9819652, "lon": 77.6089962 },
+    { "lat": 12.9819737, "lon": 77.6089710 },
+    { "lat": 12.9819804, "lon": 77.6089509 },
+    { "lat": 12.9821729, "lon": 77.6083756 },
+    { "lat": 12.9821818, "lon": 77.6083460 },
+    { "lat": 12.9821929, "lon": 77.6083134 },
+    { "lat": 12.9824127, "lon": 77.6077146 },
+    { "lat": 12.9824227, "lon": 77.6076854 },
+    { "lat": 12.9824316, "lon": 77.6076598 },
+    { "lat": 12.9826107, "lon": 77.6071332 },
+    { "lat": 12.9826218, "lon": 77.6071027 },
+    { "lat": 12.9826348, "lon": 77.6070656 },
+    { "lat": 12.9829051, "lon": 77.6062768 },
+    { "lat": 12.9829181, "lon": 77.6062389 }
+  ],
+  "tags": {
+    "abutters": "commercial",
+    "access": "yes",
+    "auto_rickshaw": "no",
+    "highway": "unclassified",
+    "lanes": "2",
+    "lit": "yes",
+    "motor_vehicle": "yes",
+    "name": "Commercial Street",
+    "name:kn": "ಕಮರ್ಷಿಯಲ್ ರಸ್ತೆ",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 147859357,
+  "bounds": {
+    "minlat": 12.9751536,
+    "minlon": 77.6079654,
+    "maxlat": 12.9751847,
+    "maxlon": 77.6080782
+  },
+  "geometry": [
+    { "lat": 12.9751847, "lon": 77.6079654 },
+    { "lat": 12.9751536, "lon": 77.6080782 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "secondary",
+    "lane_markings": "no",
+    "lit": "yes",
+    "maxheight": "default",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 157571651,
+  "bounds": {
+    "minlat": 12.9725327,
+    "minlon": 77.6194555,
+    "maxlat": 12.9726085,
+    "maxlon": 77.6198145
+  },
+  "geometry": [
+    { "lat": 12.9726085, "lon": 77.6198145 },
+    { "lat": 12.9725836, "lon": 77.6197084 },
+    { "lat": 12.9725667, "lon": 77.6196368 },
+    { "lat": 12.9725635, "lon": 77.6196229 },
+    { "lat": 12.9725575, "lon": 77.6195975 },
+    { "lat": 12.9725525, "lon": 77.6195483 },
+    { "lat": 12.9725327, "lon": 77.6194555 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 157575514,
+  "bounds": {
+    "minlat": 12.9726314,
+    "minlon": 77.6191860,
+    "maxlat": 12.9726629,
+    "maxlon": 77.6195435
+  },
+  "geometry": [
+    { "lat": 12.9726314, "lon": 77.6191860 },
+    { "lat": 12.9726391, "lon": 77.6193087 },
+    { "lat": 12.9726414, "lon": 77.6193427 },
+    { "lat": 12.9726447, "lon": 77.6193963 },
+    { "lat": 12.9726511, "lon": 77.6194479 },
+    { "lat": 12.9726629, "lon": 77.6195435 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxheight": "default",
+    "maxspeed": "50",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "smoothness": "excellent",
+    "source:maxspeed": "sign",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 161416663,
+  "bounds": {
+    "minlat": 12.9765180,
+    "minlon": 77.6005380,
+    "maxlat": 12.9765680,
+    "maxlon": 77.6017987
+  },
+  "geometry": [
+    { "lat": 12.9765180, "lon": 77.6017987 },
+    { "lat": 12.9765205, "lon": 77.6016742 },
+    { "lat": 12.9765403, "lon": 77.6010369 },
+    { "lat": 12.9765607, "lon": 77.6008288 },
+    { "lat": 12.9765680, "lon": 77.6005380 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "4",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 239572010,
+  "bounds": {
+    "minlat": 12.9662172,
+    "minlon": 77.6060119,
+    "maxlat": 12.9684343,
+    "maxlon": 77.6067229
+  },
+  "geometry": [
+    { "lat": 12.9662172, "lon": 77.6067229 },
+    { "lat": 12.9663045, "lon": 77.6067176 },
+    { "lat": 12.9664877, "lon": 77.6066706 },
+    { "lat": 12.9667351, "lon": 77.6066064 },
+    { "lat": 12.9669676, "lon": 77.6065453 },
+    { "lat": 12.9671139, "lon": 77.6065039 },
+    { "lat": 12.9671373, "lon": 77.6064965 },
+    { "lat": 12.9673833, "lon": 77.6064281 },
+    { "lat": 12.9676984, "lon": 77.6063435 },
+    { "lat": 12.9677749, "lon": 77.6063229 },
+    { "lat": 12.9680066, "lon": 77.6062240 },
+    { "lat": 12.9680656, "lon": 77.6061958 },
+    { "lat": 12.9680991, "lon": 77.6061795 },
+    { "lat": 12.9682645, "lon": 77.6060994 },
+    { "lat": 12.9684343, "lon": 77.6060119 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Brigade Road",
+    "name:kn": "ಬ್ರಿಗೇಡ್ ರಸ್ತೆ",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 239572011,
+  "bounds": {
+    "minlat": 12.9663248,
+    "minlon": 77.6062235,
+    "maxlat": 12.9684742,
+    "maxlon": 77.6068040
+  },
+  "geometry": [
+    { "lat": 12.9684742, "lon": 77.6062418 },
+    { "lat": 12.9683460, "lon": 77.6062257 },
+    { "lat": 12.9682994, "lon": 77.6062235 },
+    { "lat": 12.9681464, "lon": 77.6062757 },
+    { "lat": 12.9681205, "lon": 77.6062845 },
+    { "lat": 12.9680280, "lon": 77.6063205 },
+    { "lat": 12.9678157, "lon": 77.6064037 },
+    { "lat": 12.9677115, "lon": 77.6064357 },
+    { "lat": 12.9672765, "lon": 77.6065676 },
+    { "lat": 12.9671183, "lon": 77.6066149 },
+    { "lat": 12.9668831, "lon": 77.6066724 },
+    { "lat": 12.9663803, "lon": 77.6067892 },
+    { "lat": 12.9663248, "lon": 77.6068040 }
+  ],
+  "tags": {
+    "auto_rickshaw": "no",
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Brigade Road",
+    "name:kn": "ಬ್ರಿಗೇಡ್ ರಸ್ತೆ",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 263812623,
+  "bounds": {
+    "minlat": 12.9732211,
+    "minlon": 77.6139534,
+    "maxlat": 12.9737658,
+    "maxlon": 77.6163668
+  },
+  "geometry": [
+    { "lat": 12.9737658, "lon": 77.6139534 },
+    { "lat": 12.9737573, "lon": 77.6139891 },
+    { "lat": 12.9736329, "lon": 77.6145522 },
+    { "lat": 12.9734870, "lon": 77.6151930 },
+    { "lat": 12.9733656, "lon": 77.6157118 },
+    { "lat": 12.9733471, "lon": 77.6157956 },
+    { "lat": 12.9732671, "lon": 77.6161558 },
+    { "lat": 12.9732262, "lon": 77.6163434 },
+    { "lat": 12.9732211, "lon": 77.6163668 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "hgv": "no",
+    "highway": "primary",
+    "lanes": "3",
+    "maxheight": "default",
+    "maxspeed": "50",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "smoothness": "excellent",
+    "source:maxspeed": "sign",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 328758433,
+  "bounds": {
+    "minlat": 12.9780565,
+    "minlon": 77.6090726,
+    "maxlat": 12.9809511,
+    "maxlon": 77.6100976
+  },
+  "geometry": [
+    { "lat": 12.9809511, "lon": 77.6100976 },
+    { "lat": 12.9808294, "lon": 77.6100545 },
+    { "lat": 12.9806703, "lon": 77.6099998 },
+    { "lat": 12.9781786, "lon": 77.6091138 },
+    { "lat": 12.9781150, "lon": 77.6090912 },
+    { "lat": 12.9780565, "lon": 77.6090726 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Kamaraj Road",
+    "name:etymology:wikidata": "Q522048",
+    "name:kn": "ಕಾಮರಾಜ ರಸ್ತೆ",
+    "old_name": "Cavalry Road",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 391160931,
+  "bounds": {
+    "minlat": 12.9728676,
+    "minlon": 77.5815038,
+    "maxlat": 12.9758455,
+    "maxlon": 77.5870398
+  },
+  "geometry": [
+    { "lat": 12.9728676, "lon": 77.5815038 },
+    { "lat": 12.9729427, "lon": 77.5815824 },
+    { "lat": 12.9730054, "lon": 77.5816997 },
+    { "lat": 12.9731895, "lon": 77.5820361 },
+    { "lat": 12.9734675, "lon": 77.5824988 },
+    { "lat": 12.9735393, "lon": 77.5826095 },
+    { "lat": 12.9736786, "lon": 77.5828240 },
+    { "lat": 12.9738008, "lon": 77.5830320 },
+    { "lat": 12.9739642, "lon": 77.5833111 },
+    { "lat": 12.9740210, "lon": 77.5834082 },
+    { "lat": 12.9744923, "lon": 77.5841950 },
+    { "lat": 12.9745529, "lon": 77.5842983 },
+    { "lat": 12.9746994, "lon": 77.5845383 },
+    { "lat": 12.9747257, "lon": 77.5845812 },
+    { "lat": 12.9748420, "lon": 77.5847728 },
+    { "lat": 12.9749267, "lon": 77.5849201 },
+    { "lat": 12.9749538, "lon": 77.5849790 },
+    { "lat": 12.9750596, "lon": 77.5851954 },
+    { "lat": 12.9751597, "lon": 77.5854051 },
+    { "lat": 12.9753677, "lon": 77.5858928 },
+    { "lat": 12.9754573, "lon": 77.5861092 },
+    { "lat": 12.9756035, "lon": 77.5864620 },
+    { "lat": 12.9756398, "lon": 77.5865498 },
+    { "lat": 12.9756728, "lon": 77.5866293 },
+    { "lat": 12.9757279, "lon": 77.5867625 },
+    { "lat": 12.9757545, "lon": 77.5868254 },
+    { "lat": 12.9758455, "lon": 77.5870398 }
+  ],
+  "tags": {
+    "alt_name": "City Civil Court Road",
+    "dual_carriageway": "yes",
+    "highway": "tertiary",
+    "lanes": "2",
+    "name": "Old Post Office Road",
+    "name:kn": "ಹಳೇ ಪೋಸ್ಟ್ ಆಫೀಸ್ ರಸ್ತೆ",
+    "note": "Whitetopping work completed in 2025",
+    "old_name": "Post Office Road",
+    "old_name:kn": "೬೦ ಅಡಿ ರಸ್ತೆ",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "smoothness": "good",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 401908499,
+  "bounds": {
+    "minlat": 12.9569716,
+    "minlon": 77.6189754,
+    "maxlat": 12.9624957,
+    "maxlon": 77.6212307
+  },
+  "geometry": [
+    { "lat": 12.9624957, "lon": 77.6189754 },
+    { "lat": 12.9624367, "lon": 77.6189999 },
+    { "lat": 12.9597645, "lon": 77.6201094 },
+    { "lat": 12.9590482, "lon": 77.6204288 },
+    { "lat": 12.9588290, "lon": 77.6205501 },
+    { "lat": 12.9581385, "lon": 77.6210584 },
+    { "lat": 12.9579928, "lon": 77.6211656 },
+    { "lat": 12.9578458, "lon": 77.6212100 },
+    { "lat": 12.9577218, "lon": 77.6212218 },
+    { "lat": 12.9574161, "lon": 77.6212307 },
+    { "lat": 12.9572276, "lon": 77.6212299 },
+    { "lat": 12.9569716, "lon": 77.6212096 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed:type": "IN:urban",
+    "name": "Lower Agaram Road",
+    "name:kn": "ಲೋವರ್ ಅಗರಂ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "oneway": "yes",
+    "sidewalk": "left",
+    "sidewalk:left:surface": "concrete",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 403473934,
+  "bounds": {
+    "minlat": 12.9933678,
+    "minlon": 77.5957424,
+    "maxlat": 12.9939603,
+    "maxlon": 77.5958918
+  },
+  "geometry": [
+    { "lat": 12.9933678, "lon": 77.5958884 },
+    { "lat": 12.9934128, "lon": 77.5958918 },
+    { "lat": 12.9936889, "lon": 77.5958202 },
+    { "lat": 12.9937589, "lon": 77.5958002 },
+    { "lat": 12.9939603, "lon": 77.5957424 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "name": "Thimmaiah Road",
+    "name:kn": "ತಿಮ್ಮಯ್ಯ ರಸ್ತೆ",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 435249314,
+  "bounds": {
+    "minlat": 12.9752081,
+    "minlon": 77.6043027,
+    "maxlat": 12.9759656,
+    "maxlon": 77.6074118
+  },
+  "geometry": [
+    { "lat": 12.9752081, "lon": 77.6074118 },
+    { "lat": 12.9752196, "lon": 77.6073644 },
+    { "lat": 12.9754287, "lon": 77.6065055 },
+    { "lat": 12.9756358, "lon": 77.6056816 },
+    { "lat": 12.9757181, "lon": 77.6053346 },
+    { "lat": 12.9758267, "lon": 77.6048758 },
+    { "lat": 12.9759093, "lon": 77.6045392 },
+    { "lat": 12.9759656, "lon": 77.6043027 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxheight": "5.5",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "parking:left": "lane",
+    "parking:left:fee": "yes",
+    "parking:left:orientation": "parallel",
+    "parking:right": "no",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 461556535,
+  "bounds": {
+    "minlat": 12.9675244,
+    "minlon": 77.5996988,
+    "maxlat": 12.9709016,
+    "maxlon": 77.6048071
+  },
+  "geometry": [
+    { "lat": 12.9675244, "lon": 77.5996988 },
+    { "lat": 12.9677060, "lon": 77.5999243 },
+    { "lat": 12.9679072, "lon": 77.6001938 },
+    { "lat": 12.9679192, "lon": 77.6002120 },
+    { "lat": 12.9679353, "lon": 77.6002368 },
+    { "lat": 12.9680000, "lon": 77.6003351 },
+    { "lat": 12.9680441, "lon": 77.6004396 },
+    { "lat": 12.9684304, "lon": 77.6010695 },
+    { "lat": 12.9684592, "lon": 77.6011160 },
+    { "lat": 12.9686220, "lon": 77.6013686 },
+    { "lat": 12.9688391, "lon": 77.6016717 },
+    { "lat": 12.9689650, "lon": 77.6018476 },
+    { "lat": 12.9690533, "lon": 77.6019578 },
+    { "lat": 12.9691415, "lon": 77.6020679 },
+    { "lat": 12.9694188, "lon": 77.6024023 },
+    { "lat": 12.9694552, "lon": 77.6024469 },
+    { "lat": 12.9694839, "lon": 77.6024848 },
+    { "lat": 12.9698196, "lon": 77.6029278 },
+    { "lat": 12.9698611, "lon": 77.6029825 },
+    { "lat": 12.9698639, "lon": 77.6029865 },
+    { "lat": 12.9703682, "lon": 77.6037113 },
+    { "lat": 12.9705619, "lon": 77.6040870 },
+    { "lat": 12.9706580, "lon": 77.6042893 },
+    { "lat": 12.9708359, "lon": 77.6046571 },
+    { "lat": 12.9708459, "lon": 77.6046777 },
+    { "lat": 12.9709016, "lon": 77.6048071 }
+  ],
+  "tags": {
+    "hazard": "school_zone",
+    "highway": "primary",
+    "lanes": "4",
+    "maxspeed": "25",
+    "maxspeed:type": "sign",
+    "name": "Residency Road",
+    "name:kn": "ರೆಸಿಡೆನ್ಸಿ ರಸ್ತೆ",
+    "official_name": "Field Marshal Cariappa Road",
+    "official_name:etymology:wikidata": "Q3630913",
+    "official_name:kn": "ಕಾರಿಯಪ್ಪ ರಸ್ತೆ",
+    "old_name": "Residency Road",
+    "oneway": "yes",
+    "short_name": "F M Cariappa Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt",
+    "turn:lanes": "left|through|through|through|"
+  }
+},
+{
+  "type": "way",
+  "id": 498553630,
+  "bounds": {
+    "minlat": 12.9739701,
+    "minlon": 77.6110929,
+    "maxlat": 12.9743365,
+    "maxlon": 77.6111075
+  },
+  "geometry": [
+    { "lat": 12.9739701, "lon": 77.6110951 },
+    { "lat": 12.9741043, "lon": 77.6111075 },
+    { "lat": 12.9741929, "lon": 77.6111055 },
+    { "lat": 12.9742152, "lon": 77.6111042 },
+    { "lat": 12.9743365, "lon": 77.6110929 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "2",
+    "maxspeed": "30",
+    "name": "Residency Road",
+    "name:etymology:wikidata": "Q3630913",
+    "name:kn": "ರೆಸಿಡೆನ್ಸಿ ರಸ್ತೆ",
+    "official_name": "Field Marshal Cariappa Road",
+    "official_name:etymology:wikidata": "Q3630913",
+    "official_name:kn": "ಕಾರಿಯಪ್ಪ ರಸ್ತೆ",
+    "old_name": "Residency Road",
+    "oneway": "yes",
+    "short_name": "F M Cariappa Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt",
+    "turn:lanes": "left;right|right"
+  }
+},
+{
+  "type": "way",
+  "id": 542070642,
+  "bounds": {
+    "minlat": 12.9771223,
+    "minlon": 77.6087723,
+    "maxlat": 12.9772438,
+    "maxlon": 77.6087973
+  },
+  "geometry": [
+    { "lat": 12.9772438, "lon": 77.6087973 },
+    { "lat": 12.9771223, "lon": 77.6087723 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "name": "Kamaraj Road",
+    "name:etymology:wikidata": "Q522048",
+    "name:kn": "ಕಾಮರಾಜ ರಸ್ತೆ",
+    "old_name": "Cavalry Road",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 542070644,
+  "bounds": {
+    "minlat": 12.9772748,
+    "minlon": 77.6087163,
+    "maxlat": 12.9810360,
+    "maxlon": 77.6100994
+  },
+  "geometry": [
+    { "lat": 12.9772748, "lon": 77.6087163 },
+    { "lat": 12.9773837, "lon": 77.6087590 },
+    { "lat": 12.9782010, "lon": 77.6090526 },
+    { "lat": 12.9783248, "lon": 77.6090971 },
+    { "lat": 12.9798455, "lon": 77.6096433 },
+    { "lat": 12.9799097, "lon": 77.6096664 },
+    { "lat": 12.9804923, "lon": 77.6098757 },
+    { "lat": 12.9808458, "lon": 77.6100026 },
+    { "lat": 12.9808752, "lon": 77.6100132 },
+    { "lat": 12.9809645, "lon": 77.6100453 },
+    { "lat": 12.9810360, "lon": 77.6100994 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Kamaraj Road",
+    "name:etymology:wikidata": "Q522048",
+    "name:kn": "ಕಾಮರಾಜ ರಸ್ತೆ",
+    "old_name": "Cavalry Road",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 542070646,
+  "bounds": {
+    "minlat": 12.9771550,
+    "minlon": 77.6086718,
+    "maxlat": 12.9772748,
+    "maxlon": 77.6087163
+  },
+  "geometry": [
+    { "lat": 12.9771550, "lon": 77.6086718 },
+    { "lat": 12.9772748, "lon": 77.6087163 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "name": "Kamaraj Road",
+    "name:etymology:wikidata": "Q522048",
+    "name:kn": "ಕಾಮರಾಜ ರಸ್ತೆ",
+    "old_name": "Cavalry Road",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 544759837,
+  "bounds": {
+    "minlat": 12.9743365,
+    "minlon": 77.6101534,
+    "maxlat": 12.9745570,
+    "maxlon": 77.6110929
+  },
+  "geometry": [
+    { "lat": 12.9743365, "lon": 77.6110929 },
+    { "lat": 12.9743556, "lon": 77.6110136 },
+    { "lat": 12.9745570, "lon": 77.6101534 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "hgv": "no",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "psv": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 544759838,
+  "bounds": {
+    "minlat": 12.9747412,
+    "minlon": 77.6082354,
+    "maxlat": 12.9749980,
+    "maxlon": 77.6093754
+  },
+  "geometry": [
+    { "lat": 12.9747412, "lon": 77.6093754 },
+    { "lat": 12.9747628, "lon": 77.6092844 },
+    { "lat": 12.9748492, "lon": 77.6089189 },
+    { "lat": 12.9748925, "lon": 77.6087273 },
+    { "lat": 12.9749980, "lon": 77.6082354 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "hgv": "no",
+    "highway": "secondary",
+    "lanes": "3",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "psv": "yes",
+    "restriction": "no_parking",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt",
+    "turn:lanes": "left|through|through"
+  }
+},
+{
+  "type": "way",
+  "id": 638541495,
+  "bounds": {
+    "minlat": 12.9731060,
+    "minlon": 77.6139262,
+    "maxlat": 12.9736580,
+    "maxlon": 77.6163389
+  },
+  "geometry": [
+    { "lat": 12.9731060, "lon": 77.6163389 },
+    { "lat": 12.9731408, "lon": 77.6161946 },
+    { "lat": 12.9732208, "lon": 77.6158637 },
+    { "lat": 12.9733048, "lon": 77.6154932 },
+    { "lat": 12.9733747, "lon": 77.6151679 },
+    { "lat": 12.9733874, "lon": 77.6151106 },
+    { "lat": 12.9734079, "lon": 77.6150184 },
+    { "lat": 12.9735513, "lon": 77.6143833 },
+    { "lat": 12.9736023, "lon": 77.6141662 },
+    { "lat": 12.9736162, "lon": 77.6141068 },
+    { "lat": 12.9736275, "lon": 77.6140584 },
+    { "lat": 12.9736464, "lon": 77.6139762 },
+    { "lat": 12.9736501, "lon": 77.6139600 },
+    { "lat": 12.9736580, "lon": 77.6139262 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk:both": "yes",
+    "sidewalk:left:surface": "paving_stones",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 638541500,
+  "bounds": {
+    "minlat": 12.9740835,
+    "minlon": 77.6112188,
+    "maxlat": 12.9743038,
+    "maxlon": 77.6121266
+  },
+  "geometry": [
+    { "lat": 12.9740835, "lon": 77.6121266 },
+    { "lat": 12.9742918, "lon": 77.6112676 },
+    { "lat": 12.9743038, "lon": 77.6112188 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 691218619,
+  "bounds": {
+    "minlat": 12.9736000,
+    "minlon": 77.6105726,
+    "maxlat": 12.9739701,
+    "maxlon": 77.6110951
+  },
+  "geometry": [
+    { "lat": 12.9736000, "lon": 77.6105726 },
+    { "lat": 12.9736646, "lon": 77.6107290 },
+    { "lat": 12.9737579, "lon": 77.6109089 },
+    { "lat": 12.9738513, "lon": 77.6110077 },
+    { "lat": 12.9739701, "lon": 77.6110951 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "2",
+    "maxspeed": "30",
+    "name": "Residency Road",
+    "name:etymology:wikidata": "Q3630913",
+    "name:kn": "ರೆಸಿಡೆನ್ಸಿ ರಸ್ತೆ",
+    "official_name": "Field Marshal Cariappa Road",
+    "official_name:etymology:wikidata": "Q3630913",
+    "official_name:kn": "ಕಾರಿಯಪ್ಪ ರಸ್ತೆ",
+    "old_name": "Residency Road",
+    "oneway": "yes",
+    "short_name": "F M Cariappa Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 705023782,
+  "bounds": {
+    "minlat": 12.9751536,
+    "minlon": 77.6080782,
+    "maxlat": 12.9771223,
+    "maxlon": 77.6087723
+  },
+  "geometry": [
+    { "lat": 12.9771223, "lon": 77.6087723 },
+    { "lat": 12.9770548, "lon": 77.6087550 },
+    { "lat": 12.9759514, "lon": 77.6083599 },
+    { "lat": 12.9757878, "lon": 77.6083013 },
+    { "lat": 12.9752790, "lon": 77.6081191 },
+    { "lat": 12.9752511, "lon": 77.6081100 },
+    { "lat": 12.9751536, "lon": 77.6080782 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "name": "Kamaraj Road",
+    "name:etymology:wikidata": "Q522048",
+    "name:kn": "ಕಾಮರಾಜ ರಸ್ತೆ",
+    "old_name": "Cavalry Road",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "start_date": "2026-01-02",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 705023783,
+  "bounds": {
+    "minlat": 12.9751847,
+    "minlon": 77.6079654,
+    "maxlat": 12.9771550,
+    "maxlon": 77.6086718
+  },
+  "geometry": [
+    { "lat": 12.9751847, "lon": 77.6079654 },
+    { "lat": 12.9752782, "lon": 77.6079927 },
+    { "lat": 12.9759909, "lon": 77.6082438 },
+    { "lat": 12.9767046, "lon": 77.6084952 },
+    { "lat": 12.9767749, "lon": 77.6085558 },
+    { "lat": 12.9768546, "lon": 77.6085980 },
+    { "lat": 12.9769821, "lon": 77.6086376 },
+    { "lat": 12.9770901, "lon": 77.6086499 },
+    { "lat": 12.9771550, "lon": 77.6086718 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Kamaraj Road",
+    "name:etymology:wikidata": "Q522048",
+    "name:kn": "ಕಾಮರಾಜ ರಸ್ತೆ",
+    "old_name": "Cavalry Road",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 763175332,
+  "bounds": {
+    "minlat": 12.9624708,
+    "minlon": 77.6176955,
+    "maxlat": 12.9652127,
+    "maxlon": 77.6188971
+  },
+  "geometry": [
+    { "lat": 12.9624708, "lon": 77.6188971 },
+    { "lat": 12.9635109, "lon": 77.6184234 },
+    { "lat": 12.9645087, "lon": 77.6179698 },
+    { "lat": 12.9647825, "lon": 77.6178510 },
+    { "lat": 12.9649161, "lon": 77.6177880 },
+    { "lat": 12.9651727, "lon": 77.6176955 },
+    { "lat": 12.9652127, "lon": 77.6176957 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Lower Agaram Road",
+    "name:kn": "ಲೋವರ್ ಅಗರಂ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 763175333,
+  "bounds": {
+    "minlat": 12.9553429,
+    "minlon": 77.6208475,
+    "maxlat": 12.9565828,
+    "maxlon": 77.6210768
+  },
+  "geometry": [
+    { "lat": 12.9553429, "lon": 77.6208475 },
+    { "lat": 12.9559254, "lon": 77.6209439 },
+    { "lat": 12.9561594, "lon": 77.6209889 },
+    { "lat": 12.9563696, "lon": 77.6210294 },
+    { "lat": 12.9563900, "lon": 77.6210339 },
+    { "lat": 12.9565828, "lon": 77.6210768 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Lower Agaram Road",
+    "name:kn": "ಅಗರಂ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 763183691,
+  "bounds": {
+    "minlat": 12.9725084,
+    "minlon": 77.6190993,
+    "maxlat": 12.9725327,
+    "maxlon": 77.6194555
+  },
+  "geometry": [
+    { "lat": 12.9725327, "lon": 77.6194555 },
+    { "lat": 12.9725155, "lon": 77.6193378 },
+    { "lat": 12.9725110, "lon": 77.6193071 },
+    { "lat": 12.9725093, "lon": 77.6191713 },
+    { "lat": 12.9725084, "lon": 77.6190993 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk:left": "yes",
+    "sidewalk:left:surface": "paving_stones",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 763290547,
+  "bounds": {
+    "minlat": 12.9714769,
+    "minlon": 77.6061084,
+    "maxlat": 12.9719271,
+    "maxlon": 77.6070444
+  },
+  "geometry": [
+    { "lat": 12.9714769, "lon": 77.6061084 },
+    { "lat": 12.9715117, "lon": 77.6061875 },
+    { "lat": 12.9717020, "lon": 77.6065829 },
+    { "lat": 12.9717943, "lon": 77.6067886 },
+    { "lat": 12.9718329, "lon": 77.6068763 },
+    { "lat": 12.9718422, "lon": 77.6068998 },
+    { "lat": 12.9719271, "lon": 77.6070444 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "maxspeed": "40",
+    "name": "Residency Road",
+    "name:etymology:wikidata": "Q3630913",
+    "name:kn": "ರೆಸಿಡೆನ್ಸಿ ರಸ್ತೆ",
+    "note": "Whitetopping work completed in 2025",
+    "official_name": "Field Marshal Cariappa Road",
+    "official_name:etymology:wikidata": "Q3630913",
+    "official_name:kn": "ಕಾರಿಯಪ್ಪ ರಸ್ತೆ",
+    "old_name": "Residency Road",
+    "oneway": "yes",
+    "short_name": "F M Cariappa Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 763293422,
+  "bounds": {
+    "minlat": 12.9744256,
+    "minlon": 77.6111115,
+    "maxlat": 12.9744418,
+    "maxlon": 77.6111840
+  },
+  "geometry": [
+    { "lat": 12.9744418, "lon": 77.6111115 },
+    { "lat": 12.9744256, "lon": 77.6111840 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "maxspeed": "50",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "smoothness": "excellent",
+    "source:maxspeed": "sign",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 763405053,
+  "bounds": {
+    "minlat": 12.9734712,
+    "minlon": 77.6102613,
+    "maxlat": 12.9736000,
+    "maxlon": 77.6105726
+  },
+  "geometry": [
+    { "lat": 12.9734712, "lon": 77.6102613 },
+    { "lat": 12.9736000, "lon": 77.6105726 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "2",
+    "maxspeed": "30",
+    "name": "Residency Road",
+    "name:etymology:wikidata": "Q3630913",
+    "name:kn": "ರೆಸಿಡೆನ್ಸಿ ರಸ್ತೆ",
+    "official_name": "Field Marshal Cariappa Road",
+    "official_name:etymology:wikidata": "Q3630913",
+    "official_name:kn": "ಕಾರಿಯಪ್ಪ ರಸ್ತೆ",
+    "old_name": "Residency Road",
+    "oneway": "yes",
+    "short_name": "F M Cariappa Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 764329017,
+  "bounds": {
+    "minlat": 12.9624957,
+    "minlon": 77.6178294,
+    "maxlat": 12.9654222,
+    "maxlon": 77.6189754
+  },
+  "geometry": [
+    { "lat": 12.9654222, "lon": 77.6178720 },
+    { "lat": 12.9653282, "lon": 77.6178608 },
+    { "lat": 12.9652902, "lon": 77.6178555 },
+    { "lat": 12.9652730, "lon": 77.6178517 },
+    { "lat": 12.9652510, "lon": 77.6178469 },
+    { "lat": 12.9651605, "lon": 77.6178294 },
+    { "lat": 12.9650719, "lon": 77.6178374 },
+    { "lat": 12.9645353, "lon": 77.6180529 },
+    { "lat": 12.9639990, "lon": 77.6183162 },
+    { "lat": 12.9635059, "lon": 77.6185559 },
+    { "lat": 12.9624957, "lon": 77.6189754 }
+  ],
+  "tags": {
+    "highway": "construction",
+    "name": "Lower Agaram Road",
+    "name:kn": "ಅಗರಂ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 764406991,
+  "bounds": {
+    "minlat": 12.9713033,
+    "minlon": 77.6069998,
+    "maxlat": 12.9719271,
+    "maxlon": 77.6070837
+  },
+  "geometry": [
+    { "lat": 12.9719271, "lon": 77.6070444 },
+    { "lat": 12.9718471, "lon": 77.6070750 },
+    { "lat": 12.9717193, "lon": 77.6070837 },
+    { "lat": 12.9715393, "lon": 77.6070531 },
+    { "lat": 12.9714510, "lon": 77.6070389 },
+    { "lat": 12.9713928, "lon": 77.6070235 },
+    { "lat": 12.9713033, "lon": 77.6069998 }
+  ],
+  "tags": {
+    "auto_rickshaw": "no",
+    "highway": "secondary",
+    "lanes": "3",
+    "name": "Brigade Road",
+    "name:kn": "ಬ್ರಿಗೇಡ್ ರಸ್ತೆ",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "smoothness": "excellent"
+  }
+},
+{
+  "type": "way",
+  "id": 766406223,
+  "bounds": {
+    "minlat": 12.9765934,
+    "minlon": 77.5993520,
+    "maxlat": 12.9766163,
+    "maxlon": 77.6000075
+  },
+  "geometry": [
+    { "lat": 12.9765934, "lon": 77.6000075 },
+    { "lat": 12.9766153, "lon": 77.5995169 },
+    { "lat": 12.9766159, "lon": 77.5994948 },
+    { "lat": 12.9766163, "lon": 77.5993520 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "3",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "smoothness": "excellent",
+    "surface": "asphalt",
+    "turn:lanes": "through|right|right"
+  }
+},
+{
+  "type": "way",
+  "id": 766406228,
+  "bounds": {
+    "minlat": 12.9669992,
+    "minlon": 77.5990901,
+    "maxlat": 12.9675244,
+    "maxlon": 77.5996988
+  },
+  "geometry": [
+    { "lat": 12.9669992, "lon": 77.5990901 },
+    { "lat": 12.9672844, "lon": 77.5994172 },
+    { "lat": 12.9675244, "lon": 77.5996988 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "3",
+    "maxspeed": "40",
+    "name": "Residency Road",
+    "name:etymology:wikidata": "Q3630913",
+    "name:kn": "ರೆಸಿಡೆನ್ಸಿ ರಸ್ತೆ",
+    "official_name": "Field Marshal Cariappa Road",
+    "official_name:etymology:wikidata": "Q3630913",
+    "official_name:kn": "ಕಾರಿಯಪ್ಪ ರಸ್ತೆ",
+    "old_name": "Residency Road",
+    "oneway": "yes",
+    "short_name": "F M Cariappa Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 766406229,
+  "bounds": {
+    "minlat": 12.9663767,
+    "minlon": 77.5984039,
+    "maxlat": 12.9669992,
+    "maxlon": 77.5990901
+  },
+  "geometry": [
+    { "lat": 12.9663767, "lon": 77.5984039 },
+    { "lat": 12.9664154, "lon": 77.5984466 },
+    { "lat": 12.9664366, "lon": 77.5984699 },
+    { "lat": 12.9664531, "lon": 77.5984881 },
+    { "lat": 12.9664770, "lon": 77.5985145 },
+    { "lat": 12.9665172, "lon": 77.5985588 },
+    { "lat": 12.9665754, "lon": 77.5986230 },
+    { "lat": 12.9666155, "lon": 77.5986675 },
+    { "lat": 12.9669992, "lon": 77.5990901 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "3",
+    "maxspeed": "40",
+    "name": "Residency Road",
+    "name:etymology:wikidata": "Q3630913",
+    "name:kn": "ರೆಸಿಡೆನ್ಸಿ ರಸ್ತೆ",
+    "official_name": "Field Marshal Cariappa Road",
+    "official_name:etymology:wikidata": "Q3630913",
+    "official_name:kn": "ಕಾರಿಯಪ್ಪ ರಸ್ತೆ",
+    "old_name": "Residency Road",
+    "oneway": "yes",
+    "short_name": "F M Cariappa Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 824818261,
+  "bounds": {
+    "minlat": 12.9766715,
+    "minlon": 77.5991951,
+    "maxlat": 12.9767004,
+    "maxlon": 77.5993341
+  },
+  "geometry": [
+    { "lat": 12.9766715, "lon": 77.5991951 },
+    { "lat": 12.9767004, "lon": 77.5993341 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 915684608,
+  "bounds": {
+    "minlat": 12.9766320,
+    "minlon": 77.6008585,
+    "maxlat": 12.9766606,
+    "maxlon": 77.6018644
+  },
+  "geometry": [
+    { "lat": 12.9766606, "lon": 77.6008585 },
+    { "lat": 12.9766324, "lon": 77.6016069 },
+    { "lat": 12.9766320, "lon": 77.6016783 },
+    { "lat": 12.9766386, "lon": 77.6017915 },
+    { "lat": 12.9766374, "lon": 77.6018644 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "3",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt",
+    "turn:lanes": "through|through|left"
+  }
+},
+{
+  "type": "way",
+  "id": 1032505196,
+  "bounds": {
+    "minlat": 12.9901060,
+    "minlon": 77.5995369,
+    "maxlat": 12.9904919,
+    "maxlon": 77.6010040
+  },
+  "geometry": [
+    { "lat": 12.9901060, "lon": 77.6010040 },
+    { "lat": 12.9901420, "lon": 77.6008770 },
+    { "lat": 12.9903826, "lon": 77.5999971 },
+    { "lat": 12.9904853, "lon": 77.5996658 },
+    { "lat": 12.9904919, "lon": 77.5996449 },
+    { "lat": 12.9904875, "lon": 77.5996204 },
+    { "lat": 12.9904791, "lon": 77.5996018 },
+    { "lat": 12.9904593, "lon": 77.5995677 },
+    { "lat": 12.9904351, "lon": 77.5995369 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "name": "Thimmaiah Road",
+    "name:kn": "ತಿಮ್ಮಯ್ಯ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1064418711,
+  "bounds": {
+    "minlat": 12.9750849,
+    "minlon": 77.6079337,
+    "maxlat": 12.9751847,
+    "maxlon": 77.6079654
+  },
+  "geometry": [
+    { "lat": 12.9750849, "lon": 77.6079337 },
+    { "lat": 12.9751847, "lon": 77.6079654 }
+  ],
+  "tags": {
+    "hgv": "no",
+    "highway": "secondary",
+    "lane_markings": "no",
+    "name": "Kamaraj Road",
+    "name:etymology:wikidata": "Q522048",
+    "name:kn": "ಕಾಮರಾಜ ರಸ್ತೆ",
+    "oneway": "yes",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1069545370,
+  "bounds": {
+    "minlat": 12.9900532,
+    "minlon": 77.6038061,
+    "maxlat": 12.9903782,
+    "maxlon": 77.6071284
+  },
+  "geometry": [
+    { "lat": 12.9903782, "lon": 77.6071284 },
+    { "lat": 12.9903219, "lon": 77.6069455 },
+    { "lat": 12.9902157, "lon": 77.6066009 },
+    { "lat": 12.9902144, "lon": 77.6065965 },
+    { "lat": 12.9901909, "lon": 77.6060075 },
+    { "lat": 12.9901859, "lon": 77.6052999 },
+    { "lat": 12.9901606, "lon": 77.6045802 },
+    { "lat": 12.9901555, "lon": 77.6045038 },
+    { "lat": 12.9901445, "lon": 77.6044012 },
+    { "lat": 12.9901111, "lon": 77.6041835 },
+    { "lat": 12.9901018, "lon": 77.6041231 },
+    { "lat": 12.9900532, "lon": 77.6038061 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "name": "Thimmaiah Road",
+    "name:kn": "ತಿಮ್ಮಯ್ಯ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1075317012,
+  "bounds": {
+    "minlat": 12.9750569,
+    "minlon": 77.6080419,
+    "maxlat": 12.9751536,
+    "maxlon": 77.6080782
+  },
+  "geometry": [
+    { "lat": 12.9751536, "lon": 77.6080782 },
+    { "lat": 12.9750569, "lon": 77.6080419 }
+  ],
+  "tags": {
+    "hgv": "no",
+    "highway": "secondary",
+    "name": "Brigade Road",
+    "name:kn": "ಬ್ರಿಗೇಡ್ ರಸ್ತೆ",
+    "oneway": "yes",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1086212781,
+  "bounds": {
+    "minlat": 12.9660850,
+    "minlon": 77.5980834,
+    "maxlat": 12.9663767,
+    "maxlon": 77.5984039
+  },
+  "geometry": [
+    { "lat": 12.9660850, "lon": 77.5980834 },
+    { "lat": 12.9660977, "lon": 77.5980937 },
+    { "lat": 12.9661479, "lon": 77.5981533 },
+    { "lat": 12.9663767, "lon": 77.5984039 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "4",
+    "maxspeed": "30",
+    "name": "Residency Road",
+    "name:etymology:wikidata": "Q3630913",
+    "name:kn": "ರೆಸಿಡೆನ್ಸಿ ರಸ್ತೆ",
+    "official_name": "Field Marshal Cariappa Road",
+    "official_name:etymology:wikidata": "Q3630913",
+    "official_name:kn": "ಕಾರಿಯಪ್ಪ ರಸ್ತೆ",
+    "old_name": "Residency Road",
+    "oneway": "yes",
+    "short_name": "F M Cariappa Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1096797091,
+  "bounds": {
+    "minlat": 12.9709016,
+    "minlon": 77.6048071,
+    "maxlat": 12.9714769,
+    "maxlon": 77.6061084
+  },
+  "geometry": [
+    { "lat": 12.9709016, "lon": 77.6048071 },
+    { "lat": 12.9709466, "lon": 77.6048987 },
+    { "lat": 12.9709593, "lon": 77.6049264 },
+    { "lat": 12.9711189, "lon": 77.6052741 },
+    { "lat": 12.9712302, "lon": 77.6055157 },
+    { "lat": 12.9714386, "lon": 77.6060274 },
+    { "lat": 12.9714769, "lon": 77.6061084 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "3",
+    "maxspeed": "40",
+    "name": "Residency Road",
+    "name:etymology:wikidata": "Q3630913",
+    "name:kn": "ರೆಸಿಡೆನ್ಸಿ ರಸ್ತೆ",
+    "note": "Whitetopping work completed in 2025",
+    "official_name": "Field Marshal Cariappa Road",
+    "official_name:etymology:wikidata": "Q3630913",
+    "official_name:kn": "ಕಾರಿಯಪ್ಪ ರಸ್ತೆ",
+    "old_name": "Residency Road",
+    "oneway": "yes",
+    "short_name": "F M Cariappa Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 1101271052,
+  "bounds": {
+    "minlat": 12.9737658,
+    "minlon": 77.6111840,
+    "maxlat": 12.9744256,
+    "maxlon": 77.6139534
+  },
+  "geometry": [
+    { "lat": 12.9744256, "lon": 77.6111840 },
+    { "lat": 12.9744132, "lon": 77.6112453 },
+    { "lat": 12.9743422, "lon": 77.6115413 },
+    { "lat": 12.9743311, "lon": 77.6115877 },
+    { "lat": 12.9740330, "lon": 77.6128311 },
+    { "lat": 12.9738078, "lon": 77.6137724 },
+    { "lat": 12.9738036, "lon": 77.6137903 },
+    { "lat": 12.9737878, "lon": 77.6138554 },
+    { "lat": 12.9737658, "lon": 77.6139534 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "2",
+    "maxheight": "default",
+    "maxspeed": "50",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "smoothness": "excellent",
+    "source:maxspeed": "sign",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1101945532,
+  "bounds": {
+    "minlat": 12.9765680,
+    "minlon": 77.6000075,
+    "maxlat": 12.9765934,
+    "maxlon": 77.6005380
+  },
+  "geometry": [
+    { "lat": 12.9765680, "lon": 77.6005380 },
+    { "lat": 12.9765921, "lon": 77.6000344 },
+    { "lat": 12.9765934, "lon": 77.6000075 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "4",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1106110231,
+  "bounds": {
+    "minlat": 12.9767004,
+    "minlon": 77.5993341,
+    "maxlat": 12.9767041,
+    "maxlon": 77.5996016
+  },
+  "geometry": [
+    { "lat": 12.9767004, "lon": 77.5993341 },
+    { "lat": 12.9767041, "lon": 77.5994990 },
+    { "lat": 12.9767004, "lon": 77.5996016 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1109921052,
+  "bounds": {
+    "minlat": 12.9848433,
+    "minlon": 77.6089338,
+    "maxlat": 12.9856865,
+    "maxlon": 77.6091160
+  },
+  "geometry": [
+    { "lat": 12.9856865, "lon": 77.6091160 },
+    { "lat": 12.9854758, "lon": 77.6090461 },
+    { "lat": 12.9850831, "lon": 77.6089605 },
+    { "lat": 12.9848433, "lon": 77.6089338 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "maxspeed": "30",
+    "name": "Narayan Pillai Street",
+    "name:kn": "ನಾರಾಯಣ ಪಿಳ್ಳೈ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing",
+    "oneway": "yes",
+    "smoothness": "good",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 1109921054,
+  "bounds": {
+    "minlat": 12.9857066,
+    "minlon": 77.6091220,
+    "maxlat": 12.9858021,
+    "maxlon": 77.6091489
+  },
+  "geometry": [
+    { "lat": 12.9858021, "lon": 77.6091489 },
+    { "lat": 12.9857066, "lon": 77.6091220 }
+  ],
+  "tags": {
+    "bridge": "yes",
+    "highway": "residential",
+    "layer": "1",
+    "maxspeed": "30",
+    "maxweight:signed": "no",
+    "name": "Narayan Pillai Street",
+    "name:kn": "ನಾರಾಯಣ ಪಿಳ್ಳೈ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing",
+    "oneway": "yes",
+    "smoothness": "good",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 1109936324,
+  "bounds": {
+    "minlat": 12.9900162,
+    "minlon": 77.6010040,
+    "maxlat": 12.9901060,
+    "maxlon": 77.6014039
+  },
+  "geometry": [
+    { "lat": 12.9900162, "lon": 77.6014039 },
+    { "lat": 12.9901060, "lon": 77.6010040 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "name": "Thimmaiah Road",
+    "name:kn": "ತಿಮ್ಮಯ್ಯ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1109936326,
+  "bounds": {
+    "minlat": 12.9899794,
+    "minlon": 77.6014039,
+    "maxlat": 12.9900162,
+    "maxlon": 77.6028643
+  },
+  "geometry": [
+    { "lat": 12.9899897, "lon": 77.6028643 },
+    { "lat": 12.9899794, "lon": 77.6021569 },
+    { "lat": 12.9900150, "lon": 77.6014286 },
+    { "lat": 12.9900162, "lon": 77.6014039 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "name": "Thimmaiah Road",
+    "name:kn": "ತಿಮ್ಮಯ್ಯ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1109956874,
+  "bounds": {
+    "minlat": 12.9747265,
+    "minlon": 77.6093754,
+    "maxlat": 12.9747412,
+    "maxlon": 77.6094408
+  },
+  "geometry": [
+    { "lat": 12.9747265, "lon": 77.6094408 },
+    { "lat": 12.9747412, "lon": 77.6093754 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "hgv": "no",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "psv": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1110166329,
+  "bounds": {
+    "minlat": 12.9662393,
+    "minlon": 77.6068040,
+    "maxlat": 12.9663248,
+    "maxlon": 77.6068243
+  },
+  "geometry": [
+    { "lat": 12.9663248, "lon": 77.6068040 },
+    { "lat": 12.9662393, "lon": 77.6068243 }
+  ],
+  "tags": {
+    "auto_rickshaw": "no",
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Brigade Road",
+    "name:kn": "ಬ್ರಿಗೇಡ್ ರಸ್ತೆ",
+    "oneway": "yes",
+    "sidewalk": "left",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1112419799,
+  "bounds": {
+    "minlat": 12.9726314,
+    "minlon": 77.6176168,
+    "maxlat": 12.9729209,
+    "maxlon": 77.6191860
+  },
+  "geometry": [
+    { "lat": 12.9729209, "lon": 77.6176168 },
+    { "lat": 12.9728991, "lon": 77.6177167 },
+    { "lat": 12.9728024, "lon": 77.6181066 },
+    { "lat": 12.9727625, "lon": 77.6182998 },
+    { "lat": 12.9727170, "lon": 77.6185196 },
+    { "lat": 12.9726831, "lon": 77.6186836 },
+    { "lat": 12.9726530, "lon": 77.6188957 },
+    { "lat": 12.9726314, "lon": 77.6191860 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxheight": "default",
+    "maxspeed": "50",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "smoothness": "excellent",
+    "source:maxspeed": "sign",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1112419800,
+  "bounds": {
+    "minlat": 12.9729209,
+    "minlon": 77.6163668,
+    "maxlat": 12.9732211,
+    "maxlon": 77.6176168
+  },
+  "geometry": [
+    { "lat": 12.9732211, "lon": 77.6163668 },
+    { "lat": 12.9731633, "lon": 77.6166077 },
+    { "lat": 12.9731149, "lon": 77.6168090 },
+    { "lat": 12.9731008, "lon": 77.6168676 },
+    { "lat": 12.9730933, "lon": 77.6168990 },
+    { "lat": 12.9730798, "lon": 77.6169552 },
+    { "lat": 12.9730530, "lon": 77.6170690 },
+    { "lat": 12.9730332, "lon": 77.6171491 },
+    { "lat": 12.9729892, "lon": 77.6173323 },
+    { "lat": 12.9729513, "lon": 77.6174904 },
+    { "lat": 12.9729209, "lon": 77.6176168 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "covered": "yes",
+    "highway": "primary",
+    "maxheight": "default",
+    "maxspeed": "50",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "smoothness": "excellent",
+    "source:maxspeed": "sign",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1112419801,
+  "bounds": {
+    "minlat": 12.9728221,
+    "minlon": 77.6163389,
+    "maxlat": 12.9731060,
+    "maxlon": 77.6175959
+  },
+  "geometry": [
+    { "lat": 12.9728221, "lon": 77.6175959 },
+    { "lat": 12.9728494, "lon": 77.6174828 },
+    { "lat": 12.9729399, "lon": 77.6170897 },
+    { "lat": 12.9729751, "lon": 77.6169283 },
+    { "lat": 12.9730124, "lon": 77.6167681 },
+    { "lat": 12.9731060, "lon": 77.6163389 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "covered": "yes",
+    "highway": "primary",
+    "lanes": "2",
+    "maxheight": "4.7",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk:both": "yes",
+    "sidewalk:left:surface": "paving_stones",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1112419802,
+  "bounds": {
+    "minlat": 12.9725084,
+    "minlon": 77.6175959,
+    "maxlat": 12.9728221,
+    "maxlon": 77.6190993
+  },
+  "geometry": [
+    { "lat": 12.9725084, "lon": 77.6190993 },
+    { "lat": 12.9725179, "lon": 77.6190417 },
+    { "lat": 12.9725319, "lon": 77.6189529 },
+    { "lat": 12.9726283, "lon": 77.6184657 },
+    { "lat": 12.9726425, "lon": 77.6184006 },
+    { "lat": 12.9727357, "lon": 77.6179758 },
+    { "lat": 12.9728192, "lon": 77.6176086 },
+    { "lat": 12.9728221, "lon": 77.6175959 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk:left": "yes",
+    "sidewalk:left:surface": "paving_stones",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1125542416,
+  "bounds": {
+    "minlat": 12.9744418,
+    "minlon": 77.6082541,
+    "maxlat": 12.9751131,
+    "maxlon": 77.6111115
+  },
+  "geometry": [
+    { "lat": 12.9751131, "lon": 77.6082541 },
+    { "lat": 12.9749918, "lon": 77.6087811 },
+    { "lat": 12.9744669, "lon": 77.6110102 },
+    { "lat": 12.9744611, "lon": 77.6110365 },
+    { "lat": 12.9744536, "lon": 77.6110658 },
+    { "lat": 12.9744418, "lon": 77.6111115 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "secondary",
+    "lanes": "3",
+    "maxheight": "default",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "parking:left": "lane",
+    "short_name": "MG Road",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1125542417,
+  "bounds": {
+    "minlat": 12.9750569,
+    "minlon": 77.6079337,
+    "maxlat": 12.9750849,
+    "maxlon": 77.6080419
+  },
+  "geometry": [
+    { "lat": 12.9750569, "lon": 77.6080419 },
+    { "lat": 12.9750849, "lon": 77.6079337 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "restriction": "no_parking",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1125542418,
+  "bounds": {
+    "minlat": 12.9749558,
+    "minlon": 77.6079254,
+    "maxlat": 12.9750569,
+    "maxlon": 77.6080419
+  },
+  "geometry": [
+    { "lat": 12.9750569, "lon": 77.6080419 },
+    { "lat": 12.9749558, "lon": 77.6079254 }
+  ],
+  "tags": {
+    "auto_rickshaw": "no",
+    "hgv": "no",
+    "highway": "secondary",
+    "name": "Brigade Road",
+    "name:kn": "ಬ್ರಿಗೇಡ್ ರಸ್ತೆ",
+    "oneway": "yes",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1125542419,
+  "bounds": {
+    "minlat": 12.9723313,
+    "minlon": 77.6070825,
+    "maxlat": 12.9749558,
+    "maxlon": 77.6079254
+  },
+  "geometry": [
+    { "lat": 12.9749558, "lon": 77.6079254 },
+    { "lat": 12.9743274, "lon": 77.6077326 },
+    { "lat": 12.9742935, "lon": 77.6077228 },
+    { "lat": 12.9742552, "lon": 77.6077113 },
+    { "lat": 12.9735977, "lon": 77.6075185 },
+    { "lat": 12.9730694, "lon": 77.6073300 },
+    { "lat": 12.9729210, "lon": 77.6072761 },
+    { "lat": 12.9725335, "lon": 77.6071457 },
+    { "lat": 12.9723313, "lon": 77.6070825 }
+  ],
+  "tags": {
+    "auto_rickshaw": "no",
+    "hgv": "no",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "30",
+    "maxspeed:type": "sign",
+    "name": "Brigade Road",
+    "name:kn": "ಬ್ರಿಗೇಡ್ ರಸ್ತೆ",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "source:auto_rikshaw": "sign",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1148434865,
+  "bounds": {
+    "minlat": 12.9743175,
+    "minlon": 77.6110929,
+    "maxlat": 12.9743365,
+    "maxlon": 77.6111635
+  },
+  "geometry": [
+    { "lat": 12.9743175, "lon": 77.6111635 },
+    { "lat": 12.9743365, "lon": 77.6110929 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "3",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1150927563,
+  "bounds": {
+    "minlat": 12.9772438,
+    "minlon": 77.6087973,
+    "maxlat": 12.9780565,
+    "maxlon": 77.6090726
+  },
+  "geometry": [
+    { "lat": 12.9780565, "lon": 77.6090726 },
+    { "lat": 12.9773635, "lon": 77.6088201 },
+    { "lat": 12.9772438, "lon": 77.6087973 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "name": "Kamaraj Road",
+    "name:etymology:wikidata": "Q522048",
+    "name:kn": "ಕಾಮರಾಜ ರಸ್ತೆ",
+    "old_name": "Cavalry Road",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1151679464,
+  "bounds": {
+    "minlat": 12.9751847,
+    "minlon": 77.6074434,
+    "maxlat": 12.9753116,
+    "maxlon": 77.6079654
+  },
+  "geometry": [
+    { "lat": 12.9753116, "lon": 77.6074434 },
+    { "lat": 12.9752275, "lon": 77.6077865 },
+    { "lat": 12.9752163, "lon": 77.6078317 },
+    { "lat": 12.9751847, "lon": 77.6079654 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxheight": "5.5",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1151681832,
+  "bounds": {
+    "minlat": 12.9745570,
+    "minlon": 77.6094408,
+    "maxlat": 12.9747265,
+    "maxlon": 77.6101534
+  },
+  "geometry": [
+    { "lat": 12.9745570, "lon": 77.6101534 },
+    { "lat": 12.9745751, "lon": 77.6100811 },
+    { "lat": 12.9747265, "lon": 77.6094408 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "hgv": "no",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "orientation": "parallel",
+    "parking:fee": "yes",
+    "parking:lane": "left",
+    "psv": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1158621923,
+  "bounds": {
+    "minlat": 12.9810360,
+    "minlon": 77.6100994,
+    "maxlat": 12.9844973,
+    "maxlon": 77.6117965
+  },
+  "geometry": [
+    { "lat": 12.9810360, "lon": 77.6100994 },
+    { "lat": 12.9811601, "lon": 77.6101421 },
+    { "lat": 12.9814067, "lon": 77.6102270 },
+    { "lat": 12.9815071, "lon": 77.6102618 },
+    { "lat": 12.9815371, "lon": 77.6102719 },
+    { "lat": 12.9815765, "lon": 77.6102848 },
+    { "lat": 12.9822064, "lon": 77.6105128 },
+    { "lat": 12.9823350, "lon": 77.6105482 },
+    { "lat": 12.9826403, "lon": 77.6105896 },
+    { "lat": 12.9828988, "lon": 77.6106274 },
+    { "lat": 12.9830532, "lon": 77.6106499 },
+    { "lat": 12.9830954, "lon": 77.6106643 },
+    { "lat": 12.9832888, "lon": 77.6107615 },
+    { "lat": 12.9836568, "lon": 77.6109992 },
+    { "lat": 12.9838788, "lon": 77.6112553 },
+    { "lat": 12.9840777, "lon": 77.6114976 },
+    { "lat": 12.9842886, "lon": 77.6117128 },
+    { "lat": 12.9843505, "lon": 77.6117556 },
+    { "lat": 12.9844973, "lon": 77.6117965 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "name": "Kamaraj Road",
+    "name:etymology:wikidata": "Q522048",
+    "name:kn": "ಕಾಮರಾಜ ರಸ್ತೆ",
+    "old_name": "Cavalry Road",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1166322819,
+  "bounds": {
+    "minlat": 12.9736838,
+    "minlon": 77.6131239,
+    "maxlat": 12.9738536,
+    "maxlon": 77.6138258
+  },
+  "geometry": [
+    { "lat": 12.9736838, "lon": 77.6138258 },
+    { "lat": 12.9736992, "lon": 77.6137622 },
+    { "lat": 12.9737172, "lon": 77.6136931 },
+    { "lat": 12.9737349, "lon": 77.6136270 },
+    { "lat": 12.9738536, "lon": 77.6131239 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1166322820,
+  "bounds": {
+    "minlat": 12.9738536,
+    "minlon": 77.6129703,
+    "maxlat": 12.9738898,
+    "maxlon": 77.6131239
+  },
+  "geometry": [
+    { "lat": 12.9738536, "lon": 77.6131239 },
+    { "lat": 12.9738809, "lon": 77.6130082 },
+    { "lat": 12.9738898, "lon": 77.6129703 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "2",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1166322823,
+  "bounds": {
+    "minlat": 12.9739766,
+    "minlon": 77.6121266,
+    "maxlat": 12.9740835,
+    "maxlon": 77.6126063
+  },
+  "geometry": [
+    { "lat": 12.9739766, "lon": 77.6126063 },
+    { "lat": 12.9740358, "lon": 77.6123373 },
+    { "lat": 12.9740835, "lon": 77.6121266 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "2",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1166322824,
+  "bounds": {
+    "minlat": 12.9739603,
+    "minlon": 77.6126063,
+    "maxlat": 12.9739766,
+    "maxlon": 77.6126693
+  },
+  "geometry": [
+    { "lat": 12.9739603, "lon": 77.6126693 },
+    { "lat": 12.9739766, "lon": 77.6126063 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1166571293,
+  "bounds": {
+    "minlat": 12.9743038,
+    "minlon": 77.6111635,
+    "maxlat": 12.9743175,
+    "maxlon": 77.6112188
+  },
+  "geometry": [
+    { "lat": 12.9743038, "lon": 77.6112188 },
+    { "lat": 12.9743175, "lon": 77.6111635 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "3",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1182221973,
+  "bounds": {
+    "minlat": 12.9728227,
+    "minlon": 77.5815804,
+    "maxlat": 12.9757636,
+    "maxlon": 77.5870654
+  },
+  "geometry": [
+    { "lat": 12.9757636, "lon": 77.5870654 },
+    { "lat": 12.9757198, "lon": 77.5869609 },
+    { "lat": 12.9756851, "lon": 77.5868614 },
+    { "lat": 12.9756561, "lon": 77.5867797 },
+    { "lat": 12.9755891, "lon": 77.5866122 },
+    { "lat": 12.9755748, "lon": 77.5865763 },
+    { "lat": 12.9755395, "lon": 77.5864881 },
+    { "lat": 12.9753084, "lon": 77.5859101 },
+    { "lat": 12.9751057, "lon": 77.5854354 },
+    { "lat": 12.9750108, "lon": 77.5852204 },
+    { "lat": 12.9749037, "lon": 77.5850024 },
+    { "lat": 12.9747990, "lon": 77.5848057 },
+    { "lat": 12.9746796, "lon": 77.5846098 },
+    { "lat": 12.9746539, "lon": 77.5845659 },
+    { "lat": 12.9744441, "lon": 77.5842174 },
+    { "lat": 12.9741779, "lon": 77.5837741 },
+    { "lat": 12.9739747, "lon": 77.5834434 },
+    { "lat": 12.9739272, "lon": 77.5833615 },
+    { "lat": 12.9738426, "lon": 77.5832156 },
+    { "lat": 12.9735799, "lon": 77.5827791 },
+    { "lat": 12.9734924, "lon": 77.5826422 },
+    { "lat": 12.9734208, "lon": 77.5825300 },
+    { "lat": 12.9731428, "lon": 77.5820791 },
+    { "lat": 12.9729291, "lon": 77.5817190 },
+    { "lat": 12.9728937, "lon": 77.5816672 },
+    { "lat": 12.9728227, "lon": 77.5815804 }
+  ],
+  "tags": {
+    "alt_name": "City Civil Court Road",
+    "dual_carriageway": "yes",
+    "highway": "tertiary",
+    "lanes": "2",
+    "name": "Old Post Office Road",
+    "name:kn": "ಹಳೇ ಪೋಸ್ಟ್ ಆಫೀಸ್ ರಸ್ತೆ",
+    "note": "Whitetopping work completed in 2025",
+    "old_name": "Post Office Road",
+    "old_name:kn": "೬೦ ಅಡಿ ರಸ್ತೆ",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "smoothness": "good",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 1196514128,
+  "bounds": {
+    "minlat": 12.9753116,
+    "minlon": 77.6018644,
+    "maxlat": 12.9766374,
+    "maxlon": 77.6074434
+  },
+  "geometry": [
+    { "lat": 12.9766374, "lon": 77.6018644 },
+    { "lat": 12.9766328, "lon": 77.6019835 },
+    { "lat": 12.9765629, "lon": 77.6022281 },
+    { "lat": 12.9762352, "lon": 77.6036340 },
+    { "lat": 12.9760796, "lon": 77.6042861 },
+    { "lat": 12.9758014, "lon": 77.6054449 },
+    { "lat": 12.9753116, "lon": 77.6074434 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxheight": "5.5",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "parking:both": "no",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1227541118,
+  "bounds": {
+    "minlat": 12.9711270,
+    "minlon": 77.5979673,
+    "maxlat": 12.9713572,
+    "maxlon": 77.5979803
+  },
+  "geometry": [
+    { "lat": 12.9713572, "lon": 77.5979673 },
+    { "lat": 12.9711270, "lon": 77.5979803 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "name": "Lavelle Road",
+    "name:kn": "ಲಾವೆಲ್ ರಸ್ತೆ"
+  }
+},
+{
+  "type": "way",
+  "id": 1227562842,
+  "bounds": {
+    "minlat": 12.9749980,
+    "minlon": 77.6080419,
+    "maxlat": 12.9750569,
+    "maxlon": 77.6082354
+  },
+  "geometry": [
+    { "lat": 12.9749980, "lon": 77.6082354 },
+    { "lat": 12.9750056, "lon": 77.6082104 },
+    { "lat": 12.9750149, "lon": 77.6081798 },
+    { "lat": 12.9750569, "lon": 77.6080419 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "secondary",
+    "lanes": "3",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "restriction": "no_parking",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt",
+    "turn:lanes": "left|through|through"
+  }
+},
+{
+  "type": "way",
+  "id": 1227562843,
+  "bounds": {
+    "minlat": 12.9751131,
+    "minlon": 77.6080782,
+    "maxlat": 12.9751536,
+    "maxlon": 77.6082541
+  },
+  "geometry": [
+    { "lat": 12.9751536, "lon": 77.6080782 },
+    { "lat": 12.9751218, "lon": 77.6082137 },
+    { "lat": 12.9751131, "lon": 77.6082541 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "secondary",
+    "lanes": "3",
+    "maxheight": "default",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "parking:left": "lane",
+    "short_name": "MG Road",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1227562844,
+  "bounds": {
+    "minlat": 12.9750849,
+    "minlon": 77.6074118,
+    "maxlat": 12.9752081,
+    "maxlon": 77.6079337
+  },
+  "geometry": [
+    { "lat": 12.9750849, "lon": 77.6079337 },
+    { "lat": 12.9751124, "lon": 77.6078044 },
+    { "lat": 12.9752081, "lon": 77.6074118 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxheight": "5.5",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "restriction": "no_parking",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1246410562,
+  "bounds": {
+    "minlat": 12.9899897,
+    "minlon": 77.6028643,
+    "maxlat": 12.9900532,
+    "maxlon": 77.6038061
+  },
+  "geometry": [
+    { "lat": 12.9900532, "lon": 77.6038061 },
+    { "lat": 12.9899897, "lon": 77.6028643 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "name": "Thimmaiah Road",
+    "name:kn": "ತಿಮ್ಮಯ್ಯ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1246410563,
+  "bounds": {
+    "minlat": 12.9719271,
+    "minlon": 77.6070444,
+    "maxlat": 12.9720722,
+    "maxlon": 77.6073585
+  },
+  "geometry": [
+    { "lat": 12.9719271, "lon": 77.6070444 },
+    { "lat": 12.9720722, "lon": 77.6073585 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "maxspeed": "40",
+    "name": "Residency Road",
+    "name:etymology:wikidata": "Q3630913",
+    "name:kn": "ರೆಸಿಡೆನ್ಸಿ ರಸ್ತೆ",
+    "official_name": "Field Marshal Cariappa Road",
+    "official_name:etymology:wikidata": "Q3630913",
+    "official_name:kn": "ಕಾರಿಯಪ್ಪ ರಸ್ತೆ",
+    "old_name": "Residency Road",
+    "oneway": "yes",
+    "short_name": "F M Cariappa Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1278555476,
+  "bounds": {
+    "minlat": 12.9736580,
+    "minlon": 77.6138258,
+    "maxlat": 12.9736838,
+    "maxlon": 77.6139262
+  },
+  "geometry": [
+    { "lat": 12.9736580, "lon": 77.6139262 },
+    { "lat": 12.9736838, "lon": 77.6138258 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk:left": "yes",
+    "sidewalk:left:surface": "paving_stones",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1304119370,
+  "bounds": {
+    "minlat": 12.9719271,
+    "minlon": 77.6070380,
+    "maxlat": 12.9723313,
+    "maxlon": 77.6070825
+  },
+  "geometry": [
+    { "lat": 12.9723313, "lon": 77.6070825 },
+    { "lat": 12.9722806, "lon": 77.6070725 },
+    { "lat": 12.9721805, "lon": 77.6070526 },
+    { "lat": 12.9721004, "lon": 77.6070443 },
+    { "lat": 12.9720704, "lon": 77.6070419 },
+    { "lat": 12.9719634, "lon": 77.6070380 },
+    { "lat": 12.9719271, "lon": 77.6070444 }
+  ],
+  "tags": {
+    "hgv": "no",
+    "highway": "secondary",
+    "lanes": "3",
+    "maxspeed": "30",
+    "name": "Brigade Road",
+    "name:kn": "ಬ್ರಿಗೇಡ್ ರಸ್ತೆ",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "source:maxspeed": "sign",
+    "surface": "asphalt",
+    "turn:lanes": "through||"
+  }
+},
+{
+  "type": "way",
+  "id": 1308654687,
+  "bounds": {
+    "minlat": 12.9763809,
+    "minlon": 77.6017987,
+    "maxlat": 12.9765184,
+    "maxlon": 77.6025429
+  },
+  "geometry": [
+    { "lat": 12.9763809, "lon": 77.6025429 },
+    { "lat": 12.9764287, "lon": 77.6023269 },
+    { "lat": 12.9764390, "lon": 77.6022850 },
+    { "lat": 12.9765063, "lon": 77.6020105 },
+    { "lat": 12.9765136, "lon": 77.6019565 },
+    { "lat": 12.9765184, "lon": 77.6018634 },
+    { "lat": 12.9765180, "lon": 77.6017987 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxheight": "5.5",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "parking:left": "lane",
+    "parking:left:orientation": "parallel",
+    "parking:right": "no",
+    "restriction": "no_parking",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt",
+    "turn:lanes": "through|right|right"
+  }
+},
+{
+  "type": "way",
+  "id": 1308654713,
+  "bounds": {
+    "minlat": 12.9759656,
+    "minlon": 77.6025429,
+    "maxlat": 12.9763809,
+    "maxlon": 77.6043027
+  },
+  "geometry": [
+    { "lat": 12.9759656, "lon": 77.6043027 },
+    { "lat": 12.9763809, "lon": 77.6025429 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "highway": "secondary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxheight": "5.5",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "parking:left": "lane",
+    "parking:left:orientation": "parallel",
+    "parking:right": "no",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1312215665,
+  "bounds": {
+    "minlat": 12.9545784,
+    "minlon": 77.6206880,
+    "maxlat": 12.9548592,
+    "maxlon": 77.6207573
+  },
+  "geometry": [
+    { "lat": 12.9548592, "lon": 77.6207573 },
+    { "lat": 12.9546381, "lon": 77.6207027 },
+    { "lat": 12.9545784, "lon": 77.6206880 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Lower Agaram Road",
+    "name:kn": "ಅಗರಂ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1356342406,
+  "bounds": {
+    "minlat": 12.9548592,
+    "minlon": 77.6207573,
+    "maxlat": 12.9553074,
+    "maxlon": 77.6208640
+  },
+  "geometry": [
+    { "lat": 12.9553074, "lon": 77.6208640 },
+    { "lat": 12.9548592, "lon": 77.6207573 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Lower Agaram Road",
+    "name:kn": "ಅಗರಂ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing as of August 2026",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1356342408,
+  "bounds": {
+    "minlat": 12.9553074,
+    "minlon": 77.6208475,
+    "maxlat": 12.9553429,
+    "maxlon": 77.6208640
+  },
+  "geometry": [
+    { "lat": 12.9553074, "lon": 77.6208640 },
+    { "lat": 12.9553429, "lon": 77.6208475 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Lower Agaram Road",
+    "name:kn": "ಅಗರಂ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1368125926,
+  "bounds": {
+    "minlat": 12.9766606,
+    "minlon": 77.5996016,
+    "maxlat": 12.9767004,
+    "maxlon": 77.6008585
+  },
+  "geometry": [
+    { "lat": 12.9767004, "lon": 77.5996016 },
+    { "lat": 12.9766871, "lon": 77.6000287 },
+    { "lat": 12.9766789, "lon": 77.6002927 },
+    { "lat": 12.9766606, "lon": 77.6008585 }
+  ],
+  "tags": {
+    "alt_name": "M G Road",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "30",
+    "name": "Mahatma Gandhi Road",
+    "name:etymology:wikidata": "Q1001",
+    "name:kn": "ಮಹಾತ್ಮ ಗಾಂಧಿ ರಸ್ತೆ",
+    "note": "Whitetopping work planned based on tenders issued in 2024",
+    "old_name": "South Parade",
+    "oneway": "yes",
+    "short_name": "MG Road",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1373661996,
+  "bounds": {
+    "minlat": 12.9764466,
+    "minlon": 77.5993520,
+    "maxlat": 12.9766163,
+    "maxlon": 77.5993603
+  },
+  "geometry": [
+    { "lat": 12.9766163, "lon": 77.5993520 },
+    { "lat": 12.9764466, "lon": 77.5993603 }
+  ],
+  "tags": {
+    "alt_name": "Subbaraju Road",
+    "hgv": "no",
+    "highway": "tertiary",
+    "lanes": "2",
+    "maxspeed": "30",
+    "name": "Lavelle Road",
+    "name:kn": "ಲಾವೆಲ್ ರಸ್ತೆ",
+    "official_name": "Sri. M. L. Subbaraju Road",
+    "oneway": "yes",
+    "parking:left": "lane",
+    "parking:left:orientation": "parallel",
+    "parking:right": "no",
+    "sidewalk:both": "separate",
+    "smoothness": "excellent",
+    "source:maxspeed": "sign",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1443643892,
+  "bounds": {
+    "minlat": 12.9856865,
+    "minlon": 77.6091160,
+    "maxlat": 12.9857066,
+    "maxlon": 77.6091220
+  },
+  "geometry": [
+    { "lat": 12.9857066, "lon": 77.6091220 },
+    { "lat": 12.9856865, "lon": 77.6091160 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "maxspeed": "30",
+    "maxweight:signed": "no",
+    "name": "Narayan Pillai Street",
+    "name:kn": "ನಾರಾಯಣ ಪಿಳ್ಳೈ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing",
+    "oneway": "yes",
+    "smoothness": "good",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 1443643893,
+  "bounds": {
+    "minlat": 12.9858021,
+    "minlon": 77.6091488,
+    "maxlat": 12.9858553,
+    "maxlon": 77.6091489
+  },
+  "geometry": [
+    { "lat": 12.9858553, "lon": 77.6091488 },
+    { "lat": 12.9858021, "lon": 77.6091489 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "maxspeed": "30",
+    "maxweight:signed": "no",
+    "name": "Narayan Pillai Street",
+    "name:kn": "ನಾರಾಯಣ ಪಿಳ್ಳೈ ರಸ್ತೆ",
+    "note": "Whitetopping work ongoing",
+    "oneway": "yes",
+    "smoothness": "good",
+    "surface": "concrete"
+  }
+}
+
+  ]
+}

@@ -1,0 +1,48 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getStore } from "@/lib/store";
+import { getCorpus } from "@/lib/corpus";
+import { toPublicCase } from "@/lib/schemas";
+import { CaseDossier, type DossierProject } from "./case-dossier";
+
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata(props: PageProps<"/cases/[id]">): Promise<Metadata> {
+  const { id } = await props.params;
+  const c = await getStore().get(id);
+  return { title: c ? `${c.title} (${c.id})` : "Case not found" };
+}
+
+export default async function CasePage(props: PageProps<"/cases/[id]">) {
+  const { id } = await props.params;
+  const c = await getStore().get(id);
+  if (!c) notFound();
+  const corpus = getCorpus();
+
+  // Projects to draw: the investigation's candidates, or anything within 1.5 km before it runs.
+  const ids = c.investigation?.matches.length
+    ? c.investigation.matches.map((m) => m.projectId)
+    : corpus.projectsNear(c.location, 1500).map((x) => x.project.id);
+  const projects: DossierProject[] = ids
+    .map((pid) => corpus.getProject(pid))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p))
+    .map((p) => {
+      const authority = corpus.getAuthority(p.agencyId);
+      return {
+        id: p.id,
+        name: p.name,
+        geometry: p.geometry!,
+        geometryNote: p.geometrySource.note,
+        geometryKind: p.geometrySource.kind,
+        locality: p.locality,
+        authorityName: authority?.name,
+        officer: p.officer ?? authority?.officer,
+        documents: p.documents.map((d) => {
+          const doc = corpus.getDocument(d);
+          return { id: d, title: doc?.title ?? d, publisher: doc?.publisher ?? "", pages: corpus.pageCount(d), url: doc?.url };
+        }),
+      };
+    });
+
+  return <CaseDossier initial={toPublicCase(c)} projects={projects} />;
+}

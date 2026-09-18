@@ -1,0 +1,520 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-18T02:53:05Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "way",
+  "id": 26179365,
+  "bounds": {
+    "minlat": 12.9673336,
+    "minlon": 77.5882547,
+    "maxlat": 12.9677760,
+    "maxlon": 77.5884236
+  },
+  "geometry": [
+    { "lat": 12.9677760, "lon": 77.5882547 },
+    { "lat": 12.9676120, "lon": 77.5883864 },
+    { "lat": 12.9675360, "lon": 77.5884068 },
+    { "lat": 12.9674864, "lon": 77.5884180 },
+    { "lat": 12.9674483, "lon": 77.5884199 },
+    { "lat": 12.9673840, "lon": 77.5884236 },
+    { "lat": 12.9673336, "lon": 77.5884173 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "5",
+    "lit": "yes",
+    "name": "Hudson Circle",
+    "name:kn": "ಹಡ್ಸನ್ ವೃತ್ತ",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 28451729,
+  "bounds": {
+    "minlat": 12.9648268,
+    "minlon": 77.5969678,
+    "maxlat": 12.9648331,
+    "maxlon": 77.5971385
+  },
+  "geometry": [
+    { "lat": 12.9648268, "lon": 77.5971385 },
+    { "lat": 12.9648331, "lon": 77.5969678 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "name": "Rajaram Mohan Roy Road",
+    "name:etymology:wikidata": "Q335269",
+    "name:kn": "ರಾಮ್ ಮೋಹನ್ ರಾಯ್ ರಸ್ತೆ",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 36852351,
+  "bounds": {
+    "minlat": 12.9649990,
+    "minlon": 77.5950810,
+    "maxlat": 12.9666796,
+    "maxlon": 77.5963127
+  },
+  "geometry": [
+    { "lat": 12.9666796, "lon": 77.5950810 },
+    { "lat": 12.9665662, "lon": 77.5951123 },
+    { "lat": 12.9664694, "lon": 77.5951391 },
+    { "lat": 12.9663867, "lon": 77.5951691 },
+    { "lat": 12.9663361, "lon": 77.5951853 },
+    { "lat": 12.9662907, "lon": 77.5952036 },
+    { "lat": 12.9662362, "lon": 77.5952255 },
+    { "lat": 12.9661547, "lon": 77.5952658 },
+    { "lat": 12.9661310, "lon": 77.5952791 },
+    { "lat": 12.9659076, "lon": 77.5954261 },
+    { "lat": 12.9655239, "lon": 77.5956891 },
+    { "lat": 12.9653487, "lon": 77.5958136 },
+    { "lat": 12.9652286, "lon": 77.5959105 },
+    { "lat": 12.9651535, "lon": 77.5959968 },
+    { "lat": 12.9651162, "lon": 77.5960612 },
+    { "lat": 12.9650479, "lon": 77.5961828 },
+    { "lat": 12.9649990, "lon": 77.5963127 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Rajaram Mohan Roy Road",
+    "name:etymology:wikidata": "Q335269",
+    "name:kn": "ರಾಮ್ ಮೋಹನ್ ರಾಯ್ ರಸ್ತೆ",
+    "old_name": "Tank Road",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 148016866,
+  "bounds": {
+    "minlat": 12.9668448,
+    "minlon": 77.5879415,
+    "maxlat": 12.9673336,
+    "maxlon": 77.5884173
+  },
+  "geometry": [
+    { "lat": 12.9673336, "lon": 77.5884173 },
+    { "lat": 12.9672467, "lon": 77.5883398 },
+    { "lat": 12.9671982, "lon": 77.5882942 },
+    { "lat": 12.9670866, "lon": 77.5881717 },
+    { "lat": 12.9668751, "lon": 77.5879675 },
+    { "lat": 12.9668448, "lon": 77.5879415 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "6",
+    "lit": "yes",
+    "name": "Hudson Circle",
+    "name:kn": "ಹಡ್ಸನ್ ವೃತ್ತ",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 148016873,
+  "bounds": {
+    "minlat": 12.9667872,
+    "minlon": 77.5874242,
+    "maxlat": 12.9669126,
+    "maxlon": 77.5879415
+  },
+  "geometry": [
+    { "lat": 12.9668448, "lon": 77.5879415 },
+    { "lat": 12.9668000, "lon": 77.5878000 },
+    { "lat": 12.9667872, "lon": 77.5876968 },
+    { "lat": 12.9667963, "lon": 77.5876317 },
+    { "lat": 12.9668279, "lon": 77.5875646 },
+    { "lat": 12.9668490, "lon": 77.5875317 },
+    { "lat": 12.9669126, "lon": 77.5874242 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lit": "yes",
+    "name": "Hudson Circle",
+    "name:kn": "ಹಡ್ಸನ್ ವೃತ್ತ",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 148016888,
+  "bounds": {
+    "minlat": 12.9674754,
+    "minlon": 77.5873668,
+    "maxlat": 12.9678226,
+    "maxlon": 77.5876058
+  },
+  "geometry": [
+    { "lat": 12.9674754, "lon": 77.5873668 },
+    { "lat": 12.9676229, "lon": 77.5873823 },
+    { "lat": 12.9677174, "lon": 77.5874152 },
+    { "lat": 12.9677579, "lon": 77.5874378 },
+    { "lat": 12.9677767, "lon": 77.5874582 },
+    { "lat": 12.9678226, "lon": 77.5876058 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lit": "yes",
+    "name": "Hudson Circle",
+    "name:kn": "ಹಡ್ಸನ್ ವೃತ್ತ",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 180375724,
+  "bounds": {
+    "minlat": 12.9649990,
+    "minlon": 77.5963127,
+    "maxlat": 12.9653140,
+    "maxlon": 77.5970240
+  },
+  "geometry": [
+    { "lat": 12.9649990, "lon": 77.5963127 },
+    { "lat": 12.9650349, "lon": 77.5965273 },
+    { "lat": 12.9650551, "lon": 77.5965718 },
+    { "lat": 12.9650868, "lon": 77.5966414 },
+    { "lat": 12.9651249, "lon": 77.5967261 },
+    { "lat": 12.9651450, "lon": 77.5967546 },
+    { "lat": 12.9653140, "lon": 77.5970240 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "2",
+    "maxspeed": "20",
+    "name": "Rajaram Mohan Roy Road",
+    "name:etymology:wikidata": "Q335269",
+    "name:kn": "ರಾಮ್ ಮೋಹನ್ ರಾಯ್ ರಸ್ತೆ",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 224618934,
+  "bounds": {
+    "minlat": 12.9670407,
+    "minlon": 77.5893451,
+    "maxlat": 12.9681230,
+    "maxlon": 77.5946434
+  },
+  "geometry": [
+    { "lat": 12.9670407, "lon": 77.5946434 },
+    { "lat": 12.9670807, "lon": 77.5946110 },
+    { "lat": 12.9670885, "lon": 77.5946018 },
+    { "lat": 12.9674802, "lon": 77.5942136 },
+    { "lat": 12.9675269, "lon": 77.5941545 },
+    { "lat": 12.9676653, "lon": 77.5939120 },
+    { "lat": 12.9677363, "lon": 77.5937522 },
+    { "lat": 12.9677779, "lon": 77.5936357 },
+    { "lat": 12.9678123, "lon": 77.5935355 },
+    { "lat": 12.9679441, "lon": 77.5929661 },
+    { "lat": 12.9679609, "lon": 77.5928933 },
+    { "lat": 12.9679814, "lon": 77.5928047 },
+    { "lat": 12.9679945, "lon": 77.5927484 },
+    { "lat": 12.9680222, "lon": 77.5926290 },
+    { "lat": 12.9680437, "lon": 77.5924878 },
+    { "lat": 12.9681039, "lon": 77.5920914 },
+    { "lat": 12.9681230, "lon": 77.5918856 },
+    { "lat": 12.9681213, "lon": 77.5918469 },
+    { "lat": 12.9680626, "lon": 77.5913060 },
+    { "lat": 12.9679668, "lon": 77.5909921 },
+    { "lat": 12.9679369, "lon": 77.5908942 },
+    { "lat": 12.9679260, "lon": 77.5908496 },
+    { "lat": 12.9678756, "lon": 77.5906822 },
+    { "lat": 12.9678264, "lon": 77.5905043 },
+    { "lat": 12.9678096, "lon": 77.5904450 },
+    { "lat": 12.9677859, "lon": 77.5903614 },
+    { "lat": 12.9677418, "lon": 77.5900578 },
+    { "lat": 12.9677108, "lon": 77.5898673 },
+    { "lat": 12.9676484, "lon": 77.5894098 },
+    { "lat": 12.9676363, "lon": 77.5893451 }
+  ],
+  "tags": {
+    "alt_name": "Raja Ram Mohan Roy Road",
+    "highway": "primary",
+    "lit": "yes",
+    "name": "Rajaram Mohan Roy Road",
+    "name:etymology:wikidata": "Q335269",
+    "name:kn": "ರಾಜರಾಮ್ ಮೋಹನ್ ರಾಯ್ ರಸ್ತೆ",
+    "old_name": "Tank Road",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 251513688,
+  "bounds": {
+    "minlat": 12.9658959,
+    "minlon": 77.5944259,
+    "maxlat": 12.9665831,
+    "maxlon": 77.5945536
+  },
+  "geometry": [
+    { "lat": 12.9665831, "lon": 77.5945536 },
+    { "lat": 12.9661999, "lon": 77.5945067 },
+    { "lat": 12.9658959, "lon": 77.5944259 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "name": "Sri Ram Mandir Road",
+    "name:kn": "ರಾಮಮಂದಿರ ರಸ್ತೆ",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 298037893,
+  "bounds": {
+    "minlat": 12.9622565,
+    "minlon": 77.5937165,
+    "maxlat": 12.9658959,
+    "maxlon": 77.5944259
+  },
+  "geometry": [
+    { "lat": 12.9658959, "lon": 77.5944259 },
+    { "lat": 12.9657161, "lon": 77.5943741 },
+    { "lat": 12.9655353, "lon": 77.5943226 },
+    { "lat": 12.9653157, "lon": 77.5942587 },
+    { "lat": 12.9652854, "lon": 77.5942499 },
+    { "lat": 12.9650732, "lon": 77.5941887 },
+    { "lat": 12.9647316, "lon": 77.5941365 },
+    { "lat": 12.9642930, "lon": 77.5940696 },
+    { "lat": 12.9637472, "lon": 77.5939863 },
+    { "lat": 12.9633485, "lon": 77.5939255 },
+    { "lat": 12.9630328, "lon": 77.5938783 },
+    { "lat": 12.9625238, "lon": 77.5937722 },
+    { "lat": 12.9622909, "lon": 77.5937237 },
+    { "lat": 12.9622565, "lon": 77.5937165 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "name": "Sri Ram Mandir Road",
+    "name:kn": "ಶ್ರೀರಾಮ ಮಂದಿರ ರಸ್ತೆ",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 375964868,
+  "bounds": {
+    "minlat": 12.9648622,
+    "minlon": 77.5946434,
+    "maxlat": 12.9670407,
+    "maxlon": 77.5965709
+  },
+  "geometry": [
+    { "lat": 12.9648622, "lon": 77.5965709 },
+    { "lat": 12.9648704, "lon": 77.5965005 },
+    { "lat": 12.9649261, "lon": 77.5962425 },
+    { "lat": 12.9649633, "lon": 77.5961376 },
+    { "lat": 12.9650285, "lon": 77.5960080 },
+    { "lat": 12.9650800, "lon": 77.5959515 },
+    { "lat": 12.9651973, "lon": 77.5958346 },
+    { "lat": 12.9653325, "lon": 77.5957223 },
+    { "lat": 12.9655226, "lon": 77.5955962 },
+    { "lat": 12.9658263, "lon": 77.5953975 },
+    { "lat": 12.9659381, "lon": 77.5953318 },
+    { "lat": 12.9663965, "lon": 77.5950622 },
+    { "lat": 12.9665143, "lon": 77.5950002 },
+    { "lat": 12.9667775, "lon": 77.5948358 },
+    { "lat": 12.9668273, "lon": 77.5948001 },
+    { "lat": 12.9670407, "lon": 77.5946434 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lit": "yes",
+    "name": "Rajaram Mohan Roy Road",
+    "name:etymology:wikidata": "Q335269",
+    "name:kn": "ರಾಮ್ ಮೋಹನ್ ರಾಯ್ ರಸ್ತೆ",
+    "old_name": "Tank Road",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 461556532,
+  "bounds": {
+    "minlat": 12.9669126,
+    "minlon": 77.5873668,
+    "maxlat": 12.9674754,
+    "maxlon": 77.5874242
+  },
+  "geometry": [
+    { "lat": 12.9669126, "lon": 77.5874242 },
+    { "lat": 12.9669513, "lon": 77.5874211 },
+    { "lat": 12.9672744, "lon": 77.5873957 },
+    { "lat": 12.9674754, "lon": 77.5873668 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lit": "yes",
+    "name": "Hudson Circle",
+    "name:kn": "ಹಡ್ಸನ್ ವೃತ್ತ",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 498553874,
+  "bounds": {
+    "minlat": 12.9648351,
+    "minlon": 77.5965709,
+    "maxlat": 12.9648622,
+    "maxlon": 77.5967993
+  },
+  "geometry": [
+    { "lat": 12.9648351, "lon": 77.5967993 },
+    { "lat": 12.9648523, "lon": 77.5966460 },
+    { "lat": 12.9648622, "lon": 77.5965709 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "name": "Rajaram Mohan Roy Road",
+    "name:etymology:wikidata": "Q335269",
+    "name:kn": "ರಾಮ್ ಮೋಹನ್ ರಾಯ್ ರಸ್ತೆ",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1308725870,
+  "bounds": {
+    "minlat": 12.9666796,
+    "minlon": 77.5949443,
+    "maxlat": 12.9673249,
+    "maxlon": 77.5950810
+  },
+  "geometry": [
+    { "lat": 12.9673249, "lon": 77.5949443 },
+    { "lat": 12.9672894, "lon": 77.5949540 },
+    { "lat": 12.9671425, "lon": 77.5949794 },
+    { "lat": 12.9671125, "lon": 77.5949846 },
+    { "lat": 12.9670391, "lon": 77.5949973 },
+    { "lat": 12.9669008, "lon": 77.5950212 },
+    { "lat": 12.9668735, "lon": 77.5950276 },
+    { "lat": 12.9668338, "lon": 77.5950385 },
+    { "lat": 12.9666796, "lon": 77.5950810 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Rajaram Mohan Roy Road",
+    "name:etymology:wikidata": "Q335269",
+    "name:kn": "ರಾಮ್ ಮೋಹನ್ ರಾಯ್ ರಸ್ತೆ",
+    "old_name": "Tank Road",
+    "oneway": "yes",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1311251823,
+  "bounds": {
+    "minlat": 12.9673336,
+    "minlon": 77.5884173,
+    "maxlat": 12.9675102,
+    "maxlon": 77.5887571
+  },
+  "geometry": [
+    { "lat": 12.9675102, "lon": 77.5887571 },
+    { "lat": 12.9674469, "lon": 77.5886393 },
+    { "lat": 12.9673784, "lon": 77.5885052 },
+    { "lat": 12.9673336, "lon": 77.5884173 }
+  ],
+  "tags": {
+    "alt_name": "Raja Ram Mohan Roy Road",
+    "highway": "primary",
+    "lit": "yes",
+    "name": "Rajaram Mohan Roy Road",
+    "name:etymology:wikidata": "Q335269",
+    "name:kn": "ರಾಜರಾಮ್ ಮೋಹನ್ ರಾಯ್ ರಸ್ತೆ",
+    "old_name": "Tank Road",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1311251824,
+  "bounds": {
+    "minlat": 12.9675102,
+    "minlon": 77.5887571,
+    "maxlat": 12.9676363,
+    "maxlon": 77.5893451
+  },
+  "geometry": [
+    { "lat": 12.9676363, "lon": 77.5893451 },
+    { "lat": 12.9675971, "lon": 77.5890930 },
+    { "lat": 12.9675547, "lon": 77.5889090 },
+    { "lat": 12.9675463, "lon": 77.5888676 },
+    { "lat": 12.9675102, "lon": 77.5887571 }
+  ],
+  "tags": {
+    "alt_name": "Raja Ram Mohan Roy Road",
+    "highway": "primary",
+    "lanes": "6",
+    "lit": "yes",
+    "name": "Rajaram Mohan Roy Road",
+    "name:etymology:wikidata": "Q335269",
+    "name:kn": "ರಾಜರಾಮ್ ಮೋಹನ್ ರಾಯ್ ರಸ್ತೆ",
+    "old_name": "Tank Road",
+    "oneway": "yes",
+    "sidewalk": "separate",
+    "smoothness": "excellent",
+    "surface": "asphalt",
+    "turn:lanes": "left|through|through|through|through;right|right"
+  }
+},
+{
+  "type": "way",
+  "id": 1452617368,
+  "bounds": {
+    "minlat": 12.9648331,
+    "minlon": 77.5967993,
+    "maxlat": 12.9648351,
+    "maxlon": 77.5969678
+  },
+  "geometry": [
+    { "lat": 12.9648331, "lon": 77.5969678 },
+    { "lat": 12.9648351, "lon": 77.5967993 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "name": "Rajaram Mohan Roy Road",
+    "name:etymology:wikidata": "Q335269",
+    "name:kn": "ರಾಮ್ ಮೋಹನ್ ರಾಯ್ ರಸ್ತೆ",
+    "oneway": "yes"
+  }
+}
+
+  ]
+}
