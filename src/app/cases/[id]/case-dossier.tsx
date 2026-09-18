@@ -244,6 +244,25 @@ export function CaseDossier({ initial, projects, nearby = [] }: { initial: Publi
           </div>
           {caseData.demo && caseData.demoNote && <p className="mt-3 max-w-3xl text-[13px] text-ink-3">{caseData.demoNote}</p>}
           <KeyFacts caseData={caseData} />
+          {/* On small screens the sidebar comes last, so show the report itself up front. */}
+          <div className="mt-6 flex gap-4 rounded-2xl border border-rule bg-card p-4 shadow-card lg:hidden">
+            {photo && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={`/api/media/${photo.key}`} alt="" className="h-20 w-20 shrink-0 rounded-lg object-cover" />
+            )}
+            <div className="min-w-0">
+              <p className="text-[12px] font-medium uppercase tracking-[0.12em] text-ink-3">The report</p>
+              <p className="mt-1 line-clamp-3 text-[14px] leading-relaxed text-ink-2">{caseData.description}</p>
+              <a
+                className="mt-1.5 inline-flex items-center gap-1 font-mono text-[12px] text-ink-2 hover:text-accent"
+                href={`https://www.openstreetmap.org/?mlat=${caseData.location.lat}&mlon=${caseData.location.lng}#map=18/${caseData.location.lat}/${caseData.location.lng}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {caseData.location.lat.toFixed(5)}, {caseData.location.lng.toFixed(5)} <ExternalIcon />
+              </a>
+            </div>
+          </div>
           <div className="mt-6 flex flex-wrap gap-2">
             <Link href={`/cases/${caseData.id}/packet?kind=complaint`} className={buttonClass("primary", "md")}>Complaint packet</Link>
             <Link href={`/cases/${caseData.id}/packet?kind=rti`} className={buttonClass("secondary", "md")}>RTI draft</Link>

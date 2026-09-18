@@ -123,14 +123,15 @@ See [.env.example](.env.example) for every setting.
 ## Test
 
 ```bash
-npm test            # 41 unit/integration tests (Vitest)
-npm run test:e2e    # 3 browser tests (Playwright), against a running server: BASE_URL=http://localhost:3000
+npm test            # 42 unit/integration tests (Vitest)
+npm run test:e2e    # 4 browser tests incl. an axe WCAG 2.1 AA audit (Playwright), against a running server
+npm run check       # all of the above plus types and lint
 npm run eval        # scores the investigator against the 85 curated facts (set CIVICPROOF_PLANNER=bedrock to evaluate Claude)
 npm run typecheck
 npm run lint
 ```
 
-The suites cover the verifier (amounts, dates, durations, fabricated citations, conflicts), both Cedar policy files, the full investigation pipeline on real records, the **Bedrock code path through the Converse API** (against a local stand-in that deliberately hallucinates, accuses and oversteps, and is caught each time), the DynamoDB store against `dynalite` (including concurrent writers), the RTI clock and first appeal, private reporter uploads, and the browser flows from report to packet and from RTI reply to evidence.
+The suites cover the verifier (amounts, dates, durations, fabricated citations, conflicts), both Cedar policy files, the full investigation pipeline on real records, the **Bedrock code path through the Converse API** (against a local stand-in that deliberately hallucinates, accuses and oversteps, and is caught each time), the DynamoDB store against `dynalite` (including concurrent writers), the RTI clock and first appeal, private reporter uploads, OCR through a local Textract stand-in, the browser flows from report to packet and from RTI reply to evidence, and an axe accessibility audit of every main page (no WCAG 2.1 A/AA violations).
 
 ## Deploy to AWS
 

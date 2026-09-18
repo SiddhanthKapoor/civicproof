@@ -41,6 +41,8 @@ const buckets = new Map<string, { n: number; reset: number }>();
  * the per-day DynamoDB budget and Cedar policy that actually cap Bedrock spend.
  */
 export function rateLimited(key: string, limit: number, windowMs: number): boolean {
+  // Off in development and tests (every request comes from localhost) unless explicitly enabled.
+  if (process.env.NODE_ENV !== "production" && process.env.CIVICPROOF_RATE_LIMIT !== "on") return false;
   const now = Date.now();
   const b = buckets.get(key);
   if (!b || b.reset < now) {

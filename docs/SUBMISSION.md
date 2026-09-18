@@ -22,6 +22,7 @@ Residents, resident associations, ward volunteers and local journalists who alre
 - **Strands Agents** (AWS open source): the agent loop, Bedrock provider, hooks, and its Cedar intervention.
 - **Cedar** (AWS open source): policies on every agent tool call and every change to a case. The agent cannot mark a case submitted or resolved.
 - **AWS Lambda** with the Lambda Web Adapter and a response-streaming Function URL, so each agent step streams to the browser.
+- **Amazon Textract** to read scanned RTI replies so they can be quoted.
 - **Amazon DynamoDB** for cases (optimistic locking) and budget counters; **Amazon S3** for photos and packet PDFs; **Amazon CloudWatch** for structured logs, an alarm and metric filters; **AWS SAM** for least-privilege infrastructure as code.
 
 ## What is real

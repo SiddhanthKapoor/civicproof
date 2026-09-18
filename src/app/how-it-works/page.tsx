@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "How it works", description: "The age
 export const dynamic = "force-dynamic";
 
 const LOOP = [
-  { k: "Intake", v: "get_case_report reads the report, the photo's EXIF metadata and, on Bedrock, a Claude vision description of the photo, labelled as an AI observation." },
+  { k: "Intake", v: "get_case_report reads the report, the photo's EXIF metadata, any documents the reporter added (scans OCR'd with Amazon Textract) and, on Bedrock, a Claude vision description of the photo, labelled as an AI observation." },
   { k: "Locate", v: "find_projects_near measures the distance from the pin to every project alignment. select_project is only permitted for projects the search returned (a Cedar rule)." },
   { k: "Retrieve", v: "list_project_documents, search_documents (full-text over every page) and read_document_page give the model the actual text of the tender, award and completion records." },
   { k: "Extract", v: "record_claim proposes one fact with a quotation. The verifier checks the quotation against the page and the value against the quotation before the claim counts." },
@@ -25,7 +25,7 @@ const LIMITS = [
   "City road alignments are traced from OpenStreetMap by road name, and whole roads are drawn where the tender covers only a reach. Distances for those projects are approximate.",
   "PMGSY maintenance windows are computed from the physical completion date and the programme guideline's 5-year rule. The individual contract was not available to confirm its terms.",
   "Contract agreements, completion certificates and measurement books are rarely published. Where they are missing, CivicProof asks for them rather than inferring them.",
-  "Scanned PDFs without a text layer cannot be quoted. OCR (for example Amazon Textract) is not yet part of ingest.",
+  "Scanned uploads are OCR'd with Amazon Textract on the AWS deployment; running locally without AWS they are stored but cannot be quoted. Scanned pages in the shared corpus are not OCR'd.",
   "Complaint submission is manual. CivicProof drafts and tracks, but does not send anything to a government portal; there is no supported API to do so.",
   "The owner key is a bearer secret kept in the browser. Losing it means losing the ability to record updates for that case; there are no accounts.",
   "Rate limits are per server instance, backed by a daily DynamoDB counter and a Cedar budget policy. They protect the Bedrock bill, not against a determined attacker.",
