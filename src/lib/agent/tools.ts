@@ -62,6 +62,9 @@ export function buildTools(ctx: RunContext) {
         location: { lat: c.location.lat, lng: c.location.lng, address: c.location.address, how_obtained: c.location.source },
         photos: c.photos.map((p) => ({ sha256: p.sha256.slice(0, 16), exif_taken_at: p.exif?.takenAt, exif_gps: p.exif?.lat !== undefined })),
         ai_photo_observation: photoObs ? photoObs.text : "not available",
+        reporter_documents: c.documents
+          .filter((d) => d.textPages > 0)
+          .map((d) => ({ doc_id: d.id, title: d.title, kind: d.kind, pages: d.pageCount, note: "Uploaded by the reporter (e.g. an RTI reply). Read and quote it like any record; claims from it are marked as coming from the reporter's upload." })),
       });
     },
   });

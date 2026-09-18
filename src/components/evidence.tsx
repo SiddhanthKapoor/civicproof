@@ -50,9 +50,11 @@ export function Highlighted({ text, value, radius }: { text: string; value?: str
   return <>{text}</>;
 }
 
-export function sourceHref(e: Pick<Evidence, "docId" | "page" | "excerpt">) {
+export function sourceHref(e: Pick<Evidence, "docId" | "page" | "excerpt"> & Partial<Pick<Evidence, "sourceType" | "sourceUrl">>) {
   const q = e.excerpt.replace(/\s+/g, " ").slice(0, 160);
-  return `/sources/${encodeURIComponent(e.docId)}?page=${e.page ?? 1}&q=${encodeURIComponent(q)}#p${e.page ?? 1}`;
+  const query = `?page=${e.page ?? 1}&q=${encodeURIComponent(q)}`;
+  if (e.sourceType === "user_upload" && e.sourceUrl) return `${e.sourceUrl}${query}`;
+  return `/sources/${encodeURIComponent(e.docId)}${query}#p${e.page ?? 1}`;
 }
 
 /** Shared numbering: the same excerpt from the same page gets the same [n] everywhere. */
@@ -87,7 +89,7 @@ export function EvidenceQuote({ e, value, index }: { e: Evidence; value?: string
         </Link>
         {e.page && <span className="font-mono">p. {e.page}</span>}
         {e.publisher && <span>{e.publisher}</span>}
-        {e.sourceUrl && (
+        {e.sourceUrl && e.sourceType !== "user_upload" && (
           <a href={e.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-accent">
             Original <ExternalIcon />
           </a>

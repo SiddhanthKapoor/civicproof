@@ -12,7 +12,7 @@
 import { createHash } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { extractText, getDocumentProxy } from "unpdf";
+import { cleanPage, pdfPages as extractPdfPages } from "../src/lib/pdf-text";
 import { ManifestSchema, ProjectSchema, AuthoritySchema } from "../src/lib/corpus/types";
 import { verifyClaim, type CorpusReader } from "../src/lib/agent/verifier";
 
@@ -22,14 +22,8 @@ function sha256(buf: Buffer) {
   return createHash("sha256").update(buf).digest("hex");
 }
 
-function cleanPage(s: string) {
-  return s.replace(/\r/g, "").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
-}
-
 async function pdfPages(buf: Buffer): Promise<string[]> {
-  const pdf = await getDocumentProxy(new Uint8Array(buf));
-  const { text } = await extractText(pdf, { mergePages: false });
-  return (text as string[]).map(cleanPage);
+  return extractPdfPages(new Uint8Array(buf));
 }
 
 /** Flattens a JSON API response into "path: value" lines, 60 lines per page. */

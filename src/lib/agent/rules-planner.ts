@@ -74,6 +74,15 @@ function* plan(ctx: RunContext): Generator<Step> {
     };
   }
 
+  const uploads = ctx.caseData.documents.filter((d) => d.textPages > 0);
+  for (const d of uploads) yield { tool: "read_document_page", input: { doc_id: d.id, page: 1 } };
+  if (uploads.length) {
+    ctx.trace({
+      kind: "note",
+      summary: `Read the reporter's ${uploads.length === 1 ? "document" : `${uploads.length} documents`}. Extracting facts from new documents needs the Bedrock planner; the rules planner only uses curated records.`,
+    });
+  }
+
   const verified = ctx.claims.filter((c) => c.verification === "verified");
   const docs = new Set(ctx.evidence.filter((e) => e.verification === "verified").map((e) => e.docId));
   const facts = verified.map((c) => CLAIM_FIELD_LABELS[c.field].toLowerCase());

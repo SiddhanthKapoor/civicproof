@@ -11,6 +11,8 @@ One Next.js 16 application (App Router, TypeScript). Pages and API routes run in
 | `POST /api/cases/:id/timeline` | Owner-only (Cedar `RecordSubmission` / `RecordResponse` / `ChangeStatus` with `is_owner`). Records submissions, reference numbers, responses, follow-ups, status. |
 | `POST /api/cases/:id/packet` | Drafts a complaint or RTI packet deterministically from verified facts; owners can save edits. |
 | `POST /api/cases/:id/packet/pdf` | Renders the (possibly edited) packet with react-pdf, archives it to S3 under `packets/<case>/`, returns it with its SHA-256. |
+| `POST /api/cases/:id/documents` | Owner-only (Cedar `AddEvidence`). A PDF or scan up to 5 MB, stored privately in S3; PDF text is extracted per page and stored alongside. The investigator reads it on the next run. |
+| `GET /api/cases/:id/documents/:doc[/file]` | Owner-only (Cedar `ViewPrivateDocument`): page text or the original file. RTI replies carry the applicant's name and address, so files are never public. |
 | `GET /api/media/*` | Streams a photo from the private bucket (immutable, `nosniff`, restrictive CSP). |
 | `GET /api/geocode` | Nominatim proxy with caching and ≤1 req/s. |
 

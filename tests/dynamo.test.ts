@@ -28,6 +28,7 @@ function makeCase(id: string, reportedAt: string): Case {
     demo: false,
     ownerKeyHash: "a".repeat(64),
     packets: {},
+    documents: [],
     timeline: [],
   };
 }

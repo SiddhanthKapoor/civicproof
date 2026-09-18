@@ -123,8 +123,13 @@ export function verifyClaim(proposed: ProposedClaim, corpus: CorpusReader, retri
   else if (valueFound) verification = "verified";
   else verification = "partially_verified";
 
-  // News is corroboration, not an official record: cap at partial.
-  if (verification === "verified" && evidence.every((e) => e.sourceType === "news")) verification = "partially_verified";
+  // News is corroboration, and a reporter's upload can't be authenticated: cap both at partial.
+  if (verification === "verified" && evidence.every((e) => e.sourceType === "news" || e.sourceType === "user_upload")) {
+    verification = "partially_verified";
+    for (const e of evidence) {
+      if (e.sourceType === "user_upload") e.checkNote = `${e.checkNote ?? ""} Found in a document uploaded by the reporter; its authenticity is not checked.`.trim();
+    }
+  }
 
   const confidence =
     verification === "verified" ? 0.95 : verification === "partially_verified" ? (bestQuote === "exact" ? 0.6 : 0.45) : 0.1;

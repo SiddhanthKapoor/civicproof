@@ -12,10 +12,14 @@ import { newCaseId, newId, newOwnerKey, ownerKeyMatches, sha256Hex } from "@/lib
 import { log } from "@/lib/log";
 import { buildAppeal, buildComplaint, buildRti } from "@/lib/packet";
 import { rtiClock } from "@/lib/rti-clock";
+import { pdfPages } from "@/lib/pdf-text";
 import {
+  CASE_DOCUMENT_KINDS,
+  CASE_DOCUMENT_LABELS,
   PacketKindSchema,
   StatusSchema,
   type Case,
+  type CaseDocument,
   type CaseStatus,
   type NewReport,
   type Packet,
@@ -115,6 +119,7 @@ export async function createCase(
     reporterContact: input.reporterContact || undefined,
     ownerKeyHash: sha256Hex(ownerKey),
     packets: {},
+    documents: [],
     timeline: [
       {
         id: newId("ev"),
@@ -306,4 +311,97 @@ export async function savePacket(
     };
   });
   return { caseData, packet: saved!, persisted: true };
+}
+
+// ---------------------------------------------------------------------------
+// Documents the reporter adds (e.g. the RTI reply)
+// ---------------------------------------------------------------------------
+
+export const DocumentMetaSchema = z.object({
+  title: z.string().trim().min(3, "Give the document a short title.").max(120),
+  kind: z.enum(CASE_DOCUMENT_KINDS),
+});
+
+const MAX_DOC_BYTES = 5 * 1024 * 1024;
+const MAX_DOCS = 10;
+
+/**
+ * Stores a reporter's document privately, extracts its text per page, and records it on the case.
+ * PDFs with a text layer become readable and quotable by the investigator; images are stored only.
+ */
+export async function addCaseDocument(
+  caseId: string,
+  ownerKey: string | null,
+  file: { name: string; bytes: Uint8Array },
+  meta: z.infer<typeof DocumentMetaSchema>,
+): Promise<{ caseData: Case; document: CaseDocument }> {
+  const store = getStore();
+  const current = await store.get(caseId);
+  if (!current) throw new Error("Case not found");
+  const isOwner = ownerKeyMatches(ownerKey, current.ownerKeyHash);
+  const d = authorize(isOwner ? { type: "Reporter", id: caseId } : { type: "Public", id: "anonymous" }, "AddEvidence", caseId, { is_owner: isOwner });
+  if (!d.allowed) throw new ForbiddenError(d.policies, "Only the person who filed this report can add documents to it.");
+  if (current.documents.length >= MAX_DOCS) throw new ForbiddenError([], `A case can hold up to ${MAX_DOCS} documents.`);
+  if (file.bytes.byteLength > MAX_DOC_BYTES) throw new ForbiddenError([], "Documents must be under 5 MB.");
+
+  const isPdf = file.bytes[0] === 0x25 && file.bytes[1] === 0x50 && file.bytes[2] === 0x44 && file.bytes[3] === 0x46; // %PDF
+  const image = sniffImage(file.bytes);
+  if (!isPdf && !image) throw new ForbiddenError([], "Upload a PDF, or a JPEG/PNG/WebP scan.");
+
+  const sha256 = sha256Hex(file.bytes);
+  if (current.documents.some((x) => x.sha256 === sha256)) throw new ForbiddenError([], "This document is already on the case.");
+  const id = `up-${sha256.slice(0, 12)}`;
+  const folder = `docs/${caseId.toLowerCase()}/${sha256.slice(0, 20)}`;
+  const mime = isPdf ? "application/pdf" : image!.mime;
+  await getBlobs().put(`${folder}.${isPdf ? "pdf" : image!.ext}`, file.bytes, mime);
+
+  let pages: string[] = [];
+  if (isPdf) {
+    try {
+      pages = (await pdfPages(file.bytes)).slice(0, 200);
+    } catch {
+      throw new ForbiddenError([], "The PDF could not be read. It may be encrypted or damaged.");
+    }
+    await getBlobs().put(`${folder}.pages.json`, new TextEncoder().encode(JSON.stringify(pages)), "application/json");
+  }
+
+  const doc: CaseDocument = {
+    id,
+    title: meta.title,
+    kind: meta.kind,
+    filename: file.name.slice(0, 120),
+    mime,
+    bytes: file.bytes.byteLength,
+    sha256,
+    key: `${folder}.${isPdf ? "pdf" : image!.ext}`,
+    pagesKey: isPdf ? `${folder}.pages.json` : undefined,
+    pageCount: isPdf ? pages.length : 1,
+    textPages: pages.filter((p) => p.length >= 20).length,
+    uploadedAt: new Date().toISOString(),
+  };
+  const caseData = await store.update(caseId, (c) => ({
+    ...c,
+    documents: [...c.documents, doc],
+    timeline: [
+      ...c.timeline,
+      {
+        id: newId("ev"),
+        at: doc.uploadedAt,
+        type: "evidence_added",
+        actor: "reporter",
+        summary: `${CASE_DOCUMENT_LABELS[doc.kind]} added: ${doc.title}`,
+        notes: doc.textPages ? `${doc.textPages} of ${doc.pageCount} pages have text the investigator can read.` : "No text layer, so it can't be quoted yet (OCR is not part of CivicProof yet).",
+      },
+    ],
+  }));
+  log.info("case.document_added", { caseId, docId: id, pages: doc.pageCount, textPages: doc.textPages, bytes: doc.bytes });
+  return { caseData, document: doc };
+}
+
+/** Page text of a reporter's document (for the investigator and the owner's viewer). */
+export async function readCaseDocumentPages(doc: CaseDocument): Promise<string[]> {
+  if (!doc.pagesKey) return [];
+  const blob = await getBlobs().get(doc.pagesKey);
+  if (!blob) return [];
+  return JSON.parse(new TextDecoder().decode(blob.body)) as string[];
 }

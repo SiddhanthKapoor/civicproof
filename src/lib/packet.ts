@@ -162,7 +162,8 @@ export function buildComplaint(c: Case, project: Project | undefined, authority:
 
   const evidenceLines = list.map((e, i) => {
     const page = e.page ? `, p. ${e.page}` : "";
-    return `[${i + 1}] ${e.sourceTitle} — ${e.publisher ?? "publisher not recorded"}${page}. "${e.excerpt.replace(/\s+/g, " ").slice(0, 280)}"${e.sourceUrl ? ` ${e.sourceUrl}` : ""} (retrieved ${e.retrievedAt})`;
+    const where = e.sourceType === "user_upload" ? " (copy attached; obtained by the reporter)" : e.sourceUrl ? ` ${e.sourceUrl}` : "";
+    return `[${i + 1}] ${e.sourceTitle} — ${e.publisher ?? "publisher not recorded"}${page}. "${e.excerpt.replace(/\s+/g, " ").slice(0, 280)}"${where} (retrieved ${e.retrievedAt})`;
   });
   const photoLines = c.photos.map((p, i) => `Photo ${i + 1}: SHA-256 ${p.sha256}${p.exif?.takenAt ? `, taken ${p.exif.takenAt} per EXIF` : ""}${p.credit ? ` — ${p.credit}` : ""}`);
   sections.push({

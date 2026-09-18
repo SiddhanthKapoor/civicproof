@@ -16,6 +16,7 @@ import { ProvenanceChain } from "./chain";
 import { Candidates } from "./candidates";
 import { RtiClockCard } from "./rti-clock-card";
 import { KeyFacts } from "./key-facts";
+import { DocumentsPanel } from "./documents-panel";
 import { NextActions } from "./actions";
 import { saveOwnerKey, useStoredOwnerKey } from "@/lib/use-owner-key";
 import { Timeline, TrackingPanel } from "./tracking";
@@ -292,6 +293,7 @@ export function CaseDossier({ initial, projects }: { initial: PublicCase; projec
                 return true;
               }}
             />
+            <DocumentsPanel caseData={caseData} ownerKey={ownerKey} onUpdated={(c) => { setCaseData(c); router.refresh(); }} />
             <div className="pt-2">
               <Timeline events={caseData.timeline} />
             </div>

@@ -35,6 +35,8 @@ And naming a contractor wrongly is worse than not naming one: a Bengaluru road-c
 4. **Act**: next steps are derived only from verified facts: a repair request under the defect-liability period if the observation falls inside it, a complaint to the right office, and an RTI application listing exactly the records that are missing. Packets are editable and download as PDF.
 5. **Track**: the reporter records where they sent it, the reference number and any reply. For an RTI application the case shows the statutory clock: reply due in 30 days (Section 7(1)); if none is recorded, a deemed refusal (Section 7(2)) and a drafted **first appeal** under Section 19(1), asking for the information free of charge (Section 7(6)).
 
+6. **Close the loop**: when the RTI reply arrives, the reporter adds it to the case. The file stays private; its text is extracted and the investigator can read and quote it on the next run, with quotes marked as coming from the reporter's upload.
+
 What it deliberately does **not** do: accuse anyone, invent a tender number, submit anything on your behalf, or mark a case resolved. The last is enforced by a Cedar policy, not by a prompt.
 
 ### Who it is for
@@ -120,13 +122,14 @@ See [.env.example](.env.example) for every setting.
 ## Test
 
 ```bash
-npm test            # 34 unit/integration tests (Vitest)
-npm run test:e2e    # browser tests (Playwright), against a running server: BASE_URL=http://localhost:3000
+npm test            # 41 unit/integration tests (Vitest)
+npm run test:e2e    # 3 browser tests (Playwright), against a running server: BASE_URL=http://localhost:3000
+npm run eval        # scores the investigator against the 85 curated facts (set CIVICPROOF_PLANNER=bedrock to evaluate Claude)
 npm run typecheck
 npm run lint
 ```
 
-The suites cover the verifier (amounts, dates, durations, fabricated citations, conflicts), both Cedar policy files, the full investigation pipeline on real records, the **Bedrock code path through the Converse API** (against a local stand-in that deliberately hallucinates, accuses and oversteps, and is caught each time), the DynamoDB store against `dynalite` (including concurrent writers), and the browser flow from report to packet.
+The suites cover the verifier (amounts, dates, durations, fabricated citations, conflicts), both Cedar policy files, the full investigation pipeline on real records, the **Bedrock code path through the Converse API** (against a local stand-in that deliberately hallucinates, accuses and oversteps, and is caught each time), the DynamoDB store against `dynalite` (including concurrent writers), the RTI clock and first appeal, private reporter uploads, and the browser flows from report to packet and from RTI reply to evidence.
 
 ## Deploy to AWS
 

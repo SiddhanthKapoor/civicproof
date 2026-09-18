@@ -188,3 +188,20 @@ describe("split unit support (table rows + unit notes)", () => {
     expect(valueSupported("5 years", "covered by 5-year maintenance contracts")).toBe(true);
   });
 });
+
+describe("user uploads", () => {
+  it("caps claims backed only by a reporter's upload at partially verified", () => {
+    const upload: CorpusReader = {
+      getDocument: (id) => (id === "up-1" ? { ...doc, id: "up-1", sourceType: "user_upload", publisher: "Uploaded by the reporter" } : undefined),
+      getPage: (id, p) => (id === "up-1" && p === 1 ? "The work was completed on 12.01.2025 by M/s Example Builders." : undefined),
+      pageCount: () => 1,
+    };
+    const r = verifyClaim(
+      { field: "completion_date", text: "Completed on 12 Jan 2025", value: "12.01.2025", citations: [{ docId: "up-1", page: 1, quote: "The work was completed on 12.01.2025" }], origin: "official_record" },
+      upload,
+      "x",
+    );
+    expect(r.claim.verification).toBe("partially_verified");
+    expect(r.evidence[0].checkNote).toMatch(/authenticity is not checked/);
+  });
+});

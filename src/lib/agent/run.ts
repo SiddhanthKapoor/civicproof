@@ -20,6 +20,8 @@ import { AfterToolCallEvent, Agent, BedrockModel, BeforeToolCallEvent, ImageBloc
 import { CedarAuthorization } from "@strands-agents/sdk/vended-interventions/cedar";
 import { config } from "@/lib/config";
 import { getCorpus } from "@/lib/corpus";
+import { withCaseDocuments } from "@/lib/corpus/with-case-documents";
+import { readCaseDocumentPages } from "@/lib/cases";
 import { getStore } from "@/lib/store";
 import { getBlobs } from "@/lib/blob";
 import { authorize } from "@/lib/authz";
@@ -143,7 +145,10 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
   onEvent({ type: "started", runId, engine, model: engine === "bedrock" ? config.bedrockModelId : undefined });
   log.info("investigation.start", { caseId, runId, engine });
 
-  const ctx = createRunContext(initial, corpus, (e) => {
+  const caseDocs = await Promise.all(
+    initial.documents.filter((d) => d.textPages > 0).map(async (doc) => ({ doc, pages: await readCaseDocumentPages(doc) })),
+  );
+  const ctx = createRunContext(initial, withCaseDocuments(corpus, initial.id, caseDocs), (e) => {
     if (e.type === "trace") trace.push(e.step);
     onEvent(e);
   });

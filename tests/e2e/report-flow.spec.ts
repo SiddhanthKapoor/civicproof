@@ -62,3 +62,30 @@ test("pages render without console errors", async ({ page }) => {
   }
   expect(errors).toEqual([]);
 });
+
+test("reporter adds an RTI reply; only they can read it", async ({ page, request, browser }) => {
+  const form = { title: "Document flow check", description: "Checking that a reporter can add a document to the case.", category: "pothole", lat: "12.826842", lng: "77.617364", locationSource: "map_pin", observedOn: "2026-09-10" };
+  const created = await (await request.post("/api/cases", { multipart: form })).json();
+  const { id, ownerKey } = created as { id: string; ownerKey: string };
+
+  await page.goto("/");
+  await page.evaluate(([i, k]) => localStorage.setItem(`civicproof:owner:${i}`, k), [id, ownerKey]);
+  await page.goto(`/cases/${id}#tracking`);
+  await expect(page.getByText("Documents you received")).toBeVisible();
+  await page.locator('input[name="file"]').setInputFiles(path.join(process.cwd(), "corpus/documents/ommas-quality-grading-bangalore-urban.pdf"));
+  await page.getByLabel("Title").last().fill("PIO reply with quality grades");
+  await page.getByRole("button", { name: "Add document" }).click();
+  await expect(page.getByText(/pages? of text are now available/)).toBeVisible();
+
+  await page.getByRole("link", { name: "Read" }).click();
+  await expect(page.getByRole("heading", { name: "PIO reply with quality grades" })).toBeVisible();
+  await expect(page.getByText("Works Wise Grading Abstract")).toBeVisible();
+
+  // A different browser (no owner key) sees neither the panel nor the text.
+  const stranger = await browser.newPage();
+  await stranger.goto(`/cases/${id}`);
+  await expect(stranger.getByText(/The reporter has added 1 document/)).toBeVisible();
+  const res = await request.get(`/api/cases/${id}/documents/${(await (await request.get(`/api/cases/${id}`)).json()).case.documents[0].id}`);
+  expect(res.status()).toBe(403);
+  await stranger.close();
+});

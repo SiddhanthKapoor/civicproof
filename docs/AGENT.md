@@ -10,7 +10,7 @@
 
 | Tool | Kind | Notes |
 |---|---|---|
-| `get_case_report` | read | Title, description, category, location and how it was obtained, photo EXIF summary, AI photo description if any. |
+| `get_case_report` | read | Title, description, category, location and how it was obtained, photo EXIF summary, AI photo description if any, and any documents the reporter added (searchable and readable with the tools below). |
 | `find_projects_near(radius_m)` | read | Distance from the pin to each project alignment (point-to-polyline), plus type-of-work and road-name matches. Cedar caps the radius at 2 km. |
 | `select_project(project_id, reasons)` | proposal | Cedar only permits ids the location search returned (`context.session.candidate_ids`). |
 | `list_project_documents` · `search_documents` · `read_document_page` | read | MiniSearch full-text over all pages; pages are returned verbatim (clipped at 7,000 chars). |
@@ -31,6 +31,8 @@ There is no tool that writes outside the case, changes status, sends anything or
 For each citation: the document and page must exist; the quotation (≥6 chars, normalised for whitespace, typography and the rupee sign) must occur on the page, either exactly or with all whitespace removed (PDF extraction splits words). A ≥85% in-order token match is reported as *partially verified*, never as verified.
 
 The value must then appear in a verbatim quotation: literally, or as the same amount (Indian units: lakh, crore), the same date (day-first numeric, written forms, ISO) or the same duration. Tables that print a bare number and state the unit once ("All Costs are in Lakhs") are accepted only when both excerpts are verbatim and cited on the same claim.
+
+Claims backed only by a document the reporter uploaded are capped at `partially_verified`: the quote is in the file, but CivicProof cannot authenticate the file.
 
 Results: `verified`, `partially_verified`, `unverified` (with reasons), and `contradicted` when two verified claims on a single-valued field disagree; both are shown.
 

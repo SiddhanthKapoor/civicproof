@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCorpus } from "@/lib/corpus";
-import { normalizeText } from "@/lib/agent/text";
+import { locateExcerpt } from "@/lib/locate";
 import { buttonClass, Container, ExternalIcon, formatDate } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { ScrollToHit } from "@/components/scroll-to-hit";
@@ -11,28 +11,6 @@ export async function generateMetadata(props: PageProps<"/sources/[docId]">): Pr
   const { docId } = await props.params;
   const d = getCorpus().getDocument(docId);
   return { title: d ? d.title : "Document not found" };
-}
-
-/**
- * Finds `q` in the page text, tolerating the whitespace and typography differences that PDF
- * extraction introduces, and returns [start, end) in the original text.
- */
-function locate(text: string, q: string): [number, number] | null {
-  const target = normalizeText(q).replace(/\s+/g, "");
-  if (target.length < 6) return null;
-  // Map each non-space character of the normalised text back to its index in the original.
-  const map: number[] = [];
-  let flat = "";
-  for (let i = 0; i < text.length; i++) {
-    const n = normalizeText(text[i]).replace(/\s+/g, "");
-    for (const ch of n) {
-      flat += ch;
-      map.push(i);
-    }
-  }
-  const at = flat.indexOf(target);
-  if (at < 0) return null;
-  return [map[at], map[at + target.length - 1] + 1];
 }
 
 export default async function DocumentPage(props: PageProps<"/sources/[docId]">) {
@@ -45,7 +23,7 @@ export default async function DocumentPage(props: PageProps<"/sources/[docId]">)
   const page = Math.min(Math.max(1, Number(sp.page) || 1), Math.max(1, pages));
   const q = typeof sp.q === "string" ? sp.q : undefined;
   const text = corpus.getPage(docId, page) ?? "";
-  const hit = q ? locate(text, q) : null;
+  const hit = q ? locateExcerpt(text, q) : null;
   const projects = corpus.projects.filter((p) => p.documents.includes(docId));
   const href = (n: number) => `/sources/${docId}?page=${n}${q && n === page ? `&q=${encodeURIComponent(q)}` : ""}`;
 

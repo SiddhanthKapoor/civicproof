@@ -8,7 +8,7 @@
 | Human actions | Cedar evaluates every case change (`policies/case-actions.cedar`). Real-world actions (submission, response, status) require the owner key; only its SHA-256 is stored, compared in constant time. |
 | Input validation | Zod schemas on every route; errors return field messages, never stack traces. |
 | Uploads | ≤4 photos, ≤8 MB each, ≤6 MB request; type decided by magic bytes (JPEG/PNG/WebP), not by the client's claim; re-encoded in the browser (strips EXIF from the stored file); SHA-256 fingerprinted; stored in a private bucket; served with `nosniff` and `default-src 'none'`. |
-| Privacy | Reporter name and contact are optional; contact is never returned by any API. Photo GPS is only used to suggest the pin. |
+| Privacy | Reporter name and contact are optional; contact is never returned by any API. Photo GPS is only used to suggest the pin. Documents the reporter adds (e.g. RTI replies, which carry their name and address) are private: only the owner key can read or download them, and the key is sent in a header, never in a URL. Only excerpts the investigator quotes become public evidence. |
 | Cost / abuse | Per-IP rate limits (per instance), a per-day investigation budget in DynamoDB and a per-case cap, both enforced through Cedar; per-run tool-call and time budgets. |
 | Content | Neutral-language guard on model output; complaint packets are assembled from verified facts only and carry a "draft, verify before sending" disclaimer. |
 | Transport | Function URL is HTTPS only; S3 bucket policy denies non-TLS access; standard security headers (`X-Frame-Options: DENY`, `nosniff`, referrer and permissions policies). |

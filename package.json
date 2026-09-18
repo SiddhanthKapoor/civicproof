@@ -15,7 +15,8 @@
     "seed": "node --conditions=react-server --import tsx scripts/seed.ts",
     "predev": "node scripts/copy-maplibre-worker.mjs && (test -f corpus/generated/pages.json || npm run ingest)",
     "prebuild": "node scripts/copy-maplibre-worker.mjs && npm run ingest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "eval": "node --conditions=react-server --import tsx scripts/eval.ts"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1135.0",

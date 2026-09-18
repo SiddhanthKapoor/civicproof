@@ -15,6 +15,8 @@ export type CaseAction =
   | "RecordResponse"
   | "AddNote"
   | "EditPacket"
+  | "AddEvidence"
+  | "ViewPrivateDocument"
   | "ChangeStatus";
 
 export type Principal =

@@ -119,3 +119,24 @@ describe("RTI first appeal", () => {
     expect(text).toContain("31 Jul 2026"); // reply was due 30 days after 1 Jul 2026
   });
 });
+
+describe("reporter documents", () => {
+  it("stores an upload privately, extracts its text and lets the investigator read it", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { addCaseDocument, readCaseDocumentPages } = await import("@/lib/cases");
+    const { caseData, ownerKey } = await createCase({ ...base, title: "Document upload test case", lat: 12.826842, lng: 77.617364 }, []);
+    const bytes = new Uint8Array(readFileSync("corpus/documents/ommas-quality-grading-bangalore-urban.pdf"));
+
+    await expect(addCaseDocument(caseData.id, "not-the-key", { name: "reply.pdf", bytes }, { title: "PIO reply", kind: "rti_reply" })).rejects.toThrow(/Only the person/);
+
+    const { caseData: withDoc, document } = await addCaseDocument(caseData.id, ownerKey, { name: "reply.pdf", bytes }, { title: "PIO reply", kind: "rti_reply" });
+    expect(document.pageCount).toBe(2);
+    expect(document.textPages).toBe(2);
+    expect(withDoc.timeline.at(-1)?.type).toBe("evidence_added");
+    expect((await readCaseDocumentPages(document))[0]).toContain("Works Wise Grading Abstract");
+    await expect(addCaseDocument(caseData.id, ownerKey, { name: "again.pdf", bytes }, { title: "Again", kind: "other" })).rejects.toThrow(/already/);
+
+    const done = await runInvestigation(caseData.id, () => {});
+    expect(done.investigation!.trace.some((t) => t.tool === "read_document_page" && t.summary.includes("uploaded by the reporter"))).toBe(true);
+  });
+});

@@ -371,6 +371,34 @@ export const PacketSchema = z.object({
 export type Packet = z.infer<typeof PacketSchema>;
 
 // ---------------------------------------------------------------------------
+// Documents the reporter adds (RTI replies, work orders…)
+// ---------------------------------------------------------------------------
+
+export const CASE_DOCUMENT_KINDS = ["rti_reply", "work_order", "completion_certificate", "official_letter", "other"] as const;
+export const CASE_DOCUMENT_LABELS: Record<(typeof CASE_DOCUMENT_KINDS)[number], string> = {
+  rti_reply: "RTI reply",
+  work_order: "Work order",
+  completion_certificate: "Completion certificate",
+  official_letter: "Official letter",
+  other: "Other document",
+};
+export const CaseDocumentSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  kind: z.enum(CASE_DOCUMENT_KINDS),
+  filename: z.string(),
+  mime: z.string(),
+  bytes: z.number().int(),
+  sha256: z.string().length(64),
+  key: z.string(),
+  pagesKey: z.string().optional(),
+  pageCount: z.number().int(),
+  textPages: z.number().int(),
+  uploadedAt: z.string(),
+});
+export type CaseDocument = z.infer<typeof CaseDocumentSchema>;
+
+// ---------------------------------------------------------------------------
 // Case
 // ---------------------------------------------------------------------------
 
@@ -395,6 +423,8 @@ export const CaseSchema = z.object({
   ownerKeyHash: z.string(),
   investigation: InvestigationSchema.optional(),
   packets: z.object({ complaint: PacketSchema.optional(), rti: PacketSchema.optional(), appeal: PacketSchema.optional() }).default({}),
+  /** Added by the reporter. Files are private to the reporter; quoted excerpts become evidence. */
+  documents: z.array(CaseDocumentSchema).default([]),
   timeline: z.array(TimelineEventSchema),
 });
 export type Case = z.infer<typeof CaseSchema>;
