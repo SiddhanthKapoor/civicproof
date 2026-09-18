@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getStore } from "@/lib/store";
-import { casesCorpus } from "@/lib/cases";
+import { casesCorpus, settleStaleRun } from "@/lib/cases";
 import { toPublicCase } from "@/lib/schemas";
 import { haversine } from "@/lib/geo";
 import { CaseDossier, type DossierProject } from "./case-dossier";
@@ -16,7 +16,8 @@ export async function generateMetadata(props: PageProps<"/cases/[id]">): Promise
 
 export default async function CasePage(props: PageProps<"/cases/[id]">) {
   const { id } = await props.params;
-  const c = await getStore().get(id);
+  const stored = await getStore().get(id);
+  const c = stored ? settleStaleRun(stored) : undefined;
   if (!c) notFound();
   // Includes any public records the investigator fetched live for this case.
   const corpus = await casesCorpus(c);

@@ -95,7 +95,7 @@ flowchart LR
   U --> API
   AG --> GM[Gemini]
   AG -. fallback .-> BR[Amazon Bedrock · Nova]
-  T -- fetch live records --> P[Official portals<br/>KPPP · OMMAS]
+  T -- fetch live records --> P[OMMAS<br/>PMGSY road lists]
   T --> S3[(S3<br/>photos · PDFs · record archive)]
   API --> DDB[(DynamoDB)]
   API --> LOC[Amazon Location]

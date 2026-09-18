@@ -5,6 +5,7 @@
  */
 import { config } from "@/lib/config";
 import { getStore } from "@/lib/store";
+import { runInProgress } from "@/lib/cases";
 import { authorize } from "@/lib/authz";
 import { runInvestigation, type StreamEvent } from "@/lib/agent/run";
 import { toPublicCase } from "@/lib/schemas";
@@ -20,7 +21,7 @@ export const POST = handle("cases.investigate", async (req: Request, ctx: RouteC
   const c = await store.get(id);
   if (!c) return problem(404, "Case not found.");
 
-  if (c.investigation?.status === "running" && Date.now() - Date.parse(c.investigation.startedAt) < 5 * 60 * 1000) {
+  if (runInProgress(c)) {
     return problem(409, "An investigation is already running for this case. Refresh in a moment to see it.");
   }
   if (rateLimited(`investigate:${clientIp(req)}`, 20, 60 * 60 * 1000)) {

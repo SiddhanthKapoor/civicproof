@@ -29,7 +29,7 @@ function Arrow({ d, label, lx, ly }: { d: string; label?: string; lx?: number; l
 export function ArchitectureDiagram() {
   return (
     <div tabIndex={0} role="group" aria-label="Architecture diagram (scrolls sideways on small screens)" className="overflow-x-auto rounded-2xl border border-rule bg-paper-2/40 p-4">
-      <svg viewBox="0 0 1120 590" className="min-w-[860px]" role="img" aria-labelledby="arch-title arch-desc">
+      <svg viewBox="0 0 1120 640" className="min-w-[860px]" role="img" aria-labelledby="arch-title arch-desc">
         <title id="arch-title">CivicProof architecture on AWS</title>
         <desc id="arch-desc">
           The browser calls a Lambda Function URL in response-streaming mode. Inside Lambda, the Next.js app runs a Strands agent whose
@@ -47,7 +47,7 @@ export function ArchitectureDiagram() {
         <Arrow d="M170 248 H232" label="HTTPS" lx={201} ly={238} />
 
         {/* Lambda */}
-        <rect x={236} y={40} width={560} height={492} rx={18} fill="none" stroke="var(--ink)" strokeWidth={1.4} />
+        <rect x={236} y={40} width={560} height={552} rx={18} fill="none" stroke="var(--ink)" strokeWidth={1.4} />
         <text x={256} y={68} fontSize={13} fontWeight={600} fill="var(--ink)" fontFamily="var(--font-sans)">AWS Lambda · Function URL (response streaming)</text>
         <text x={256} y={86} fontSize={11.5} fill="var(--ink-3)" fontFamily="var(--font-sans)">Next.js 16 standalone server via Lambda Web Adapter · deployed with AWS SAM</text>
 
@@ -66,23 +66,23 @@ export function ArchitectureDiagram() {
         <Arrow d="M356 302 V322" />
 
         {/* Services the app calls */}
-        <Box x={860} y={40} w={240} h={60} title="Gemini · Amazon Nova" sub={"Gemini runs the agent; Nova on\nBedrock takes over if it fails"} tone="accent" />
-        <Box x={860} y={112} w={240} h={60} title="Official portals (live)" sub={"KPPP tenders, OMMAS lists:\nsearched and fetched by the agent"} />
-        <Box x={860} y={184} w={240} h={60} title="Amazon S3" sub={"photos, PDFs, archive of\nfetched records"} />
-        <Box x={860} y={256} w={240} h={60} title="Amazon Textract" sub={"OCR for scanned uploads\n(RTI replies, letters)"} />
-        <Box x={860} y={328} w={240} h={60} title="Location · Secrets Manager" sub={"road name at the pin;\nthe Gemini key"} />
-        <Box x={860} y={400} w={240} h={60} title="Amazon DynamoDB" sub={"cases (optimistic locking)\ndaily run counters (TTL)"} />
-        <Box x={860} y={472} w={240} h={60} title="Amazon CloudWatch" sub={"logs, per-run metrics (EMF),\ndashboard, alarm"} />
+        <Box x={860} y={40} w={240} h={72} title="Gemini · Amazon Nova" sub={"Gemini runs the agent; Nova on\nBedrock takes over if it fails"} tone="accent" />
+        <Box x={860} y={120} w={240} h={72} title="Official portals (live)" sub={"OMMAS PMGSY road lists,\nsearched and fetched by the agent"} />
+        <Box x={860} y={200} w={240} h={72} title="Amazon S3" sub={"photos, PDFs, archive of\nfetched records"} />
+        <Box x={860} y={280} w={240} h={72} title="Amazon Textract" sub={"OCR for scanned uploads\n(RTI replies, letters)"} />
+        <Box x={860} y={360} w={240} h={72} title="Location · Secrets Manager" sub={"road name at the pin;\nthe Gemini key"} />
+        <Box x={860} y={440} w={240} h={72} title="Amazon DynamoDB" sub={"cases (optimistic locking)\ndaily run counters (TTL)"} />
+        <Box x={860} y={520} w={240} h={72} title="Amazon CloudWatch" sub={"logs, per-run metrics (EMF),\ndashboard, alarm"} />
 
-        <Arrow d="M796 70 H860" label="tool use" lx={828} ly={62} />
-        <Arrow d="M796 142 H860" />
-        <Arrow d="M796 214 H860" />
-        <Arrow d="M796 286 H860" />
-        <Arrow d="M796 358 H860" />
-        <Arrow d="M796 430 H860" />
-        <Arrow d="M796 502 H860" />
+        <Arrow d="M796 76 H860" label="tool use" lx={828} ly={68} />
+        <Arrow d="M796 156 H860" />
+        <Arrow d="M796 236 H860" />
+        <Arrow d="M796 316 H860" />
+        <Arrow d="M796 396 H860" />
+        <Arrow d="M796 476 H860" />
+        <Arrow d="M796 556 H860" />
 
-        <text x={20} y={568} fontSize={11} fill="var(--ink-3)" fontFamily="var(--font-sans)">
+        <text x={20} y={622} fontSize={11} fill="var(--ink-3)" fontFamily="var(--font-sans)">
           Outside AWS: the Gemini API, the official portals, and OpenFreeMap vector tiles. OpenStreetMap Nominatim replaces Amazon Location only when running locally.
         </text>
       </svg>

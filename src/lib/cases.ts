@@ -4,6 +4,7 @@
  */
 import "server-only";
 import { z } from "zod";
+import { config } from "@/lib/config";
 import { getStore } from "@/lib/store";
 import { getBlobs } from "@/lib/blob";
 import { getCorpus, type Corpus } from "@/lib/corpus";
@@ -235,6 +236,20 @@ export async function recordTimeline(caseId: string, ownerKey: string | null, in
   const updated = await store.update(caseId, (c) => ({ ...c, status: toStatus ?? c.status, timeline: [...c.timeline, ...events] }));
   log.info("case.timeline", { caseId, type: input.type, toStatus });
   return updated;
+}
+
+/**
+ * A run still marked "running" well past the run time limit was cut off (the server restarted, or
+ * the Lambda hit its timeout) and will never finish: show it as interrupted so it can be run again.
+ */
+export function settleStaleRun(c: Case, now = Date.now()): Case {
+  const inv = c.investigation;
+  if (!inv || inv.status !== "running" || now - Date.parse(inv.startedAt) < config.runTimeoutMs + 120_000) return c;
+  return { ...c, investigation: { ...inv, status: "failed", error: "This run stopped before it finished (the server restarted or timed out). Run the investigation again." } };
+}
+
+export function runInProgress(c: Case, now = Date.now()): boolean {
+  return settleStaleRun(c, now).investigation?.status === "running";
 }
 
 // ---------------------------------------------------------------------------
