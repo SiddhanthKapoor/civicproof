@@ -83,7 +83,15 @@ function OwnerKeyNotice({ ownerKey, onDismiss }: { ownerKey: string; onDismiss: 
   );
 }
 
-export function CaseDossier({ initial, projects }: { initial: PublicCase; projects: DossierProject[] }) {
+export interface NearbyCase {
+  id: string;
+  title: string;
+  status: PublicCase["status"];
+  distanceM: number;
+  demo: boolean;
+}
+
+export function CaseDossier({ initial, projects, nearby = [] }: { initial: PublicCase; projects: DossierProject[]; nearby?: NearbyCase[] }) {
   const router = useRouter();
   const search = useSearchParams();
   const [caseData, setCaseData] = useState(initial);
@@ -354,6 +362,25 @@ export function CaseDossier({ initial, projects }: { initial: PublicCase; projec
             <p className="mt-2 whitespace-pre-line text-[14px] leading-relaxed text-ink-2">{caseData.description}</p>
             {caseData.reporterName && <p className="mt-2 text-[12.5px] text-ink-3">Reported by {caseData.reporterName}</p>}
           </div>
+
+          {nearby.length > 0 && (
+            <div className="rounded-2xl border border-rule bg-card p-4 shadow-card">
+              <p className="text-[12px] font-medium uppercase tracking-[0.12em] text-ink-3">Nearby reports</p>
+              <ul className="mt-2 space-y-2.5">
+                {nearby.map((n) => (
+                  <li key={n.id}>
+                    <Link href={`/cases/${n.id}`} className="group block">
+                      <span className="text-[13.5px] leading-snug text-ink group-hover:text-accent">{n.title}</span>
+                      <span className="mt-1 flex items-center gap-2 text-[12px] text-ink-3">
+                        <StatusPill status={n.status} className="h-5 px-2 text-[11px]" />
+                        {formatDistance(n.distanceM)} away{n.demo ? " · demo" : ""}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {selected && (
             <div className="rounded-2xl border border-rule bg-card p-4 shadow-card">

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getStore } from "@/lib/store";
 import { getCorpus } from "@/lib/corpus";
 import { toPublicCase } from "@/lib/schemas";
+import { haversine } from "@/lib/geo";
 import { CaseDossier, type DossierProject } from "./case-dossier";
 
 export const dynamic = "force-dynamic";
@@ -44,5 +45,12 @@ export default async function CasePage(props: PageProps<"/cases/[id]">) {
       };
     });
 
-  return <CaseDossier initial={toPublicCase(c)} projects={projects} />;
+  const nearby = (await getStore().list(500))
+    .filter((x) => x.id !== c.id)
+    .map((x) => ({ ...x, distanceM: Math.round(haversine(c.location, { lat: x.lat, lng: x.lng })) }))
+    .filter((x) => x.distanceM <= 1500)
+    .sort((a, b) => a.distanceM - b.distanceM)
+    .slice(0, 4);
+
+  return <CaseDossier initial={toPublicCase(c)} projects={projects} nearby={nearby} />;
 }
