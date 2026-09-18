@@ -51,7 +51,7 @@ Residents and resident welfare associations, ward volunteers, local journalists 
 | Curated facts | **Real, and re-verified on every build.** 85 facts, each a verbatim quotation checked by `npm run ingest`. |
 | Project locations | PMGSY roads: official GeoSadak GIS. City roads: traced from OpenStreetMap by road name and labelled approximate. |
 | Demo reports | **Illustrative.** Six seeded reports show the workflow. They are marked "Demo report" everywhere; nobody filed them anywhere. |
-| AI investigation | Real Strands agent + Cedar + verifier. With AWS credentials it runs **Claude on Amazon Bedrock**; without them, a **rules planner** drives the same tools with curated extractions, and the UI says so. |
+| AI investigation | Real Strands agent + Cedar + verifier. With a Gemini key it runs **Google Gemini** (tested live: on the Kodathi road it linked the right project and verified the contractor, work order date, 5-year maintenance period and costs from the OMMAS pages); on AWS it can run a model on **Amazon Bedrock** instead. With neither, a **rules planner** drives the same tools by replaying curated extractions, and the UI says so. |
 
 Details: [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).
 
@@ -68,8 +68,8 @@ The hard part is reading: 65-page bid documents, scheme reports whose tables ext
 
 | Service | Role |
 |---|---|
-| **Amazon Bedrock** | Claude (default `global.anthropic.claude-opus-5`) via the Converse API: tool use for the investigation, vision for describing the photo. Optional Bedrock Guardrail. |
-| **Strands Agents** (AWS open source) | The agent loop, Bedrock provider, lifecycle hooks and the Cedar intervention. |
+| **Amazon Bedrock** | Alternative model host (`Planner=bedrock`): any Converse model with tool use and vision, default `global.anthropic.claude-opus-5`, optional Guardrail. The default build uses Gemini instead. |
+| **Strands Agents** (AWS open source) | The agent loop, the Gemini and Bedrock model providers, lifecycle hooks and the Cedar intervention. |
 | **Cedar** (AWS open source) | Two policy sets: agent tool calls, and every change to a case. |
 | **AWS Lambda** | Next.js standalone server behind a **Function URL in response-streaming mode**, via the Lambda Web Adapter, so the agent's steps stream to the browser live. |
 | **Amazon Textract** | OCR for scanned uploads (RTI replies usually come back as scanned letters), so the investigator can quote them. |
@@ -88,7 +88,7 @@ flowchart LR
     T --> C[(Records corpus<br/>SHA-256 checked)]
   end
   U --> API
-  AG -- Converse --> BR[Amazon Bedrock · Claude]
+  AG --> BR[Gemini · or Amazon Bedrock]
   API --> DDB[(DynamoDB)]
   API --> S3[(S3)]
   L --> CW[CloudWatch Logs]
@@ -107,9 +107,18 @@ npm run seed        # six labelled demo reports (local JSON store)
 npm run dev         # http://localhost:3000
 ```
 
-That's the whole setup: no AWS account, no API keys. Investigations use the rules planner.
+That's the whole setup: no AWS account, no API keys. Investigations then use the rules planner, which only replays curated extractions for the 8 known projects.
 
-**With Claude on Bedrock locally**, give the process AWS credentials that can invoke the model (or a Bedrock API key) and switch the planner:
+**With Gemini (the real investigator)**, put a key from [Google AI Studio](https://aistudio.google.com/apikey) in `.env.local` and restart:
+
+```bash
+echo 'GEMINI_API_KEY=your-key' > .env.local   # gitignored; read only on the server
+npm run dev
+```
+
+The free tier allows about 20 requests per model per day and a few per minute; an investigation makes 10–15, so expect about one or two runs per model per day, with pauses the live trace shows. Enable billing on the key's project for a public demo. `GEMINI_MODEL_ID` picks the model (default `gemini-3-flash-preview`).
+
+**With a model on Bedrock**, give the process AWS credentials that can invoke the model (or a Bedrock API key) and switch the planner:
 
 ```bash
 export AWS_REGION=ap-south-1
@@ -123,16 +132,17 @@ See [.env.example](.env.example) for every setting.
 ## Test
 
 ```bash
-npm test            # 47 unit/integration tests (Vitest)
+npm test            # 51 unit/integration tests (Vitest)
 npm run test:e2e    # 5 browser tests incl. an axe WCAG 2.1 AA audit (Playwright), against a running server
-                    # (they create cases: run that server with CIVICPROOF_DATA_DIR pointing at a scratch dir you've seeded)
+                    # (they create cases: run that server with CIVICPROOF_PLANNER=rules and CIVICPROOF_DATA_DIR
+                    #  pointing at a scratch dir you've seeded, so they neither spend model quota nor touch .data)
 npm run check       # all of the above plus types and lint
-npm run eval        # scores the investigator against the 85 curated facts (set CIVICPROOF_PLANNER=bedrock to evaluate Claude)
+npm run eval        # scores the investigator against the 85 curated facts (uses Gemini when GEMINI_API_KEY is set; costs model quota)
 npm run typecheck
 npm run lint
 ```
 
-The suites cover the verifier (amounts, dates, durations, fabricated citations, conflicts), both Cedar policy files, the full investigation pipeline on real records, the **Bedrock code path through the Converse API** (against a local stand-in that deliberately hallucinates, accuses and oversteps, and is caught each time), the DynamoDB store against `dynalite` (including concurrent writers), the RTI clock and first appeal, private reporter uploads, OCR through a local Textract stand-in, the browser flows from report to packet and from RTI reply to evidence, and an axe accessibility audit of every main page (no WCAG 2.1 A/AA violations).
+The suites cover the verifier (amounts, dates, durations, fabricated citations, conflicts), both Cedar policy files, the full investigation pipeline on real records, the **Gemini and Bedrock code paths** (each against a local stand-in for its API that deliberately hallucinates, accuses and oversteps, and is caught each time), the DynamoDB store against `dynalite` (including concurrent writers), the RTI clock and first appeal, private reporter uploads, OCR through a local Textract stand-in, the browser flows from report to packet and from RTI reply to evidence, and an axe accessibility audit of every main page (no WCAG 2.1 A/AA violations).
 
 ## Deploy to AWS
 
@@ -142,7 +152,7 @@ Requirements: AWS CLI and SAM CLI, credentials for an account with Amazon Bedroc
 ./scripts/deploy.sh
 ```
 
-This builds the Next.js standalone server into `.lambda/`, validates `infra/template.yaml`, runs `sam deploy` (guided the first time), seeds the demo reports into DynamoDB and prints the URL. Parameters: `Planner` (`bedrock`|`rules`), `BedrockModelId`, `MaxRunsPerDay`, `MaxRunsPerCase`. Details and teardown: [docs/DEPLOY.md](docs/DEPLOY.md).
+This builds the Next.js standalone server into `.lambda/`, validates `infra/template.yaml`, runs `sam deploy` (guided the first time), seeds the demo reports into DynamoDB and prints the URL. If `.env.local` has a `GEMINI_API_KEY`, it is passed as a NoEcho parameter into the function's environment. Parameters: `Planner` (`gemini`|`bedrock`|`rules`), `GeminiModelId`, `BedrockModelId`, `MaxRunsPerDay`, `MaxRunsPerCase`. Details and teardown: [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Project layout
 
@@ -166,6 +176,8 @@ docs/               architecture, agent, data sources, security, deploy, demo sc
 - Submission is manual: there is no supported government API to file into, so CivicProof drafts and tracks.
 - Scanned uploads are OCR'd with Amazon Textract on AWS; locally (no AWS) they are stored but can't be quoted. Scanned documents in the shared corpus are not OCR'd.
 - No accounts: an owner key in the browser proves you filed a report.
+- Real model runs are only as good as the model's reading: in live Gemini runs it has recorded a financial completion date as the completion date, and dropped units to pass the verifier. Both are now handled in code (field guide, unit notes read from the cited page, deterministic clean-up), but a model can still miss facts the rules planner's curated extractions contain.
+- On Gemini's free tier, runs pause for rate limits and fail cleanly when the daily quota or Google's capacity runs out.
 
 ## What's next
 
@@ -177,7 +189,7 @@ docs/               architecture, agent, data sources, security, deploy, demo sc
 
 ## AI tools used
 
-Built with Claude Code (Anthropic) as a coding assistant, as permitted by the event rules. The app itself calls Claude on Amazon Bedrock.
+Built with Claude Code (Anthropic) as a coding assistant, as permitted by the event rules. The app itself calls Google Gemini (or, if configured, a model on Amazon Bedrock).
 
 ## Credits and licence
 

@@ -20,7 +20,7 @@ One Next.js 16 application (App Router, TypeScript). Pages and API routes run in
 
 ```
 report
-  └─ Strands Agent (BedrockModel: Claude | RulesPlanner: deterministic)
+  └─ Strands Agent (GoogleModel: Gemini | BedrockModel | RulesPlanner: deterministic)
        ├─ BeforeToolCall → Cedar (policies/agent-tools.cedar)   deny → returned to model + shown in trace
        ├─ BeforeToolCall → NeutralLanguageGuard                  "guide" → model rephrases
        ├─ tools: get_case_report · find_projects_near · select_project · list_project_documents

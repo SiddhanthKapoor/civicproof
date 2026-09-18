@@ -23,7 +23,8 @@ There is no tool that writes outside the case, changes status, sends anything or
 
 ## Models
 
-- **Claude on Amazon Bedrock** (`BedrockModel`, Converse API). Default `global.anthropic.claude-opus-5`; any Bedrock model with tool use works via `BEDROCK_MODEL_ID`. Photo description uses a separate structured-output call with an image block.
+- **Google Gemini** (`GoogleModel` from `@strands-agents/sdk/models/google`), the default when `GEMINI_API_KEY` is set; model from `GEMINI_MODEL_ID` (default `gemini-3-flash-preview`). Rate limits and "high demand" 503s are waited out by `src/lib/agent/rate-limit.ts`, which honours the server's retry hint and fails fast on a daily quota.
+- **A model on Amazon Bedrock** (`BedrockModel`, Converse API). Default `global.anthropic.claude-opus-5`; any Bedrock model with tool use works via `BEDROCK_MODEL_ID`. Photo description uses a separate structured-output call with an image block.
 - **Rules planner** (`src/lib/agent/rules-planner.ts`): a Strands `Model` subclass that emits the same tool calls a careful investigator would, using the human-curated extractions in `corpus/projects.json`. It flags near-tie locations. Its runs are labelled "Rules planner · no language model".
 
 ## The verifier (`src/lib/agent/verifier.ts`, `text.ts`)

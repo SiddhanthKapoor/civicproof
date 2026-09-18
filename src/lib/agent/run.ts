@@ -1,7 +1,7 @@
 /**
  * Investigation orchestrator.
  *
- *   report ──▶ Strands Agent (Claude on Bedrock | rules planner)
+ *   report ──▶ Strands Agent (Gemini | a model on Bedrock | rules planner)
  *                 │  every tool call ─▶ Cedar policy (agent-tools.cedar) ─▶ neutral-language guard
  *                 │  record_claim ────▶ grounding verifier (verbatim check against page text)
  *                 ▼
@@ -18,6 +18,7 @@ import path from "node:path";
 import { z } from "zod";
 import { AfterToolCallEvent, Agent, BedrockModel, BeforeToolCallEvent, ImageBlock, TextBlock, type Model } from "@strands-agents/sdk";
 import { CedarAuthorization } from "@strands-agents/sdk/vended-interventions/cedar";
+import { GoogleModel } from "@strands-agents/sdk/models/google";
 import { config } from "@/lib/config";
 import { getCorpus } from "@/lib/corpus";
 import { withCaseDocuments } from "@/lib/corpus/with-case-documents";
@@ -34,6 +35,7 @@ import { RulesPlanner } from "./rules-planner";
 import { NeutralLanguageGuard } from "./guards";
 import { finalizeClaims } from "./finalize";
 import { PHOTO_PROMPT, SYSTEM_PROMPT } from "./prompt";
+import { describeModelError, RateLimitRetry } from "./rate-limit";
 
 export type StreamEvent =
   | AgentEvent
@@ -63,6 +65,32 @@ function bedrockModel(maxTokens: number): BedrockModel {
   });
 }
 
+function geminiModel(maxTokens: number): GoogleModel {
+  return new GoogleModel({
+    apiKey: config.geminiApiKey,
+    modelId: config.geminiModelId,
+    params: { maxOutputTokens: maxTokens, temperature: 0.2 },
+    // A per-request timeout, so a stalled stream fails (and is retried) instead of hanging the run.
+    clientConfig: { httpOptions: { timeout: 120_000, ...(config.geminiEndpoint ? { baseUrl: config.geminiEndpoint } : {}) } },
+  });
+}
+
+/** The language model behind the investigator for this deployment (not used by the rules planner). */
+function languageModel(maxTokens: number): Model {
+  return config.planner === "gemini" ? geminiModel(maxTokens) : bedrockModel(maxTokens);
+}
+
+/** Model id recorded on the run, or undefined for the rules planner. */
+export function modelIdFor(engine: Investigation["engine"]): string | undefined {
+  return engine === "gemini" ? config.geminiModelId : engine === "bedrock" ? config.bedrockModelId : undefined;
+}
+
+const ENGINE_NAME: Record<Investigation["engine"], string> = {
+  gemini: "Google Gemini",
+  bedrock: "Amazon Bedrock",
+  rules: "rules planner, no language model",
+};
+
 const PhotoObservation = z.object({
   infrastructure_damage_visible: z.boolean(),
   visible_issues: z.array(z.string()).max(6).describe("Short noun phrases, e.g. 'pothole', 'exposed aggregate', 'standing water'"),
@@ -70,15 +98,15 @@ const PhotoObservation = z.object({
   severity: z.enum(["minor", "moderate", "severe", "unclear"]),
 });
 
-/** Describes the reporter's photo with Claude vision. The result is labelled as an AI observation. */
+/** Describes the reporter's photo with the model's vision. The result is labelled as an AI observation. */
 async function analyzePhoto(ctx: RunContext) {
   const photo = ctx.caseData.photos[0];
   const blob = await getBlobs().get(photo.key);
   if (!blob) return;
   const format = photo.mime === "image/png" ? "png" : photo.mime === "image/webp" ? "webp" : "jpeg";
   ctx.setStage("intake");
-  ctx.trace({ kind: "tool_call", tool: "analyze_photo", stage: "intake", summary: "Describing the reporter's photo with Claude vision" });
-  const agent = new Agent({ model: bedrockModel(2000), printer: false, structuredOutputSchema: PhotoObservation });
+  ctx.trace({ kind: "tool_call", tool: "analyze_photo", stage: "intake", summary: `Describing the reporter's photo with ${ENGINE_NAME[config.planner]} vision` });
+  const agent = new Agent({ model: languageModel(4000), printer: false, structuredOutputSchema: PhotoObservation, retryStrategy: rateLimitRetry(ctx) });
   const res = await agent.invoke([new ImageBlock({ format, source: { bytes: blob.body } }), new TextBlock(PHOTO_PROMPT)]);
   const obs = res.structuredOutput as z.infer<typeof PhotoObservation> | undefined;
   if (!obs) return;
@@ -97,6 +125,16 @@ async function analyzePhoto(ctx: RunContext) {
   ctx.emit({ type: "claim", claim, evidence: [] });
 }
 
+/** Waits out rate limits (e.g. Gemini's free tier) and shows the wait in the live trace. */
+function rateLimitRetry(ctx: RunContext) {
+  return new RateLimitRetry((waitMs, attempt, reason) =>
+    ctx.trace({
+      kind: "note",
+      summary: `${ENGINE_NAME[config.planner]} ${reason === "overloaded" ? "is overloaded" : "rate limit reached"}; waiting ${Math.round(waitMs / 1000)} s before retrying (attempt ${attempt + 1})`,
+    }),
+  );
+}
+
 function agentPolicy(): string {
   return readFileSync(path.join(process.cwd(), "policies", "agent-tools.cedar"), "utf8");
 }
@@ -105,6 +143,8 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
   const store = getStore();
   const corpus = getCorpus();
   const engine = config.planner;
+  const usesModel = engine !== "rules";
+  const modelId = modelIdFor(engine);
   const runId = newId("run");
   const startedAt = new Date().toISOString();
   const trace: TraceStep[] = [];
@@ -116,7 +156,7 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
     const inv: Investigation = {
       runId,
       engine,
-      model: engine === "bedrock" ? config.bedrockModelId : undefined,
+      model: modelId,
       status: "running",
       startedAt,
       matches: [],
@@ -139,13 +179,13 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
           at: startedAt,
           type: "investigation_started",
           actor: "agent",
-          summary: engine === "bedrock" ? `Investigation started (Claude on Amazon Bedrock · ${config.bedrockModelId})` : "Investigation started (rules planner, no language model)",
+          summary: usesModel ? `Investigation started (${ENGINE_NAME[engine]} · ${modelId})` : `Investigation started (${ENGINE_NAME.rules})`,
         },
       ],
     };
   });
 
-  onEvent({ type: "started", runId, engine, model: engine === "bedrock" ? config.bedrockModelId : undefined });
+  onEvent({ type: "started", runId, engine, model: modelId });
   log.info("investigation.start", { caseId, runId, engine });
 
   const caseDocs = await Promise.all(
@@ -179,7 +219,7 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
   const usage = { inputTokens: 0, outputTokens: 0, modelCalls: 0 };
 
   try {
-    if (engine === "bedrock" && initial.photos.length) {
+    if (usesModel && initial.photos.length) {
       try {
         await analyzePhoto(ctx);
       } catch (e) {
@@ -197,14 +237,15 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
       ctx.trace({ kind: "denied", tool, summary: `Neutral-language guard stopped "${term}" in ${tool}; the model was asked to rephrase` }),
     );
 
-    // Thinking tokens count toward the limit on current Claude models; leave room so a turn is never cut off.
-    const model: Model = engine === "bedrock" ? bedrockModel(16000) : new RulesPlanner(ctx);
+    // Thinking tokens count toward the output limit on current models; leave room so a turn is never cut off.
+    const model: Model = usesModel ? languageModel(16000) : new RulesPlanner(ctx);
     const agent = new Agent({
       model,
       tools: buildTools(ctx),
       interventions: [cedar, guard],
       systemPrompt: SYSTEM_PROMPT,
       printer: false,
+      ...(usesModel ? { retryStrategy: rateLimitRetry(ctx) } : {}),
     });
 
     agent.addHook(BeforeToolCallEvent, (ev) => {
@@ -224,7 +265,7 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
 
     const result = await agent.invoke(
       `Investigate case ${initial.id}. Start by reading the report.`,
-      { cancelSignal: AbortSignal.timeout(engine === "bedrock" ? 240_000 : 30_000) },
+      { cancelSignal: AbortSignal.timeout(usesModel ? config.runTimeoutMs : 30_000) },
     );
     if (result.metrics) {
       usage.inputTokens = result.metrics.accumulatedUsage.inputTokens;
@@ -252,7 +293,7 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
         investigation: {
           runId,
           engine,
-          model: engine === "bedrock" ? config.bedrockModelId : undefined,
+          model: modelId,
           status: "complete",
           startedAt,
           finishedAt,
@@ -266,7 +307,7 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
           summary: ctx.summary,
           analysis: ctx.analysis,
           trace,
-          usage: engine === "bedrock" ? usage : undefined,
+          usage: usesModel ? usage : undefined,
         },
         timeline: [
           ...c.timeline,
@@ -285,8 +326,9 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
     return finalCase;
   } catch (e) {
     clearInterval(timer);
-    const message = errorMessage(e);
-    log.error("investigation.failed", { caseId, runId, engine, error: message });
+    const raw = errorMessage(e);
+    const message = describeModelError(raw, ENGINE_NAME[engine]) ?? raw;
+    log.error("investigation.failed", { caseId, runId, engine, error: raw });
     const failed = await store.update(caseId, (c) => ({
       ...c,
       status: c.status === "investigating" ? (c.investigation?.claims.length ? "investigating" : "reported") : c.status,

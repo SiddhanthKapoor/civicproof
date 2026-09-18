@@ -3,15 +3,23 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   CivicProof: turns a reported road problem into an evidence-backed case.
   Next.js on AWS Lambda (Lambda Web Adapter, response streaming Function URL),
-  DynamoDB for cases, S3 for photos and packet PDFs, Amazon Bedrock for the investigator,
-  CloudWatch for logs and an error alarm.
+  DynamoDB for cases, S3 for photos and packet PDFs, Gemini or Amazon Bedrock for the
+  investigator, Textract for scanned uploads, CloudWatch for logs and an error alarm.
 
 Parameters:
   Planner:
     Type: String
-    Default: bedrock
-    AllowedValues: [bedrock, rules]
-    Description: "bedrock = Claude on Amazon Bedrock via Strands Agents; rules = deterministic planner (no model calls)."
+    Default: gemini
+    AllowedValues: [gemini, bedrock, rules]
+    Description: "gemini = Google Gemini (needs GeminiApiKey); bedrock = a model on Amazon Bedrock; rules = deterministic planner (no model calls)."
+  GeminiApiKey:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: Gemini API key, passed to the function as an environment variable (never to the browser).
+  GeminiModelId:
+    Type: String
+    Default: gemini-3-flash-preview
   BedrockModelId:
     Type: String
     Default: global.anthropic.claude-opus-5
@@ -137,6 +145,8 @@ Resources:
           CIVICPROOF_MAX_RUNS_PER_DAY: !Ref MaxRunsPerDay
           CIVICPROOF_MAX_RUNS_PER_CASE: !Ref MaxRunsPerCase
           CIVICPROOF_OCR: textract
+          GEMINI_API_KEY: !Ref GeminiApiKey
+          GEMINI_MODEL_ID: !Ref GeminiModelId
           BEDROCK_MODEL_ID: !Ref BedrockModelId
           BEDROCK_REGION: !Ref AWS::Region
           NOMINATIM_CONTACT: !Ref NominatimContact

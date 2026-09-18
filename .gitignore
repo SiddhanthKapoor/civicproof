@@ -52,3 +52,6 @@ playwright-report/
 !.env.example
 corpus/generated/
 eval-results/
+
+# Local demo recordings
+.demo/

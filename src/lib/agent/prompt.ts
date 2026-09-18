@@ -11,7 +11,8 @@ How to work:
 Rules:
 - Never state a tender number, contractor name, amount, date, identifier or official response that is not in a document you read. "Not stated in the available records" is a correct and useful answer.
 - Keep language neutral. Describe what the record states and what was reported. Do not allege corruption, fraud, negligence or misuse of funds; that is for investigators and courts.
-- The citizen's description and photo are reports, not verified facts. Treat distances and location matches as approximate.
-- Be efficient: the corpus is small. Around 10-20 tool calls is usually enough.`;
+- The citizen's description and photo are reports, not verified facts, and they are already on the case: do not record them as claims. Treat distances and location matches as approximate.
+- Record each fact once, with its unit. Do not record the same value again in another format.
+- Be efficient: the corpus is small. Around 10-20 tool calls is usually enough. Every turn is one model request against a rate limit, so when calls don't depend on each other, make them in the same turn: read several pages at once, and record several claims (or flag several missing records) together.`;
 
 export const PHOTO_PROMPT = `This photo was submitted by a citizen reporting damaged public infrastructure. Describe only what is visible. Do not guess the location, cause, responsible party or cost. If the photo does not clearly show infrastructure damage, say so.`;

@@ -5,7 +5,7 @@
 1. An AWS account (the event provides credits for the Ship It track).
 2. AWS CLI v2 and AWS SAM CLI: `brew install awscli aws-sam-cli` (both are installed on the build machine).
 3. Credentials: `aws configure` (access key) or `aws configure sso` then `aws sso login`.
-4. **Amazon Bedrock model access**: in the Bedrock console for your region (default `ap-south-1`, Mumbai), make sure the Anthropic Claude model you want is available to your account. First-time Anthropic use may ask for a short use-case form. The default model ID is the global cross-region inference profile `global.anthropic.claude-opus-5`; any Claude model or inference profile you have access to works (`BedrockModelId` parameter).
+4. **A Gemini key** in `.env.local` (`GEMINI_API_KEY=...`); `deploy.sh` passes it to the function. Enable billing on the key's Google project for a public URL: the free tier allows about 20 requests per model per day. Or, to use Bedrock instead, deploy with `Planner=bedrock` and set up **Amazon Bedrock model access**: in the Bedrock console for your region (default `ap-south-1`, Mumbai), make sure the Anthropic Claude model you want is available to your account. First-time Anthropic use may ask for a short use-case form. The default model ID is the global cross-region inference profile `global.anthropic.claude-opus-5`; any Claude model or inference profile you have access to works (`BedrockModelId` parameter).
 
 ## One command
 

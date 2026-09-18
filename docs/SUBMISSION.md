@@ -10,7 +10,7 @@
 
 ## What it does
 
-CivicProof turns a report of a damaged road into an evidence-backed case. A citizen drops a pin and a photo; an agent built with Strands Agents and Claude on Amazon Bedrock finds the public-works project at that spot, reads the official tender, award and completion records, and records each fact with a quotation. A deterministic verifier accepts a fact only if the quoted words are on the cited page and contain the value. The result is a case file that separates verified facts, reported observations, AI suggestions and missing information, a neutral complaint that cites its sources, an RTI application for exactly the records that are missing, and a timeline that tracks when replies are due.
+CivicProof turns a report of a damaged road into an evidence-backed case. A citizen drops a pin and a photo; an agent built with Strands Agents and Google Gemini finds the public-works project at that spot, reads the official tender, award and completion records, and records each fact with a quotation. A deterministic verifier accepts a fact only if the quoted words are on the cited page and contain the value. The result is a case file that separates verified facts, reported observations, AI suggestions and missing information, a neutral complaint that cites its sources, an RTI application for exactly the records that are missing, and a timeline that tracks when replies are due.
 
 ## Who it is for
 
@@ -18,7 +18,7 @@ Residents, resident associations, ward volunteers and local journalists who alre
 
 ## How AWS is used
 
-- **Amazon Bedrock**: Claude via the Converse API for the investigation (tool use) and photo description (vision).
+- **Amazon Bedrock**: supported alternative model host for the investigator (`Planner=bedrock`, Converse API with tool use and vision); this build runs Gemini by default.
 - **Strands Agents** (AWS open source): the agent loop, Bedrock provider, hooks, and its Cedar intervention.
 - **Cedar** (AWS open source): policies on every agent tool call and every change to a case. The agent cannot mark a case submitted or resolved.
 - **AWS Lambda** with the Lambda Web Adapter and a response-streaming Function URL, so each agent step streams to the browser.
@@ -36,7 +36,7 @@ _Fill in your own words. Candidates: running Next.js on Lambda with response str
 ## AI tools used
 
 - Claude Code (Anthropic) as a coding assistant for research, implementation, tests and documentation.
-- The application calls Claude on Amazon Bedrock at runtime.
+- The application calls Google Gemini at runtime (or a model on Amazon Bedrock, if configured).
 
 ## Open-source credits
 

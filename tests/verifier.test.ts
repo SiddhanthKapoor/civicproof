@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { findQuote, parseAmounts, parseDates, parseDurationsMonths, valueSupported, normalizeText } from "@/lib/agent/text";
 import { detectConflicts, verifyClaim, type CorpusReader } from "@/lib/agent/verifier";
+import type { Claim } from "@/lib/schemas";
 import type { SourceDocument } from "@/lib/schemas";
 
 const doc: SourceDocument = {
@@ -124,6 +125,38 @@ describe("verifyClaim", () => {
     expect(conflicts).toHaveLength(1);
     expect(claims.every((c) => c.verification === "contradicted")).toBe(true);
   });
+
+  it("merges the same fact recorded twice instead of calling it a conflict", () => {
+    // Seen with Gemini: the same agency and cost recorded in two formats.
+    const base = verifyClaim(
+      { field: "completion_date", text: "Completed 31.03.2025", value: "31.03.2025", citations: [{ docId: "doc-a", page: 2, quote: "Date of completion: 31.03.2025" }], origin: "official_record" },
+      corpus,
+      "2026-09-18",
+    ).claim;
+    const pairs: Array<[Claim["field"], string, string]> = [
+      ["agency", "DPIU Of Bangalore u", "DPIU Of Bangalore u (Bangalore Urban)"],
+      ["sanctioned_cost", "364.29 Lakhs", "364.29"],
+      ["completion_date", "05-03-2022", "5 Mar 2022"],
+      ["contractor", "Venkatarama Reddy .M", "M. Venkatarama Reddy"],
+    ];
+    for (const [field, x, y] of pairs) {
+      const one = { ...base, id: "one", field, value: x, evidenceIds: ["e1"] };
+      const two = { ...base, id: "two", field, value: y, evidenceIds: ["e2"] };
+      const { claims, conflicts } = detectConflicts([one, two]);
+      expect(conflicts, `${x} / ${y}`).toHaveLength(0);
+      expect(claims).toHaveLength(1);
+      expect(claims[0].verification).toBe("verified");
+      expect(claims[0].evidenceIds.sort()).toEqual(["e1", "e2"]);
+    }
+    // Different figures, or the same figure in different units, still conflict.
+    for (const [x, y] of [["364.29 lakh", "364.29 crore"], ["KN03-70", "KN03-72"]]) {
+      const { conflicts } = detectConflicts([
+        { ...base, id: "one", field: "sanctioned_cost", value: x },
+        { ...base, id: "two", field: "sanctioned_cost", value: y },
+      ]);
+      expect(conflicts, `${x} / ${y}`).toHaveLength(1);
+    }
+  });
 });
 
 describe("split unit support (table rows + unit notes)", () => {
@@ -167,6 +200,23 @@ describe("split unit support (table rows + unit notes)", () => {
     );
     expect(r.claim.verification).toBe("partially_verified");
   });
+  it("takes the unit from a note on the cited page when only the row was quoted, and cites the note", () => {
+    // Seen with Gemini: it quoted the row, got "partially verified", then dropped the unit to pass.
+    const r = verifyClaim(
+      { field: "sanctioned_cost", text: "Sanction cost 364.29 lakh", value: "364.29 Lakhs", citations: [{ docId: "t", page: 1, quote: "364.29 152.84 4.250 0.000 4.250 268.89" }], origin: "official_record" },
+      reader,
+      "x",
+    );
+    expect(r.claim.verification).toBe("verified");
+    expect(r.evidence.map((e) => e.excerpt)).toContain("Note : All Costs are in Lakhs and All Lengths are in Kms");
+    // A unit the page doesn't state is still not accepted.
+    const wrong = verifyClaim(
+      { field: "sanctioned_cost", text: "x", value: "364.29 crore", citations: [{ docId: "t", page: 1, quote: "364.29 152.84 4.250 0.000 4.250 268.89" }], origin: "official_record" },
+      reader,
+      "x",
+    );
+    expect(wrong.claim.verification).toBe("partially_verified");
+  });
   it("does not accept a number that only appears inside another number", () => {
     const r = verifyClaim(
       {
@@ -203,5 +253,18 @@ describe("user uploads", () => {
     );
     expect(r.claim.verification).toBe("partially_verified");
     expect(r.evidence[0].checkNote).toMatch(/authenticity is not checked/);
+  });
+});
+
+describe("normalising model proposals", () => {
+  it("keeps a financial completion date out of the works' completion date, and drops restated reports", async () => {
+    const { normaliseProposals } = await import("@/lib/agent/finalize");
+    const claim = (field: Claim["field"], value: string, text = value): Claim => ({ id: value, field, value, text, evidenceIds: [], verification: "verified", confidence: 0.9, origin: "official_record" });
+    const out = normaliseProposals([
+      claim("completion_date", "05-03-2022 (Physical)"),
+      claim("completion_date", "27-05-2024 (Financial)"),
+      { ...claim("reported_condition", "Several potholes"), origin: "user_report", verification: "unverified" },
+    ]);
+    expect(out.map((c) => c.field)).toEqual(["completion_date", "other"]);
   });
 });

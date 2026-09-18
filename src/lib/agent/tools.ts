@@ -43,6 +43,22 @@ export function scoreMatches(ctx: RunContext, radiusM: number): ProjectMatch[] {
   }).sort((a, b) => b.score - a.score);
 }
 
+/** What each field means, for the model. Ambiguous ones are spelled out because models conflate them. */
+const FIELD_GUIDE = [
+  "project_name: name of the work as printed",
+  "project_id: work, package or tender ID as printed (e.g. KN03-70)",
+  "agency: executing department or unit",
+  "contractor: contractor named in the record",
+  "sanctioned_cost, estimated_cost, contract_value, maintenance_cost: amounts with their unit, even when a table states the unit in a note (e.g. '364.29 lakh')",
+  "work_order_date, award_date, start_date: only a date the record labels that way (a sanction year is not a start date)",
+  "completion_date: the physical completion of the works; a financial completion or closure date is a different fact, so record it as 'other' and say 'financial completion' in the text",
+  "completion_period: time allowed to complete",
+  "defect_liability: defect liability or maintenance period (e.g. '5 years')",
+  "scope, roads_covered, work_status, quality_grade, audit_finding: as printed",
+  "location_match, maintenance_window, reported_condition, photo_observation: computed or reported elsewhere; do not record these",
+  "other: any other relevant fact",
+].join("; ");
+
 export function buildTools(ctx: RunContext) {
   const getCaseReport = tool({
     name: "get_case_report",
@@ -194,9 +210,13 @@ export function buildTools(ctx: RunContext) {
     description:
       "Propose one factual finding. For facts from official records set origin='official_record' and cite the exact words from the page (quote must be copied verbatim from read_document_page output, 1-3 sentences, including the value). A deterministic verifier checks every quote against the document; unsupported claims are stored as unverified. Use origin='ai_inference' for your own interpretation (no citation needed, it will be labelled as AI analysis).",
     inputSchema: z.object({
-      field: ClaimFieldSchema.describe(`One of: ${Object.keys(CLAIM_FIELD_LABELS).join(", ")}`),
+      field: ClaimFieldSchema.describe(FIELD_GUIDE),
       text: z.string().min(8).max(400).describe("Neutral sentence, e.g. 'The work order names M/s X as the contractor.'"),
-      value: z.string().max(200).optional().describe("The bare value, e.g. the contractor name, amount, or date as written"),
+      value: z
+        .string()
+        .max(200)
+        .optional()
+        .describe("The value as written in the record, with its unit: e.g. '364.29 lakh', '5 years', '05-03-2022', or the contractor's name"),
       origin: z.enum(["official_record", "ai_inference"]),
       citations: z
         .array(z.object({ doc_id: z.string(), page: z.number().int().min(1), quote: z.string().min(6).max(600) }))

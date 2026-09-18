@@ -24,8 +24,19 @@ export const config = {
 
   dataDir,
 
-  /** "bedrock" requires AWS credentials with bedrock:InvokeModel* on the model below. */
-  planner: (env("CIVICPROOF_PLANNER") ?? "rules") as "rules" | "bedrock",
+  /**
+   * Which model drives the investigator:
+   *   "gemini"  – Google Gemini (needs GEMINI_API_KEY; the default when that key is set)
+   *   "bedrock" – a model on Amazon Bedrock (needs AWS credentials with bedrock:InvokeModel*)
+   *   "rules"   – no language model: fixed rules replaying the curated extractions (tests, offline demo)
+   */
+  planner: (env("CIVICPROOF_PLANNER") ?? (env("GEMINI_API_KEY") ? "gemini" : "rules")) as "rules" | "bedrock" | "gemini",
+  geminiApiKey: env("GEMINI_API_KEY"),
+  geminiModelId: env("GEMINI_MODEL_ID") ?? "gemini-3-flash-preview",
+  /** Longest a model-driven investigation may run. Free-tier rate limits make runs slower. */
+  runTimeoutMs: Number(env("CIVICPROOF_RUN_TIMEOUT_S") ?? 240) * 1000,
+  /** Test-only: point the Gemini client at a local stand-in. */
+  geminiEndpoint: env("GEMINI_ENDPOINT"),
   bedrockModelId: env("BEDROCK_MODEL_ID") ?? "global.anthropic.claude-opus-5",
   bedrockRegion: env("BEDROCK_REGION") ?? env("AWS_REGION") ?? "ap-south-1",
   /** Test-only: point the Bedrock client at a local Converse-compatible endpoint. */

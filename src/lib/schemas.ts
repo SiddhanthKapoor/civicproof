@@ -294,7 +294,7 @@ export type TraceStep = z.infer<typeof TraceStepSchema>;
 
 export const InvestigationSchema = z.object({
   runId: z.string(),
-  engine: z.enum(["bedrock", "rules"]),
+  engine: z.enum(["bedrock", "gemini", "rules"]),
   model: z.string().optional(),
   status: z.enum(["running", "complete", "failed"]),
   startedAt: z.string(),

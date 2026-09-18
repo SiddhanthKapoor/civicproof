@@ -29,6 +29,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1135.0",
     "@cedar-policy/cedar-wasm": "^4.13.0",
     "@cedar-policy/mcp-schema-generator-wasm": "^0.6.0",
+    "@google/genai": "^2.23.0",
     "@react-pdf/renderer": "^4.9.0",
     "@strands-agents/sdk": "^1.18.0",
     "clsx": "^2.1.1",

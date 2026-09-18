@@ -79,7 +79,7 @@ function* plan(ctx: RunContext): Generator<Step> {
   if (uploads.length) {
     ctx.trace({
       kind: "note",
-      summary: `Read the reporter's ${uploads.length === 1 ? "document" : `${uploads.length} documents`}. Extracting facts from new documents needs the Bedrock planner; the rules planner only uses curated records.`,
+      summary: `Read the reporter's ${uploads.length === 1 ? "document" : `${uploads.length} documents`}. Extracting facts from new documents needs a language model (Gemini or Bedrock); the rules planner only uses curated records.`,
     });
   }
 

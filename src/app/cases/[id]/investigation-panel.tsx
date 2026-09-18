@@ -13,7 +13,7 @@ export interface LiveState {
   running: boolean;
   stage?: StageId;
   trace: TraceStep[];
-  engine?: "bedrock" | "rules";
+  engine?: "bedrock" | "gemini" | "rules";
   model?: string;
   error?: string;
 }
@@ -30,7 +30,8 @@ const KIND_ICON: Record<TraceStep["kind"], { glyph: string; cls: string; label: 
 };
 
 export function engineLabel(engine?: string, model?: string) {
-  if (engine === "bedrock") return `Claude on Amazon Bedrock${model ? ` · ${model.replace(/^(global|us|apac|eu)\./, "")}` : ""}`;
+  if (engine === "gemini") return `Google Gemini${model ? ` · ${model}` : ""}`;
+  if (engine === "bedrock") return `Amazon Bedrock${model ? ` · ${model.replace(/^(global|us|apac|eu)\./, "")}` : ""}`;
   if (engine === "rules") return "Rules planner · no language model";
   return "";
 }
@@ -194,7 +195,7 @@ export function InvestigationPanel({
           </dl>
           {inv.summary && (
             <div className="mt-5 border-t border-rule pt-4">
-              <p className="text-[12px] font-medium text-ink-3">{engine === "bedrock" ? "Summary written by the model" : "Summary (generated from verified facts)"}</p>
+              <p className="text-[12px] font-medium text-ink-3">{engine && engine !== "rules" ? "Summary written by the model" : "Summary (generated from verified facts)"}</p>
               <p className="mt-1.5 text-[15px] leading-relaxed text-ink">{inv.summary}</p>
             </div>
           )}

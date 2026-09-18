@@ -180,9 +180,24 @@ export function deriveNextActions(
   return actions.sort((a, b) => a.priority - b.priority);
 }
 
+/**
+ * Deterministic clean-up of what a model proposed: a "financial completion" date is not the
+ * completion of the works, and the reporter's own words are already on the case.
+ */
+export function normaliseProposals(claims: Claim[]): Claim[] {
+  return claims
+    .filter((c) => !(c.field === "reported_condition" && c.origin !== "official_record"))
+    .map((c) => {
+      const financial = /financial/i.test(c.value ?? "") || (/financial/i.test(c.text) && !/physical/i.test(c.text));
+      return c.field === "completion_date" && financial ? { ...c, field: "other" as const } : c;
+    });
+}
+
 export function finalizeClaims(ctx: RunContext) {
-  const { claims, conflicts } = detectConflicts(ctx.claims);
-  const window = maintenanceWindow(claims, ctx.caseData.observedOn);
+  const { claims: checked, conflicts } = detectConflicts(normaliseProposals(ctx.claims));
+  const window = maintenanceWindow(checked, ctx.caseData.observedOn);
+  // The window is computed from cited dates; a model's own version of it is superseded.
+  const claims = window ? checked.filter((c) => c.field !== "maintenance_window") : checked;
   const all = window ? [...claims, window] : claims;
   const missing = missingChecklist(all, ctx.missing, Boolean(ctx.selectedProjectId));
   const project = ctx.selectedProjectId ? ctx.corpus.getProject(ctx.selectedProjectId) : undefined;

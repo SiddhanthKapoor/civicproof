@@ -14,10 +14,22 @@ REGION="${AWS_REGION:-ap-south-1}"
 ./scripts/package-lambda.sh
 sam validate --lint -t infra/template.yaml --region "$REGION"
 
-if [ -f samconfig.toml ]; then
-  sam deploy -t infra/template.yaml --stack-name "$STACK" --region "$REGION" --capabilities CAPABILITY_IAM --resolve-s3 --no-fail-on-empty-changeset
+# The Gemini key comes from the environment or .env.local and reaches the function's environment
+# as a NoEcho parameter. It is not in the bundle; samconfig.toml (which SAM may write it to) is gitignored.
+if [ -z "${GEMINI_API_KEY:-}" ] && [ -f .env.local ]; then
+  GEMINI_API_KEY="$(grep -E '^GEMINI_API_KEY=' .env.local | head -1 | cut -d= -f2-)"
+fi
+OVERRIDES=()
+if [ -n "${GEMINI_API_KEY:-}" ]; then
+  OVERRIDES=(--parameter-overrides "GeminiApiKey=${GEMINI_API_KEY}" ${GEMINI_MODEL_ID:+"GeminiModelId=${GEMINI_MODEL_ID}"})
 else
-  sam deploy -t infra/template.yaml --stack-name "$STACK" --region "$REGION" --capabilities CAPABILITY_IAM --resolve-s3 --guided
+  echo "No GEMINI_API_KEY found: the deployment will use Bedrock or the rules planner (set Planner accordingly)."
+fi
+
+if [ -f samconfig.toml ]; then
+  sam deploy -t infra/template.yaml --stack-name "$STACK" --region "$REGION" --capabilities CAPABILITY_IAM --resolve-s3 --no-fail-on-empty-changeset ${OVERRIDES[@]+"${OVERRIDES[@]}"}
+else
+  sam deploy -t infra/template.yaml --stack-name "$STACK" --region "$REGION" --capabilities CAPABILITY_IAM --resolve-s3 --guided ${OVERRIDES[@]+"${OVERRIDES[@]}"}
 fi
 
 out() { aws cloudformation describe-stacks --stack-name "$STACK" --region "$REGION" --query "Stacks[0].Outputs[?OutputKey=='$1'].OutputValue" --output text; }

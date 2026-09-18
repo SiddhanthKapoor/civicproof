@@ -259,7 +259,7 @@ unless { principal is Reporter && context.is_owner };`}
           </Reveal>
           <AnimatedGroup preset="fade" className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-rule bg-rule sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { k: "Amazon Bedrock", v: "Claude reads the documents through the Converse API, with tool use, and describes the photo with vision." },
+              { k: "Amazon Bedrock", v: "Supported model host for the investigator (Converse API, tool use, vision). This build runs Gemini by default; set one variable to switch." },
               { k: "Strands Agents", v: "AWS's open-source agent SDK runs the tool loop and streams each step to the case page." },
               { k: "Cedar", v: "Policies authorize every tool call and every change to a case, and deny anything unlisted." },
               { k: "Amazon Textract", v: "Reads scanned RTI replies and letters so the investigator can quote them." },
@@ -275,7 +275,8 @@ unless { principal is Reporter && context.is_owner };`}
             ))}
           </AnimatedGroup>
           <p className="mt-5 font-mono text-[12px] text-ink-3">
-            This deployment: {config.planner === "bedrock" ? `Claude on Bedrock (${config.bedrockModelId})` : "rules planner (Bedrock not configured)"} ·{" "}
+            This deployment:{" "}
+            {config.planner === "gemini" ? `Google Gemini (${config.geminiModelId})` : config.planner === "bedrock" ? `Amazon Bedrock (${config.bedrockModelId})` : "rules planner (no language model configured)"} ·{" "}
             {config.store === "dynamodb" ? "DynamoDB" : "local storage"} · {config.blobs === "s3" ? "S3" : "local files"}
           </p>
         </Container>

@@ -26,7 +26,7 @@ export default function OpengraphImage() {
           <span style={{ background: "#e3f1e9", color: "#17744a", padding: "6px 16px", borderRadius: 999 }}>Verified</span>
           <span style={{ background: "#f8eedc", color: "#8f5507", padding: "6px 16px", borderRadius: 999 }}>Partially verified</span>
           <span style={{ background: "#efece4", color: "#444954", padding: "6px 16px", borderRadius: 999 }}>Not verified</span>
-          <span style={{ marginLeft: "auto" }}>Amazon Bedrock · Strands Agents · Cedar</span>
+          <span style={{ marginLeft: "auto" }}>Strands Agents · Cedar · AWS</span>
         </div>
       </div>
     ),

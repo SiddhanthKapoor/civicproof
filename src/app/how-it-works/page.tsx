@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "How it works", description: "The age
 export const dynamic = "force-dynamic";
 
 const LOOP = [
-  { k: "Intake", v: "get_case_report reads the report, the photo's EXIF metadata, any documents the reporter added (scans OCR'd with Amazon Textract) and, on Bedrock, a Claude vision description of the photo, labelled as an AI observation." },
+  { k: "Intake", v: "get_case_report reads the report, the photo's EXIF metadata, any documents the reporter added (scans OCR'd with Amazon Textract) and, when a language model is configured, a vision description of the photo, labelled as an AI observation." },
   { k: "Locate", v: "find_projects_near measures the distance from the pin to every project alignment. select_project is only permitted for projects the search returned (a Cedar rule)." },
   { k: "Retrieve", v: "list_project_documents, search_documents (full-text over every page) and read_document_page give the model the actual text of the tender, award and completion records." },
   { k: "Extract", v: "record_claim proposes one fact with a quotation. The verifier checks the quotation against the page and the value against the quotation before the claim counts." },
@@ -28,7 +28,7 @@ const LIMITS = [
   "Scanned uploads are OCR'd with Amazon Textract on the AWS deployment; running locally without AWS they are stored but cannot be quoted. Scanned pages in the shared corpus are not OCR'd.",
   "Complaint submission is manual. CivicProof drafts and tracks, but does not send anything to a government portal; there is no supported API to do so.",
   "The owner key is a bearer secret kept in the browser. Losing it means losing the ability to record updates for that case; there are no accounts.",
-  "Rate limits are per server instance, backed by a daily DynamoDB counter and a Cedar budget policy. They protect the Bedrock bill, not against a determined attacker.",
+  "Rate limits are per server instance, backed by a daily DynamoDB counter and a Cedar budget policy. They protect the model bill, not against a determined attacker.",
 ];
 
 function policy(file: string) {
@@ -64,7 +64,7 @@ export default function HowItWorksPage() {
         </Reveal>
         <p className="mt-3 font-mono text-[12px] text-ink-3">
           This instance: planner={config.planner}
-          {config.planner === "bedrock" ? ` (${config.bedrockModelId})` : ""} · store={config.store} · blobs={config.blobs} · region={config.region}
+          {config.planner === "gemini" ? ` (${config.geminiModelId})` : config.planner === "bedrock" ? ` (${config.bedrockModelId})` : ""} · store={config.store} · blobs={config.blobs} · region={config.region}
         </p>
       </Container>
 
@@ -72,9 +72,10 @@ export default function HowItWorksPage() {
         <Reveal>
           <h2 className="font-serif text-[30px] leading-tight">The agent loop</h2>
           <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
-            The investigator is a Strands Agents agent. With AWS credentials it runs Claude on Amazon Bedrock; without them, a rules planner
-            (itself a Strands <code className="font-mono text-[13px]">Model</code>) drives the same tools, policies and verifier using curated
-            extractions. The case page says which one ran.
+            The investigator is a Strands Agents agent driven by a language model: Google Gemini when a Gemini key is set, or a model on
+            Amazon Bedrock. Without either, a rules planner (itself a Strands <code className="font-mono text-[13px]">Model</code>) drives the
+            same tools, policies and verifier by replaying hand-curated extractions, so it can only handle projects already in the records.
+            The case page says which one ran.
           </p>
           <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
             Ten tools, all read-only or proposal-only. No tool can send, submit, change status or reach the internet.
@@ -157,7 +158,7 @@ export default function HowItWorksPage() {
         <Reveal>
           <h2 className="font-serif text-[30px] leading-tight">Security and privacy</h2>
           <ul className="mt-4 space-y-2.5 text-[15px] leading-relaxed text-ink-2">
-            <li>No secrets in the browser. AWS access comes from the Lambda execution role, scoped to one table, one bucket, Claude models on Bedrock, and Textract text detection (which has no resource-level permissions).</li>
+            <li>No secrets in the browser. The Gemini key is a server-side environment variable. AWS access comes from the Lambda execution role, scoped to one table, one bucket, Claude models on Bedrock, and Textract text detection (which has no resource-level permissions).</li>
             <li>Uploads are checked by magic bytes, size-limited, re-encoded in the browser, fingerprinted with SHA-256 and served from a private bucket through the app.</li>
             <li>Reporter contact details are stored with the case and never returned by any public API.</li>
             <li>Every input is validated with Zod on the server; error responses never include internals.</li>

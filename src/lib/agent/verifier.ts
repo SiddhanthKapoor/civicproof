@@ -13,7 +13,7 @@
  * cannot reach a complaint packet as a verified fact.
  */
 import type { Claim, ClaimField, Conflict, Evidence, Origin, SourceDocument, Verification } from "@/lib/schemas";
-import { canonicalValue, findQuote, normalizeText, valueSupported } from "./text";
+import { findQuote, normalizeText, sameFact, valueSupported } from "./text";
 
 export interface CorpusReader {
   getDocument(docId: string): SourceDocument | undefined;
@@ -118,6 +118,21 @@ export function verifyClaim(proposed: ProposedClaim, corpus: CorpusReader, retri
     }
   }
 
+  // The same, when the unit note is on the cited page but wasn't quoted: cite the note too, so the
+  // model isn't pushed into dropping the unit ("364.29" instead of "364.29 lakh") to get verified.
+  if (!valueFound && proposed.value) {
+    for (const e of evidence.filter((x) => x.checkNote?.startsWith("Excerpt found verbatim"))) {
+      const note = pageUnitNote(proposed.value, e.excerpt, corpus.getPage(e.docId, e.page!) ?? "");
+      if (!note) continue;
+      valueFound = true;
+      e.verification = "verified";
+      e.strength = e.sourceType === "news" ? "moderate" : "strong";
+      e.checkNote = `Excerpt found verbatim on page ${e.page}; the unit is stated in a note on the same page.`;
+      evidence.push({ ...e, id: localId("ev"), excerpt: note, checkNote: `Unit note found verbatim on page ${e.page}.` });
+      break;
+    }
+  }
+
   let verification: Verification;
   if (evidence.length === 0) verification = "unverified";
   else if (valueFound) verification = "verified";
@@ -175,6 +190,22 @@ export function splitUnitSupport(value: string, excerpts: string[]): string | un
   return `the figure ${number} appears verbatim and the unit (${unitKey}) is stated in another cited excerpt`;
 }
 
+/**
+ * For "364.29 lakh" cited to a table row that prints only "364.29": the sentence on the same page
+ * that states the unit ("Note : All Costs are in Lakhs"), if there is one.
+ */
+export function pageUnitNote(value: string, excerpt: string, pageText: string): string | undefined {
+  const m = normalizeText(value).match(/^(?:rs\s*)?([\d,]+(?:\.\d+)?)\s*(lakhs?|lacs?|crores?|cr|kms?|kilometres?)\b/);
+  if (!m) return undefined;
+  const number = m[1].replace(/[.,]/g, (c) => `\\${c}`);
+  if (!new RegExp(`(^|[^\\d.,])${number}([^\\d]|$)`).test(normalizeText(excerpt))) return undefined;
+  const unitKey = Object.keys(UNIT_WORDS).find((k) => UNIT_WORDS[k].some((w) => m[2] === w || m[2] === `${w}s`));
+  if (!unitKey) return undefined;
+  const words = UNIT_WORDS[unitKey].join("|");
+  const note = new RegExp(`[^.\\n]*\\b(?:costs?|amounts?|figures?|values?|lengths?|rs\\.?)\\b[^.\\n]*\\bin\\s+(?:${words})\\b[^.\\n]*|\\((?:rs\\.?\\s*)?in\\s+(?:${words})\\)`, "i").exec(pageText);
+  return note?.[0].trim();
+}
+
 /** Fields where two different values cannot both be right. */
 const SINGLE_VALUED: ClaimField[] = [
   "project_id",
@@ -186,11 +217,21 @@ const SINGLE_VALUED: ClaimField[] = [
   "start_date",
   "completion_date",
   "defect_liability",
+  "estimated_cost",
+  "award_date",
+  "completion_period",
+  "maintenance_cost",
+  "work_status",
 ];
 
 /**
  * Marks disagreeing claims as contradicted instead of silently picking one.
  * Returns the updated claims and a list of conflicts for the UI.
+ */
+/**
+ * Groups claims on single-valued fields by the fact they state. Several claims stating the same
+ * fact (the model recorded it twice, or in two formats) are merged into one that keeps every
+ * citation. Claims stating different facts are all marked contradicted and reported as a conflict.
  */
 export function detectConflicts(claims: Claim[]): { claims: Claim[]; conflicts: Conflict[] } {
   const conflicts: Conflict[] = [];
@@ -201,26 +242,37 @@ export function detectConflicts(claims: Claim[]): { claims: Claim[]; conflicts: 
     byField.set(c.field, [...(byField.get(c.field) ?? []), c]);
   }
   const contradicted = new Set<string>();
+  const merged = new Map<string, Claim>();
+  const dropped = new Set<string>();
+  const rank = (c: Claim) => (c.verification === "verified" ? 2 : 1) * 1000 + c.evidenceIds.length * 10 + Math.min(c.value!.length, 9);
+
   for (const [field, group] of byField) {
-    const values = new Map<string, Claim[]>();
+    const clusters: Claim[][] = [];
     for (const c of group) {
-      const k = canonicalValue(c.value!);
-      values.set(k, [...(values.get(k) ?? []), c]);
+      const home = clusters.find((cl) => cl.some((x) => sameFact(x.value!, c.value!)));
+      if (home) home.push(c);
+      else clusters.push([c]);
     }
-    if (values.size > 1) {
-      const ids = group.map((c) => c.id);
-      ids.forEach((id) => contradicted.add(id));
+    if (clusters.length > 1) {
+      group.forEach((c) => contradicted.add(c.id));
       conflicts.push({
         field,
-        claimIds: ids,
-        description: `Sources disagree on this field: ${[...values.values()].map((cs) => `"${cs[0].value}"`).join(" vs ")}. Both are shown; neither has been chosen.`,
+        claimIds: group.map((c) => c.id),
+        description: `Sources disagree on this field: ${clusters.map((cl) => `"${cl[0].value}"`).join(" vs ")}. Both are shown; neither has been chosen.`,
       });
+      continue;
     }
+    const cluster = clusters[0];
+    if (cluster.length < 2) continue;
+    const keep = [...cluster].sort((a, b) => rank(b) - rank(a))[0];
+    merged.set(keep.id, { ...keep, evidenceIds: [...new Set(cluster.flatMap((c) => c.evidenceIds))] });
+    cluster.filter((c) => c.id !== keep.id).forEach((c) => dropped.add(c.id));
   }
   return {
-    claims: claims.map((c) =>
-      contradicted.has(c.id) ? { ...c, verification: "contradicted" as const, confidence: Math.min(c.confidence, 0.4) } : c,
-    ),
+    claims: claims
+      .filter((c) => !dropped.has(c.id))
+      .map((c) => merged.get(c.id) ?? c)
+      .map((c) => (contradicted.has(c.id) ? { ...c, verification: "contradicted" as const, confidence: Math.min(c.confidence, 0.4) } : c)),
     conflicts,
   };
 }

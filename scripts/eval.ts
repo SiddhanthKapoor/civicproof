@@ -1,5 +1,5 @@
 /**
- * Evaluation:  npm run eval              (uses CIVICPROOF_PLANNER; set it to "bedrock" to test Claude)
+ * Evaluation:  npm run eval              (uses the configured planner: Gemini when GEMINI_API_KEY is set)
  *
  * For each project in the corpus, files a synthetic report on its alignment (in a throwaway local
  * store), runs the investigator, and scores the result against the human-curated reference facts:
@@ -88,7 +88,7 @@ async function main() {
   const lines = [
     `# CivicProof evaluation — ${new Date().toISOString()}`,
     "",
-    `Planner: **${config.planner}**${config.planner === "bedrock" ? ` (${config.bedrockModelId})` : " (curated extractions; a baseline, not a model result)"}`,
+    `Planner: **${config.planner}**${config.planner === "gemini" ? ` (${config.geminiModelId})` : config.planner === "bedrock" ? ` (${config.bedrockModelId})` : " (curated extractions; a baseline, not a model result)"}`,
     "",
     `Linked correctly: **${rows.filter((r) => r.linked).length}/${rows.length}** · Reference facts recovered as verified: **${totalRec}/${totalRef} (${totalRef ? Math.round((totalRec / totalRef) * 100) : 0}%)** · Claims not accepted by the verifier: **${rows.reduce((s, r) => s + r.rejected, 0)}** · Cedar/guard denials: **${rows.reduce((s, r) => s + r.denied, 0)}**`,
     "",

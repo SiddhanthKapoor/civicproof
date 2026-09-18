@@ -207,3 +207,34 @@ export function canonicalValue(value: string): string {
     .filter((x) => !["m/s", "pvt", "ltd", "private", "limited", "the"].includes(x))
     .join(" ")}`;
 }
+
+const UNIT_WORDS: Record<string, string> = { lakh: "lakh", lakhs: "lakh", lac: "lakh", lacs: "lakh", crore: "crore", crores: "crore", cr: "crore", km: "km", kms: "km", month: "month", months: "month", year: "year", years: "year", day: "day", days: "day" };
+
+function unitsOf(v: string): string {
+  return [...new Set((v.toLowerCase().match(/[a-z]+/g) ?? []).map((w) => UNIT_WORDS[w]).filter(Boolean))].sort().join("|");
+}
+
+function numbersAsWritten(v: string): string {
+  return (v.match(/\d+(?:[.,]\d+)*/g) ?? []).map((n) => n.replace(/,/g, "")).sort().join("|");
+}
+
+/**
+ * Whether two recorded values state the same fact: equal dates, amounts or durations; the same
+ * figures as written with or without their unit ("364.29" and "364.29 Lakhs"); or one name
+ * contained in the other ("DPIU Of Bangalore u" and "DPIU Of Bangalore u (Bangalore Urban)").
+ */
+export function sameFact(a: string, b: string): boolean {
+  if (canonicalValue(a) === canonicalValue(b)) return true;
+  const na = numbersAsWritten(a);
+  const nb = numbersAsWritten(b);
+  if (na || nb) {
+    if (na !== nb) return false;
+    const ua = unitsOf(a);
+    const ub = unitsOf(b);
+    return !(ua && ub && ua !== ub);
+  }
+  const ta = new Set(tokens(a));
+  const tb = new Set(tokens(b));
+  const [small, big] = ta.size <= tb.size ? [ta, tb] : [tb, ta];
+  return small.size >= 2 && [...small].every((t) => big.has(t));
+}

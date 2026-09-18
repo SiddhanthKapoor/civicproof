@@ -34,7 +34,7 @@ export function ArchitectureDiagram() {
         <desc id="arch-desc">
           The browser calls a Lambda Function URL in response-streaming mode. Inside Lambda, the Next.js app runs a Strands agent whose
           tool calls are authorized by Cedar and whose claims are checked by a verifier against the bundled records corpus. Lambda reads and
-          writes DynamoDB and S3, calls Amazon Bedrock, and logs to CloudWatch.
+          writes DynamoDB and S3, calls the language model (Gemini or Amazon Bedrock), and logs to CloudWatch.
         </desc>
         <defs>
           <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -65,7 +65,7 @@ export function ArchitectureDiagram() {
         <Arrow d="M356 302 V322" />
 
         {/* AWS services */}
-        <Box x={860} y={40} w={240} h={72} title="Amazon Bedrock" sub={"Claude via Converse API\ntool use + vision"} tone="accent" />
+        <Box x={860} y={40} w={240} h={72} title="Language model" sub={"Gemini or Amazon Bedrock\ntool use + vision"} tone="accent" />
         <Box x={860} y={126} w={240} h={72} title="Amazon Textract" sub={"OCR for scanned uploads\n(RTI replies, letters)"} />
         <Box x={860} y={212} w={240} h={72} title="Amazon DynamoDB" sub={"cases (optimistic locking)\ndaily run counters (TTL)"} />
         <Box x={860} y={298} w={240} h={72} title="Amazon S3" sub={"photos, private documents, PDFs\nSSE, no public access"} />
