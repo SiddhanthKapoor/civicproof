@@ -229,7 +229,7 @@ export default async function Home() {
             <div className="overflow-hidden rounded-2xl border border-paper/15 bg-paper/[0.04]">
               <div className="flex items-center justify-between border-b border-paper/10 px-5 py-3">
                 <span className="font-mono text-[12px] text-paper/60">policies/case-actions.cedar</span>
-                <span className="text-[11px] text-paper/40">enforced on every change</span>
+                <span className="text-[11px] text-paper/60">enforced on every change</span>
               </div>
               <pre tabIndex={0} aria-label="Cedar policy excerpt" className="overflow-x-auto px-5 py-4 font-mono text-[12.5px] leading-relaxed text-paper/85">
 {`// Nobody except the reporter can declare a case

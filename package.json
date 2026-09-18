@@ -16,7 +16,8 @@
     "predev": "node scripts/copy-maplibre-worker.mjs && (test -f corpus/generated/pages.json || npm run ingest)",
     "prebuild": "node scripts/copy-maplibre-worker.mjs && npm run ingest",
     "test:e2e": "playwright test",
-    "eval": "node --conditions=react-server --import tsx scripts/eval.ts"
+    "eval": "node --conditions=react-server --import tsx scripts/eval.ts",
+    "check": "bash scripts/check.sh"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1135.0",
