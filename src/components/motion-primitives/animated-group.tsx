@@ -130,9 +130,10 @@ function AnimatedGroup({
       animate='visible'
       variants={containerVariants}
       className={className}
+      data-reveal=''
     >
       {React.Children.map(children, (child, index) => (
-        <MotionChild key={index} variants={itemVariants}>
+        <MotionChild key={index} variants={itemVariants} data-reveal="">
           {child}
         </MotionChild>
       ))}

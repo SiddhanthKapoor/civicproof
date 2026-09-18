@@ -152,3 +152,12 @@ body {
   body { background: #fff; }
   .no-print { display: none !important; }
 }
+
+/* Reveals are rendered hidden on the server (it can't know the user's motion setting); with reduced motion they show at once. */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}

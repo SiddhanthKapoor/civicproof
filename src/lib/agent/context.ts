@@ -33,6 +33,8 @@ export interface RunContext {
   missing: MissingItem[];
   proposedActions: Array<Pick<NextAction, "type" | "title" | "rationale" | "basedOnClaimIds">>;
   pagesRead: Set<string>;
+  /** What the last find_projects_by_name returned (the rules planner reads it). */
+  nameCandidates: Array<{ projectId: string; name: string; score: number; distanceM?: number }>;
   /** Public records fetched live this run, and the ids searches returned (the only ones it may fetch). */
   liveRecords: LiveRecord[];
   foundRecordIds: Set<string>;
@@ -60,6 +62,7 @@ export function createRunContext(caseData: Case, corpus: Corpus, emit: (e: Agent
     missing: [],
     proposedActions: [],
     pagesRead: new Set(),
+    nameCandidates: [],
     liveRecords: [],
     foundRecordIds: new Set(),
     liveSearches: 0,

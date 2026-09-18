@@ -21,7 +21,7 @@ const UA = `CivicProof/0.1 (public-records research; ${config.nominatimContact})
 /** OMMAS district codes for Karnataka (state 17), with today's names as aliases. */
 const DISTRICTS: Array<{ name: string; code: number; aliases: string[] }> = [
   { name: "Bangalore U", code: 46, aliases: ["bengaluru urban", "bangalore urban", "bengaluru", "bangalore"] },
-  { name: "Bangalore R", code: 45, aliases: ["bengaluru rural", "bangalore rural"] },
+  { name: "Bangalore R", code: 45, aliases: ["bengaluru rural", "bangalore rural", "bengaluru north"] },
   { name: "Ramnagar", code: 456, aliases: ["ramanagara", "ramanagar", "bengaluru south"] },
   { name: "Chickballapur", code: 111, aliases: ["chikkaballapura", "chikkaballapur", "chickballapur"] },
   { name: "Kolar", code: 304, aliases: ["kolar"] },

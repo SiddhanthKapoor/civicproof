@@ -129,6 +129,21 @@ describe("investigation", () => {
   });
 });
 
+describe("rules planner, road found by name", () => {
+  it("links a report to a rural road with no map line by the name in its address", async () => {
+    const { caseData } = await createCase(
+      { ...base, title: "Road breaking up near Koira", lat: 13.3034243, lng: 77.641612, address: "Koira Hosur road, Koira, Devanahalli" },
+      [],
+    );
+    const inv = (await runInvestigation(caseData.id, () => {})).investigation!;
+    expect(inv.selectedProjectId).toBe("pmgsy-bengaluru-rural-kn0204");
+    expect(inv.matches[0]).toMatchObject({ linkedBy: "name" });
+    expect(inv.claims.find((c) => c.field === "contractor")?.verification).toBe("verified");
+    // PMGSY-I road completed in 2005: the 5-year window closed long ago, and the case says so.
+    expect(inv.claims.find((c) => c.field === "maintenance_window")?.value).toMatch(/^outside:/);
+  });
+});
+
 describe("RTI first appeal", () => {
   const daysAgo = (n: number) => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10);
   const fileRti = async (title: string, filedDaysAgo: number) => {

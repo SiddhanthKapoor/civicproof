@@ -18,7 +18,8 @@ test("main pages have no WCAG A/AA violations", async ({ page, request }) => {
       for (let y = 0; y < document.body.scrollHeight; y += 700) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 60)); }
       window.scrollTo(0, 0);
     });
-    await page.waitForTimeout(600);
+    // Longer than the longest fade (0.6 s plus delay), for anything still animating.
+    await page.waitForTimeout(1200);
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).exclude(".maplibregl-map").analyze();
     for (const v of results.violations) report.push(`${p} · ${v.id} (${v.impact}): ${v.nodes.length} × ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(" | ")}`);
   }

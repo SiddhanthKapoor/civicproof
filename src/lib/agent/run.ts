@@ -328,12 +328,22 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
     try {
       result = await buildAgent(primary, fallback ? 3 : undefined).invoke(`Investigate case ${initial.id}. Start by reading the report.`, { cancelSignal: deadline });
     } catch (e) {
-      const why = fallback ? describeModelError(errorMessage(e), ENGINE_NAME[engine]) : undefined;
-      if (!fallback || !why) throw e;
-      ctx.trace({ kind: "note", summary: `${why.split(". ")[0]}. Continuing on Amazon Bedrock (${fallback}) with the work done so far.` });
-      log.warn("investigation.fallback", { caseId, runId, from: modelId, to: fallback, reason: errorMessage(e).slice(0, 300) });
-      modelLabel = `${modelId} → ${fallback}`;
-      result = await buildAgent(bedrockModel(16000, fallback)).invoke(continuationPrompt(initial.id, ctx), { cancelSignal: deadline });
+      const why = usesModel ? describeModelError(errorMessage(e), ENGINE_NAME[engine]) : undefined;
+      if (!why) throw e;
+      log.warn("investigation.fallback", { caseId, runId, from: modelId, to: fallback ?? "rules", reason: errorMessage(e).slice(0, 300) });
+      if (fallback) {
+        ctx.trace({ kind: "note", summary: `${why.split(". ")[0]}. Continuing on Amazon Bedrock (${fallback}) with the work done so far.` });
+        modelLabel = `${modelId} → ${fallback}`;
+        result = await buildAgent(bedrockModel(16000, fallback)).invoke(continuationPrompt(initial.id, ctx), { cancelSignal: deadline });
+      } else {
+        // No second model here (e.g. running locally): finish with the rules planner, and say so.
+        ctx.trace({
+          kind: "note",
+          summary: `${why.split(". ")[0]}. Finishing with the rules planner (no language model): it records the checked reference facts for ${ctx.selectedProjectId ? "the project already linked" : "a project at this location, if any"}.`,
+        });
+        modelLabel = `${modelId} → rules planner`;
+        result = await buildAgent(new RulesPlanner(ctx)).invoke("Continue the investigation.", { cancelSignal: AbortSignal.timeout(30_000) });
+      }
     }
     if (result.metrics) {
       usage.inputTokens = result.metrics.accumulatedUsage.inputTokens;

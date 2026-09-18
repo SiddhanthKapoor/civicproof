@@ -163,6 +163,7 @@ export function buildTools(ctx: RunContext) {
         document_ids: p.documents,
       }));
       ctx.candidateIds = [...new Set([...ctx.candidateIds, ...found.map((f) => f.project_id)])];
+      ctx.nameCandidates = found.map((f) => ({ projectId: f.project_id, name: f.name, score: f.name_match, distanceM: f.distance_m }));
       ctx.trace({
         kind: "tool_call",
         tool: "find_projects_by_name",

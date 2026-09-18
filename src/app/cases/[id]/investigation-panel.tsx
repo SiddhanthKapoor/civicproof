@@ -195,7 +195,7 @@ export function InvestigationPanel({
           </dl>
           {inv.summary && (
             <div className="mt-5 border-t border-rule pt-4">
-              <p className="text-[12px] font-medium text-ink-3">{engine && engine !== "rules" ? "Summary written by the model" : "Summary (generated from verified facts)"}</p>
+              <p className="text-[12px] font-medium text-ink-3">{engine && engine !== "rules" && !model?.endsWith("rules planner") ? "Summary written by the model" : "Summary (generated from verified facts)"}</p>
               <p className="mt-1.5 text-[15px] leading-relaxed text-ink">{inv.summary}</p>
             </div>
           )}

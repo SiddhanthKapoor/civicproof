@@ -13,12 +13,47 @@ import type { RunContext } from "./context";
 
 type Step = { tool: string; input: Record<string, unknown> } | { text: string };
 
-function* plan(ctx: RunContext): Generator<Step> {
-  yield { tool: "get_case_report", input: {} };
-  yield { tool: "find_projects_near", input: { radius_m: 750 } };
-  if (!ctx.matches.length) yield { tool: "find_projects_near", input: { radius_m: 2000 } };
+/** The road the report names: the geocoded road at the pin, or the first part of the address. */
+function roadNameFrom(ctx: RunContext): string | undefined {
+  const raw = ctx.place?.road ?? ctx.caseData.location.address?.split(",")[0];
+  const name = raw?.replace(/\b(main\s+)?(road|rd|street|st|cross|layout)\b\.?/gi, " ").replace(/\s+/g, " ").trim();
+  return name && name.length >= 4 ? name : undefined;
+}
 
-  if (!ctx.matches.length) {
+function* plan(ctx: RunContext): Generator<Step> {
+  // Taking over a run a language model started (its quota ran out): keep the project it linked.
+  const continued = ctx.selectedProjectId ? ctx.matches.find((m) => m.projectId === ctx.selectedProjectId) : undefined;
+  if (!continued) {
+    yield { tool: "get_case_report", input: {} };
+    yield { tool: "find_projects_near", input: { radius_m: 750 } };
+    if (!ctx.matches.length) yield { tool: "find_projects_near", input: { radius_m: 2000 } };
+  }
+
+  // Nothing mapped nearby: look the road up by the name the report gives (most rural roads have no
+  // published alignment). Link only an unambiguous match: one project matching every term, and
+  // within 5 km if it has a map line.
+  let byName: RunContext["matches"][number] | undefined;
+  const named = !continued && !ctx.matches.length ? roadNameFrom(ctx) : undefined;
+  if (named) {
+    yield { tool: "find_projects_by_name", input: { query: named } };
+    const full = ctx.nameCandidates.filter((c) => c.score === 1 && (c.distanceM === undefined || c.distanceM <= 5000));
+    if (full.length === 1) {
+      const reasons = [`The report's address names “${named}”, which matches the record of ${full[0].name}`];
+      yield { tool: "select_project", input: { project_id: full[0].projectId, reasons } };
+      byName = ctx.matches.find((m) => m.projectId === full[0].projectId);
+    } else if (full.length > 1) {
+      yield {
+        tool: "flag_missing",
+        input: {
+          field: "location_match",
+          reason: `${full.length} projects in the records are named like “${named}” (${full.map((c) => c.name).slice(0, 3).join("; ")}). Which one this report concerns is not established.`,
+          requestable_record: "Key map or reach details showing which work covers this location",
+        },
+      };
+    }
+  }
+
+  if (!continued && !byName && !ctx.matches.length) {
     yield {
       tool: "flag_missing",
       input: {
@@ -37,10 +72,10 @@ function* plan(ctx: RunContext): Generator<Step> {
     return;
   }
 
-  const top = ctx.matches[0];
-  const runnerUp = ctx.matches[1];
+  const top = continued ?? byName ?? ctx.matches[0];
+  const runnerUp = continued || byName ? undefined : ctx.matches[1];
   const ambiguous = runnerUp && top.score - runnerUp.score < 0.05 && Math.abs((top.distanceM ?? 0) - (runnerUp.distanceM ?? 0)) < 30;
-  yield { tool: "select_project", input: { project_id: top.projectId, reasons: top.reasons } };
+  if (!continued && !byName) yield { tool: "select_project", input: { project_id: top.projectId, reasons: top.reasons } };
   if (ambiguous) {
     yield {
       tool: "flag_missing",
@@ -90,13 +125,17 @@ function* plan(ctx: RunContext): Generator<Step> {
     tool: "finish",
     input: {
       summary:
-        ((top.distanceM ?? 0) < 15
-          ? `The reported location lies on the alignment of ${project.name}. `
-          : `The reported location is ${formatDistance(top.distanceM ?? 0)} from ${project.name}. `) +
+        (top.linkedBy === "name"
+          ? top.distanceM !== undefined
+            ? `The report was linked to ${project.name} by name; its mapped alignment is ${formatDistance(top.distanceM)} from the pin. `
+            : `The report was linked to ${project.name} by the road and place names in its record, which has no map location. `
+          : (top.distanceM ?? 0) < 15
+            ? `The reported location lies on the alignment of ${project.name}. `
+            : `The reported location is ${formatDistance(top.distanceM ?? 0)} from ${project.name}. `) +
         (verified.length
           ? `${verified.length} fact${verified.length === 1 ? " was" : "s were"} confirmed verbatim in ${docs.size} official document${docs.size === 1 ? "" : "s"} (${facts.join(", ")}). `
           : "No fact could be confirmed verbatim in the available documents. ") +
-        (ambiguous ? `${runnerUp.projectName} is equally close, so the responsible contract for this exact spot still needs confirming. ` : "") +
+        (ambiguous ? `${runnerUp?.projectName} is equally close, so the responsible contract for this exact spot still needs confirming. ` : "") +
         "Anything not listed as verified should be treated as unconfirmed.",
     },
   };
