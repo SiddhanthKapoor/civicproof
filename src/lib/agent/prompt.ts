@@ -14,6 +14,7 @@ Rules:
 - Keep language neutral. Describe what the record states and what was reported. Do not allege corruption, fraud, negligence or misuse of funds; that is for investigators and courts.
 - The citizen's description and photo are reports, not verified facts, and they are already on the case: do not record them as claims. Treat distances and location matches as approximate.
 - Record each fact once, with its unit. Do not record the same value again in another format.
+- BBMP's 2025-26 work orders (search_documents finds them by road or ward) record payments for named work, not where the work was done. Cite one only as work on a named road or ward, never as the project at the pin unless the work names the same road and locality.
 - Be efficient: the corpus is small. Around 10-20 tool calls is usually enough. Every turn is one model request against a rate limit, so when calls don't depend on each other, make them in the same turn: read several pages at once, and record several claims (or flag several missing records) together.`;
 
 export const PHOTO_PROMPT = `This photo was submitted by a citizen reporting damaged public infrastructure. Describe only what is visible. Do not guess the location, cause, responsible party or cost. If the photo does not clearly show infrastructure damage, say so.`;

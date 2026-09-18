@@ -164,3 +164,32 @@ export function placeNames(road: string, habs: string | undefined): string[] {
   }
   return out.slice(0, 14);
 }
+
+/**
+ * BBMP work orders and payments (from accounts.bbmp.gov.in, compiled by OpenCity). One block per
+ * work order with plain labels; the job number and work name, and the bill and payment references,
+ * are split where the source file runs them together. Contact numbers are removed by the caller.
+ */
+export function bbmpWorkOrderPages(text: string, perPage = 12): string[] {
+  const [header, ...rows] = parseCsv(text.replace(/^﻿/, ""));
+  const col = (name: string) => header.indexOf(name);
+  const get = (r: string[], name: string) => tidy(r[col(name)]);
+  const blocks = rows
+    .filter((r) => r.length === header.length && get(r, "wodetails"))
+    .map((r) => {
+      const [job, work] = get(r, "wodetails").split(/<\/a>/i).map((x) => tidy(x.replace(/<[^>]+>/g, "")));
+      const [bill, payment] = get(r, "brnumber").split(/(?=CBR\b)/);
+      return [
+        `Job number: ${job}; Ward: ${get(r, "ward")}`,
+        `Work: ${work ?? ""}`,
+        `Contractor: ${get(r, "contractor")}`,
+        `Bill register: ${tidy(bill)}${payment ? `; Payment: ${tidy(payment)}` : ""}`,
+        `Amount: ${get(r, "amount")}; Nett: ${get(r, "nett")}; Deduction: ${get(r, "deduction")}`,
+      ].join("\n");
+    });
+  // Only what the dataset says about itself: the file does not state a currency unit.
+  const head = "BBMP work orders and payments, 2025-26 (198-ward regime). Source: accounts.bbmp.gov.in, compiled by OpenCity.";
+  const pages: string[] = [];
+  for (let i = 0; i < blocks.length; i += perPage) pages.push([head, "", blocks.slice(i, i + perPage).join("\n\n")].join("\n"));
+  return pages;
+}

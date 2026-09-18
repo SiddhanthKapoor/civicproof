@@ -15,7 +15,7 @@ import path from "node:path";
 import { cleanPage, pdfPages as extractPdfPages } from "../src/lib/pdf-text";
 import { ManifestSchema, ProjectSchema, AuthoritySchema } from "../src/lib/corpus/types";
 import { verifyClaim, type CorpusReader } from "../src/lib/agent/verifier";
-import { jsonPages, ommasPages, redactContacts, type OmmasLayout } from "../src/lib/records/render";
+import { bbmpWorkOrderPages, jsonPages, ommasPages, redactContacts, type OmmasLayout } from "../src/lib/records/render";
 
 const ROOT = path.join(process.cwd(), "corpus");
 
@@ -86,7 +86,7 @@ async function main() {
   AuthoritySchema.array().parse(JSON.parse(await fs.readFile(path.join(ROOT, "authorities.json"), "utf8")));
   const extraction = JSON.parse(await fs.readFile(path.join(ROOT, "extraction.json"), "utf8").catch(() => "{}")) as Record<
     string,
-    { json?: { keys?: string[] }; csv?: { column: string; includes: string[] }; ommas?: OmmasLayout }
+    { json?: { keys?: string[] }; csv?: { column: string; includes: string[] }; ommas?: OmmasLayout; bbmpWorkOrders?: boolean }
   >;
 
   const pages: Record<string, { sha256: string; pages: string[] }> = {};
@@ -107,6 +107,7 @@ async function main() {
     if (ext === ".pdf") p = await pdfPages(buf);
     else if (ext === ".json") p = jsonPagesFromFile(buf, extraction[doc.id]?.json);
     else if (ext === ".csv" && extraction[doc.id]?.ommas) p = ommasPages(buf.toString("utf8"), extraction[doc.id].ommas!);
+    else if (ext === ".csv" && extraction[doc.id]?.bbmpWorkOrders) p = bbmpWorkOrderPages(buf.toString("utf8"));
     else if (ext === ".csv") p = csvPages(buf, extraction[doc.id]?.csv);
     else if (ext === ".html" || ext === ".htm") p = htmlPages(buf);
     else p = [cleanPage(buf.toString("utf8"))];

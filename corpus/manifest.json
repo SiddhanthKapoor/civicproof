@@ -295,6 +295,18 @@
    "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
    "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Tumakuru, all blocks, all years, PMGSY-III). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
    "sha256": "9fc790e0c56bec8a945c4787d130b9ee5add3f2a31783f7fdfa7928ef1daa955"
+  },
+  {
+   "id": "opencity-bbmp-work-orders-2025-26-198-wards",
+   "title": "BBMP work orders and payments, 2025-26 (198-ward regime)",
+   "publisher": "Bruhat Bengaluru Mahanagara Palike (accounts.bbmp.gov.in), compiled by OpenCity",
+   "sourceType": "open_data",
+   "url": "https://data.opencity.in/dataset/bbmp-work-orders-and-payments-2025-26",
+   "retrievedAt": "2026-09-19",
+   "file": "opencity-bbmp-work-orders-2025-26-198-wards.csv",
+   "licence": "Public Domain (OpenCity dataset licence); data from BBMP's accounts portal.",
+   "notes": "4,729 work orders and payments across 198 wards, updated 14 May 2026. A work order records a payment for named work, not its location on a map. Contractors' phone numbers, which the file appends to their names, are removed from the rendered text.",
+   "sha256": "0173a9b1af4771151a8e0db873eebd311f09599d7c5652e683606fa0590be45b"
   }
  ]
 }

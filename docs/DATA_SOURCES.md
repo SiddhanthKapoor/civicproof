@@ -33,6 +33,7 @@ Each project carries curated reference fields (85 in total), each with a verbati
 
 - **OMMAS** (pmgsy.dord.gov.in): citizen reports rendered by the report viewer and exported as PDF (Karnataka › Bangalore U › PMGSY-III) or CSV (the five surrounding districts, PMGSY-I to III, retrieved 19 Sep 2026). `omms.nic.in` no longer resolves.
 - **OMMAS, live**: the investigator's `search_public_records` drives the same report viewer at run time (layout page for the anti-forgery token, report request, viewer, CSV export) for the report's district, and `fetch_public_record` archives one road's row with the SHA-256 of the whole export (`src/lib/records/sources/ommas.ts`). No login or captcha.
+- **BBMP work orders and payments 2025-26** (data.opencity.in, Public Domain; source accounts.bbmp.gov.in): 4,729 work orders across 198 wards, rendered one block per work order. Contractors' phone numbers, which the file appends to their names, are removed from the rendered text. Searchable by the investigator; a work order is not treated as a located project.
 - **GeoSadak proposals** (github.com/datameet/pmgsy-geosadak, GODL-India): PMGSY-III road lines for Karnataka; the join to OMMAS is by district and block codes (shared with OMMAS), sanction year and road name.
 - **KPPP** (kppp.karnataka.gov.in): the portal's public JSON API (`works-tender-full-view`, `get-selected-bid-for-lumpsum`, `works-tender-file/…/download-file`). JSON responses are rendered deterministically into `field: value` lines at ingest; epoch timestamps and E-notation amounts are annotated with readable values.
 - **BSCL presentation**: BSCL's own site did not resolve; the copy is from OpenCity.in's data portal and is labelled as such.
@@ -43,7 +44,7 @@ Each project carries curated reference fields (85 in total), each with a verbati
 
 - **KPPP tender search**: the portal shows a captcha before its search form. The captcha is checked only in the browser, so calling the search API directly would bypass it; CivicProof does not. Fetching a known tender by its ID needs no captcha and is how the bundled KPPP records were obtained.
 - **BBMP Works Bill Public View** (accounts.bbmp.gov.in/PublicView): official and captcha-free, searchable by work, ward or contractor, but every data call returned HTTP 500 on 19 Sep 2026.
-- **OpenCity BBMP work orders and road history**: useful city data (contracts, amounts, defect-liability dates), but secondary, and the files include contractors' and engineers' phone numbers; not added yet.
+- **OpenCity BBMP road history and road-repair sheets** (2017): defect-liability dates per road segment, but no licence is stated and the files carry contractors' and engineers' phone numbers and emails; not added.
 
 - eMARG "Know Your Road" and CPPP results of tenders: behind captchas (not bypassed).
 - bbmp.gov.in, site.bbmp.gov.in, smartcitybengaluru.in, pmgsy.nic.in: unreachable on 18 Sep 2026.
