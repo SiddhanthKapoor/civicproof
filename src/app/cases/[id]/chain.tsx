@@ -2,8 +2,9 @@
 
 import { motion } from "motion/react";
 import type { PublicCase } from "@/lib/schemas";
-import { STATUS_LABELS } from "@/lib/schemas";
-import { formatDistance } from "@/lib/geo";
+import { matchPlacement, STATUS_LABELS } from "@/lib/schemas";
+
+const upperFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 import { cn } from "@/lib/utils";
 import type { DossierProject } from "./case-dossier";
 
@@ -32,7 +33,11 @@ export function ProvenanceChain({ caseData, project }: { caseData: PublicCase; p
     {
       label: "Project",
       title: project ? project.name : "Not identified",
-      detail: match ? `${match.distanceM < 15 ? "On the alignment" : `${formatDistance(match.distanceM)} away`} · ${project?.geometryKind === "official" ? "official geometry" : "approximate geometry"}` : inv ? "No project at this location in the corpus" : "Run the investigation",
+      detail: match
+        ? match.linkedBy === "name"
+          ? "Linked by the road name in a record fetched from the portal; the record has no map location"
+          : `${upperFirst(matchPlacement(match))} · ${project?.geometryKind === "official" ? "official geometry" : "approximate geometry"}`
+        : inv ? "No project at this location in the corpus" : "Run the investigation",
       established: Boolean(project && match),
     },
     {

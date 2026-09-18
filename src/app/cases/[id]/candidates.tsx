@@ -1,6 +1,5 @@
 import Link from "next/link";
-import type { ProjectMatch } from "@/lib/schemas";
-import { formatDistance } from "@/lib/geo";
+import { matchPlacement, type ProjectMatch } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
 /** Every project the location search returned, with the reasons, and which one was linked. */
@@ -13,13 +12,13 @@ export function Candidates({ matches, selectedId }: { matches: ProjectMatch[]; s
         {matches.slice(0, 5).map((m) => (
           <li key={m.projectId} className="grid gap-1 py-2.5 sm:grid-cols-[1fr_auto] sm:gap-4">
             <div className="min-w-0">
-              <Link href={`/projects/${m.projectId}`} className={cn("text-[14px] leading-snug hover:text-accent", m.projectId === selectedId ? "font-medium text-ink" : "text-ink-2")}>
+              <Link href={m.linkedBy === "name" ? `/sources/${m.projectId}` : `/projects/${m.projectId}`} className={cn("text-[14px] leading-snug hover:text-accent", m.projectId === selectedId ? "font-medium text-ink" : "text-ink-2")}>
                 {m.projectName}
               </Link>
               <p className="mt-0.5 text-[12.5px] text-ink-3">{m.reasons.join(" · ")}</p>
             </div>
             <div className="flex items-center gap-2 text-[12px] sm:justify-end">
-              <span className="font-mono text-ink-3">{m.distanceM < 15 ? "on alignment" : formatDistance(m.distanceM)}</span>
+              <span className="font-mono text-ink-3">{matchPlacement(m)}</span>
               {m.projectId === selectedId && <span className="rounded-full bg-ink px-2 py-0.5 text-paper">Linked</span>}
             </div>
           </li>

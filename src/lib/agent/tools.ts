@@ -7,10 +7,11 @@
 import { tool } from "@strands-agents/sdk";
 import { z } from "zod";
 import { CATEGORY_LABELS, ClaimFieldSchema, CLAIM_FIELD_LABELS, NEXT_ACTION_TYPES, type ProjectMatch } from "@/lib/schemas";
-import { formatDistance, geometryLengthM } from "@/lib/geo";
+import { distanceToGeometry, formatDistance, geometryLengthM } from "@/lib/geo";
 import { normalizeText } from "./text";
 import { verifyClaim } from "./verifier";
 import type { RunContext } from "./context";
+import { fetchOrReuse, recordSources, sourceFor, withLiveRecords } from "@/lib/records";
 
 const MAX_PAGE_CHARS = 7000;
 
@@ -18,7 +19,7 @@ function json(v: unknown): string {
   return JSON.stringify(v, null, 1);
 }
 
-export function scoreMatches(ctx: RunContext, radiusM: number): ProjectMatch[] {
+export function scoreMatches(ctx: RunContext, radiusM: number): Array<ProjectMatch & { distanceM: number }> {
   const c = ctx.caseData;
   const reportText = normalizeText(`${c.title} ${c.description} ${c.location.address ?? ""}`);
   return ctx.corpus.projectsNear(c.location, radiusM).map(({ project, distanceM }) => {
@@ -39,7 +40,7 @@ export function scoreMatches(ctx: RunContext, radiusM: number): ProjectMatch[] {
     if (nameHit) reasons.push(`The report mentions "${nameHit}"`);
     const proximity = Math.max(0, 1 - distanceM / Math.max(radiusM, 1));
     const score = Math.round((proximity * 0.7 + (categoryHit ? 0.15 : 0) + (nameHit ? 0.15 : 0)) * 100) / 100;
-    return { projectId: project.id, projectName: project.name, distanceM: Math.round(distanceM), score, reasons };
+    return { projectId: project.id, projectName: project.name, distanceM: Math.round(distanceM), score, reasons, linkedBy: "location" as const };
   }).sort((a, b) => b.score - a.score);
 }
 
@@ -133,14 +134,59 @@ export function buildTools(ctx: RunContext) {
     },
   });
 
+  const findProjectsByName = tool({
+    name: "find_projects_by_name",
+    description:
+      "Find projects in the records by road, village or place name: for roads with no map geometry (most older rural roads), or when find_projects_near finds nothing. Matches the project name, the place names in its record and its block. Where a project has geometry, its distance from the report is given; a same-named road far away is a different road.",
+    inputSchema: z.object({ query: z.string().min(3).max(80) }),
+    callback: ({ query }) => {
+      ctx.setStage("locate");
+      const terms = normalizeText(query).split(" ").filter((t) => t.length >= 3);
+      if (!terms.length) return "Error: give a road, village or place name.";
+      const scored = ctx.corpus.projects
+        .map((p) => {
+          const hay = normalizeText([p.name, ...p.roadNames, p.locality ?? ""].join(" "));
+          const hits = terms.filter((t) => hay.includes(t)).length;
+          return { p, score: hits / terms.length };
+        })
+        .filter((x) => x.score >= 0.5)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 8);
+      const found = scored.map(({ p, score }) => ({
+        project_id: p.id,
+        name: p.name,
+        locality: p.locality,
+        summary: p.summary,
+        name_match: Math.round(score * 100) / 100,
+        has_map_geometry: Boolean(p.geometry),
+        distance_m: p.geometry ? Math.round(distanceToGeometry(ctx.caseData.location, p.geometry)) : undefined,
+        document_ids: p.documents,
+      }));
+      ctx.candidateIds = [...new Set([...ctx.candidateIds, ...found.map((f) => f.project_id)])];
+      ctx.trace({
+        kind: "tool_call",
+        tool: "find_projects_by_name",
+        stage: "locate",
+        summary: found.length ? `${found.length} project${found.length === 1 ? "" : "s"} named like "${query}"; best: ${found[0].name.slice(0, 80)}` : `No project in the records is named like "${query}"`,
+      });
+      return json({ query, candidates: found });
+    },
+  });
+
   const selectProject = tool({
     name: "select_project",
     description:
-      "Link the case to one candidate project returned by find_projects_near. Give concrete reasons (distance, road name, type of work). Only call when the location evidence supports it.",
+      "Link the case to one candidate project: one returned by find_projects_near or find_projects_by_name, or a public record you fetched, whose name or text names the road or locality at the report's location. Give concrete reasons (distance, road name, type of work). Only call when the evidence supports it.",
     inputSchema: z.object({ project_id: z.string(), reasons: z.array(z.string()).min(1).max(5) }),
     callback: ({ project_id, reasons }) => {
       const p = ctx.corpus.getProject(project_id);
       if (!p) return "Error: unknown project_id.";
+      if (!ctx.matches.some((m) => m.projectId === p.id)) {
+        // Found by name (or fetched live): the link rests on the name, and says so.
+        const distanceM = p.geometry ? Math.round(distanceToGeometry(ctx.caseData.location, p.geometry)) : undefined;
+        ctx.matches = [{ projectId: p.id, projectName: p.name, score: 0.5, reasons, linkedBy: "name", ...(distanceM !== undefined ? { distanceM } : {}) }, ...ctx.matches];
+        ctx.emit({ type: "matches", matches: ctx.matches });
+      }
       ctx.selectedProjectId = p.id;
       ctx.emit({ type: "selected", projectId: p.id });
       ctx.trace({ kind: "decision", tool: "select_project", stage: "locate", summary: `Linked case to ${p.name}`, detail: { reasons } });
@@ -325,9 +371,92 @@ export function buildTools(ctx: RunContext) {
     },
   });
 
+  const sources = recordSources();
+  const searchPublicRecords = tool({
+    name: "search_public_records",
+    description: `Search official portals live for public-works records, when find_projects_near finds nothing suitable or the records you need are missing. Sources: ${sources
+      .map((s) => `${s.label} (${s.covers})`)
+      .join("; ")}. Search with the road name at the pin, the locality, or the type of work (e.g. "Mullur road asphalting"). Results are leads, not facts: fetch a record before quoting it.`,
+    inputSchema: z.object({ query: z.string().min(3).max(120) }),
+    callback: async ({ query }) => {
+      ctx.setStage("retrieve");
+      ctx.liveSearches++;
+      try {
+        const hint = { district: ctx.place?.district, locality: ctx.place?.locality ?? ctx.caseData.location.address };
+        const hits = (await Promise.all(sources.map((s) => s.search(query, 8, hint)))).flat().slice(0, 10);
+        hits.forEach((h) => ctx.foundRecordIds.add(h.id));
+        ctx.trace({
+          kind: "tool_call",
+          tool: "search_public_records",
+          stage: "retrieve",
+          summary: `Searched ${sources.map((s) => s.label).join(", ")} for "${query}": ${hits.length} record${hits.length === 1 ? "" : "s"}`,
+          detail: { query, results: hits.map((h) => ({ id: h.id, title: h.title.slice(0, 120) })) },
+        });
+        return json({
+          query,
+          results: hits.map((h) => ({ record_id: h.id, title: h.title, reference: h.reference, department: h.department, location: h.location, date: h.date, status: h.status, value: h.value })),
+          note: hits.length ? "Leads only. Fetch a record to read and quote it." : "Nothing found. Try a shorter query: a road name or locality.",
+        });
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        ctx.trace({ kind: "error", tool: "search_public_records", summary: `Portal search failed: ${message.slice(0, 160)}` });
+        return `Error: the portal did not answer (${message.slice(0, 160)}). Continue with the records you have.`;
+      }
+    },
+  });
+
+  const fetchPublicRecord = tool({
+    name: "fetch_public_record",
+    description:
+      "Fetch a record returned by search_public_records from its official portal. It is archived with its URL, retrieval time and SHA-256; its pages can then be read with read_document_page and quoted in record_claim like any other document. A fetched record can be linked with select_project if it names the road or locality at the pin.",
+    inputSchema: z.object({ record_id: z.string() }),
+    callback: async ({ record_id }) => {
+      ctx.setStage("retrieve");
+      const source = sourceFor(record_id);
+      if (!source) return "Error: unknown record_id. Use one returned by search_public_records.";
+      ctx.liveFetches++;
+      try {
+        const { record, reused } = await fetchOrReuse(record_id, (id) => source.fetch(id));
+        if (!ctx.liveRecords.some((r) => r.id === record.id)) {
+          ctx.liveRecords.push(record);
+          ctx.corpus = withLiveRecords(ctx.corpus, [record]);
+          ctx.candidateIds = [...ctx.candidateIds, record.id];
+        }
+        ctx.trace({
+          kind: "tool_call",
+          tool: "fetch_public_record",
+          stage: "retrieve",
+          summary: reused
+            ? `Used the archived copy of "${record.title.slice(0, 90)}" (retrieved ${record.retrievedAt.slice(0, 10)})`
+            : `Fetched "${record.title.slice(0, 90)}" from ${source.label}: ${record.pages.length} page${record.pages.length === 1 ? "" : "s"}, SHA-256 ${record.sha256.slice(0, 12)}…`,
+        });
+        return json({
+          doc_id: record.id,
+          title: record.title,
+          publisher: record.publisher,
+          reference: record.reference,
+          department: record.department,
+          location: record.location,
+          road_names_in_title: record.roadNames,
+          pages: record.pages.length,
+          retrieved_at: record.retrievedAt,
+          url: record.viewUrl ?? record.url,
+          first_page: record.pages[0]?.slice(0, 2500),
+        });
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e);
+        ctx.trace({ kind: "error", tool: "fetch_public_record", summary: `Could not fetch ${record_id}: ${message.slice(0, 160)}` });
+        return `Error: could not fetch the record (${message.slice(0, 160)}).`;
+      }
+    },
+  });
+
   return [
     getCaseReport,
     findProjectsNear,
+    findProjectsByName,
+    searchPublicRecords,
+    fetchPublicRecord,
     selectProject,
     listProjectDocuments,
     searchDocuments,

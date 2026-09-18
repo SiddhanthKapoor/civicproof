@@ -47,9 +47,10 @@ Residents and resident welfare associations, ward volunteers, local journalists 
 
 | | Status |
 |---|---|
-| Official records | **Real.** 9 public documents (319 pages) for 8 Bengaluru road projects: OMMAS PMGSY-III road list and quality grades, PMGSY Programme Guidelines, BBMP white-topping tender, award and tender records from the Karnataka Public Procurement Portal's public API, a Bengaluru Smart City status presentation, and CAG Report No. 11 of 2025. Each stored with URL, retrieval date and SHA-256. |
-| Curated facts | **Real, and re-verified on every build.** 85 facts, each a verbatim quotation checked by `npm run ingest`. |
-| Project locations | PMGSY roads: official GeoSadak GIS. City roads: traced from OpenStreetMap by road name and labelled approximate. |
+| Official records | **Real.** 25 public documents (458 pages) covering 779 public-works projects in and around Bengaluru: OMMAS road lists for Bengaluru Rural, Ramanagara, Chikkaballapura, Kolar and Tumakuru (PMGSY-I, II and III) and Bengaluru Urban (PMGSY-III), with quality grades for Bengaluru Urban and Rural; the PMGSY Programme Guidelines; BBMP white-topping tender, award and tender records from the Karnataka Public Procurement Portal's public API; a Bengaluru Smart City status presentation; and CAG Report No. 11 of 2025. Each stored with URL, retrieval date and SHA-256. |
+| Reference facts | **Real, and re-verified on every build.** 7,622 facts, each a verbatim quotation checked by `npm run ingest`: 85 curated by hand, the rest extracted row by row from the OMMAS exports by `scripts/import-ommas.mts`, which keeps only facts the app's own verifier accepts. |
+| Project locations | PMGSY-III roads: official GeoSadak GIS (128 roads). City roads: traced from OpenStreetMap by road name and labelled approximate. Older PMGSY roads have no published map line: they are found by name. |
+| Live records | The investigator can **search and fetch records from the government's PMGSY portal (OMMAS) at run time**, for any Karnataka district. Each fetched record is archived with its URL, retrieval time and SHA-256, and quoted and verified like the bundled ones. |
 | Demo reports | **Illustrative.** Six seeded reports show the workflow. They are marked "Demo report" everywhere; nobody filed them anywhere. |
 | AI investigation | Real Strands agent + Cedar + verifier. With a Gemini key it runs **Google Gemini** (tested live: on the Kodathi road it linked the right project and verified the contractor, work order date, 5-year maintenance period and costs from the OMMAS pages); on AWS it can run a model on **Amazon Bedrock** instead. With neither, a **rules planner** drives the same tools by replaying curated extractions, and the UI says so. |
 
@@ -66,16 +67,20 @@ The hard part is reading: 65-page bid documents, scheme reports whose tables ext
 
 ## Why AWS
 
+Each service does a job the product needs; none is there for show.
+
 | Service | Role |
 |---|---|
-| **Amazon Bedrock** | Alternative model host (`Planner=bedrock`): any Converse model with tool use and vision, default `global.anthropic.claude-opus-5`, optional Guardrail. The default build uses Gemini instead. |
-| **Strands Agents** (AWS open source) | The agent loop, the Gemini and Bedrock model providers, lifecycle hooks and the Cedar intervention. |
-| **Cedar** (AWS open source) | Two policy sets: agent tool calls, and every change to a case. |
+| **Amazon Bedrock (Amazon Nova)** | When Gemini runs out of quota or stays overloaded, the investigation **continues on Nova mid-run**, keeping the project it selected and the facts it verified. With `Planner=bedrock`, Nova runs the whole investigation. |
+| **Strands Agents** (AWS open source) | The agent loop, the Gemini and Bedrock model providers, retries, lifecycle hooks and the Cedar intervention. |
+| **Cedar** (AWS open source) | Two policy sets: every agent tool call (including which live records it may fetch, and how many), and every change to a case. |
 | **AWS Lambda** | Next.js standalone server behind a **Function URL in response-streaming mode**, via the Lambda Web Adapter, so the agent's steps stream to the browser live. |
+| **Amazon S3** | Report photos, packet PDFs, and the **archive of public records the agent fetches live**, each stored with its URL, retrieval time and SHA-256 so a citation keeps pointing at the same bytes. Private, SSE, TLS-only. |
 | **Amazon Textract** | OCR for scanned uploads (RTI replies usually come back as scanned letters), so the investigator can quote them. |
+| **Amazon Location Service** | Address search on the report form, and the **road name at a report's pin**, which is how government records identify places. |
 | **Amazon DynamoDB** | Cases (single table, optimistic locking), daily investigation budget counters with TTL. |
-| **Amazon S3** | Report photos and every generated packet PDF, private, SSE, TLS-only. |
-| **Amazon CloudWatch** | Structured JSON logs, an error alarm, and metric filters for failed and budget-denied investigations. |
+| **AWS Secrets Manager** | The Gemini API key; the function's role can read that one secret and nothing else. |
+| **Amazon CloudWatch** | Structured logs; **per-run metrics in Embedded Metric Format** (share of the model's claims the verifier accepted, policy denials, conflicts, model waits, duration, tokens); a dashboard and an error alarm. |
 | **AWS SAM** | One template (`infra/template.yaml`) with least-privilege IAM. |
 
 ```mermaid
@@ -88,10 +93,14 @@ flowchart LR
     T --> C[(Records corpus<br/>SHA-256 checked)]
   end
   U --> API
-  AG --> BR[Gemini · or Amazon Bedrock]
+  AG --> GM[Gemini]
+  AG -. fallback .-> BR[Amazon Bedrock · Nova]
+  T -- fetch live records --> P[Official portals<br/>KPPP · OMMAS]
+  T --> S3[(S3<br/>photos · PDFs · record archive)]
   API --> DDB[(DynamoDB)]
-  API --> S3[(S3)]
-  L --> CW[CloudWatch Logs]
+  API --> LOC[Amazon Location]
+  API --> SM[Secrets Manager]
+  L --> CW[CloudWatch<br/>logs · EMF metrics · dashboard]
 ```
 
 More: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [docs/AGENT.md](docs/AGENT.md) · [docs/SECURITY.md](docs/SECURITY.md)
@@ -137,7 +146,7 @@ npm run test:e2e    # 5 browser tests incl. an axe WCAG 2.1 AA audit (Playwright
                     # (they create cases: run that server with CIVICPROOF_PLANNER=rules and CIVICPROOF_DATA_DIR
                     #  pointing at a scratch dir you've seeded, so they neither spend model quota nor touch .data)
 npm run check       # all of the above plus types and lint
-npm run eval        # scores the investigator against the 85 curated facts (uses Gemini when GEMINI_API_KEY is set; costs model quota)
+npm run eval        # scores the investigator on every mapped project's reference facts (uses Gemini when GEMINI_API_KEY is set; costs model quota)
 npm run typecheck
 npm run lint
 ```
@@ -170,7 +179,8 @@ docs/               architecture, agent, data sources, security, deploy, demo sc
 
 ## Known limitations
 
-- The corpus is small and hand-assembled (8 projects). A report with no project nearby gets an honest "not found" and an RTI draft to identify the responsible office.
+- City coverage is thin: two city road packages have records; the other 777 projects are rural PMGSY roads around Bengaluru. A report nothing matches gets an honest "not found" and an RTI draft to identify the responsible office.
+- Live search covers OMMAS only. The Karnataka procurement portal's tender search sits behind a captcha, which CivicProof does not bypass; BBMP's works-bill public view returned errors when this was built.
 - City road alignments are approximate; the tenders' key maps have not been digitised.
 - PMGSY maintenance windows use the programme guideline's 5-year rule and the recorded completion date; individual contracts were not available.
 - Submission is manual: there is no supported government API to file into, so CivicProof drafts and tracks.
@@ -181,11 +191,11 @@ docs/               architecture, agent, data sources, security, deploy, demo sc
 
 ## What's next
 
-1. Ingest more cities and sources automatically (KPPP awarded-works API, OMMAS exports) with the same quote-verification gate.
+1. More live sources for the investigator (the procurement portals of other states, CPPP) behind the same archive, verifier and Cedar budget.
 2. Table-aware extraction (Textract `AnalyzeDocument` tables) for measurement books and bills of quantities.
 3. Digitise tender key maps so city projects get exact reaches.
 4. Group nearby reports into one case, and report outcomes (fix rate), not just counts.
-5. Amazon Cognito accounts for organisations, and Amazon Location Service for geocoding.
+5. Amazon Cognito accounts for organisations, and RTI deadline reminders with EventBridge Scheduler and web push to the installed app.
 
 ## AI tools used
 

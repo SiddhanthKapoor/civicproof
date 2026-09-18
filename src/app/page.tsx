@@ -289,8 +289,9 @@ unless { principal is Reporter && context.is_owner };`}
             <Eyebrow>What is real here</Eyebrow>
             <h2 className="mt-4 font-serif text-[36px] leading-tight tracking-[-0.01em] sm:text-[44px]">Real records. Labelled demos.</h2>
             <p className="mt-5 max-w-md text-[16px] leading-relaxed text-ink-2">
-              The corpus is {corpus.documents.length} public documents covering {corpus.projects.length} Bengaluru road projects, each
-              stored with its source link and SHA-256. The {cases.filter((c) => c.demo).length} demo reports are illustrative and marked
+              The corpus is {corpus.documents.length} public documents covering {corpus.projects.length.toLocaleString("en-IN")} public-works
+              projects in and around Bengaluru, each stored with its source link and SHA-256; the investigator can also fetch records live from
+              the government&apos;s PMGSY portal. The {cases.filter((c) => c.demo).length} demo reports are illustrative and marked
               as such; nothing has been filed with any authority.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">

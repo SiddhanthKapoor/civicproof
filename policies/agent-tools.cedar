@@ -1,7 +1,7 @@
 // CivicProof · authorization policy for the investigation agent
 //
 // Evaluated by the Strands Agents CedarAuthorization intervention before EVERY tool call
-// the model makes (Claude on Bedrock or the rules planner).
+// the model makes (Gemini, Amazon Nova on Bedrock, or the rules planner).
 //   principal : Agent::"investigator"
 //   action    : Action::"<tool name>"
 //   context   : { input: <tool arguments>, session: { call_count, candidate_ids, ... } }
@@ -14,6 +14,7 @@ permit (
   action in [
     Action::"get_case_report",
     Action::"find_projects_near",
+    Action::"find_projects_by_name",
     Action::"list_project_documents",
     Action::"search_documents",
     Action::"read_document_page"
@@ -26,7 +27,20 @@ permit (
 forbid (principal, action == Action::"find_projects_near", resource)
 when { context.input has radius_m && context.input.radius_m > 2000 };
 
-// The agent may only link a case to a project that the location search actually returned.
+// Live public records: search the official portals, and fetch only a record a search returned.
+// Both are capped per run; every fetch is archived with its URL, time and SHA-256.
+@id("public-records-search")
+permit (principal == Agent::"investigator", action == Action::"search_public_records", resource)
+when { context.session.live_searches < 6 };
+
+@id("fetch-only-found-records")
+permit (principal == Agent::"investigator", action == Action::"fetch_public_record", resource)
+when {
+  context.session.found_record_ids.contains(context.input.record_id) &&
+  context.session.live_fetches < 6
+};
+
+// The agent may only link a case to a project a search returned (by location or by name), or a record it fetched.
 @id("select-only-located-candidates")
 permit (principal == Agent::"investigator", action == Action::"select_project", resource)
 when { context.session.candidate_ids.contains(context.input.project_id) };

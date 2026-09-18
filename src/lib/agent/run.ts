@@ -234,7 +234,19 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
     await store.update(caseId, (c) =>
       // Only touch a run that is still in progress: a late flush must never overwrite the final result.
       c.investigation?.runId === runId && c.investigation.status === "running"
-        ? { ...c, investigation: { ...c.investigation, matches: ctx.matches, selectedProjectId: ctx.selectedProjectId, claims: ctx.claims, evidence: ctx.evidence, missing: ctx.missing, trace } }
+        ? {
+            ...c,
+            investigation: {
+              ...c.investigation,
+              matches: ctx.matches,
+              selectedProjectId: ctx.selectedProjectId,
+              claims: ctx.claims,
+              evidence: ctx.evidence,
+              missing: ctx.missing,
+              trace,
+              records: ctx.liveRecords.map((r) => r.id),
+            },
+          }
         : c,
     );
   };
@@ -271,7 +283,12 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
       const cedar = new CedarAuthorization({
         policies: agentPolicy(),
         principal: { type: "Agent", id: "investigator" },
-        contextEnricher: () => ({ candidate_ids: ctx.candidateIds }),
+        contextEnricher: () => ({
+          candidate_ids: ctx.candidateIds,
+          found_record_ids: [...ctx.foundRecordIds],
+          live_searches: ctx.liveSearches,
+          live_fetches: ctx.liveFetches,
+        }),
         onError: "deny",
       });
       const guard = new NeutralLanguageGuard((tool, term) =>
@@ -358,6 +375,7 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
           summary: ctx.summary,
           analysis: ctx.analysis,
           trace,
+          records: ctx.liveRecords.map((r) => r.id),
           usage: usesModel ? usage : undefined,
         },
         timeline: [
@@ -405,7 +423,16 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
       ...c,
       status: c.status === "investigating" ? (c.investigation?.claims.length ? "investigating" : "reported") : c.status,
       investigation: c.investigation
-        ? { ...c.investigation, status: "failed", finishedAt: new Date().toISOString(), error: message, trace, claims: ctx.claims, evidence: ctx.evidence }
+        ? {
+            ...c.investigation,
+            status: "failed",
+            finishedAt: new Date().toISOString(),
+            error: message,
+            trace,
+            claims: ctx.claims,
+            evidence: ctx.evidence,
+            records: ctx.liveRecords.map((r) => r.id),
+          }
         : c.investigation,
       timeline: [
         ...c.timeline,

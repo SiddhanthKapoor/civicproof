@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getStore } from "@/lib/store";
-import { getCorpus } from "@/lib/corpus";
+import { casesCorpus } from "@/lib/cases";
 import { toPublicCase } from "@/lib/schemas";
 import { haversine } from "@/lib/geo";
 import { CaseDossier, type DossierProject } from "./case-dossier";
@@ -18,7 +18,8 @@ export default async function CasePage(props: PageProps<"/cases/[id]">) {
   const { id } = await props.params;
   const c = await getStore().get(id);
   if (!c) notFound();
-  const corpus = getCorpus();
+  // Includes any public records the investigator fetched live for this case.
+  const corpus = await casesCorpus(c);
 
   // Projects to draw: the investigation's candidates, or anything within 1.5 km before it runs.
   const ids = c.investigation?.matches.length
@@ -32,7 +33,7 @@ export default async function CasePage(props: PageProps<"/cases/[id]">) {
       return {
         id: p.id,
         name: p.name,
-        geometry: p.geometry!,
+        geometry: p.geometry,
         geometryNote: p.geometrySource.note,
         geometryKind: p.geometrySource.kind,
         locality: p.locality,

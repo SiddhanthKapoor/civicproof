@@ -276,11 +276,20 @@ export type NextAction = z.infer<typeof NextActionSchema>;
 export const ProjectMatchSchema = z.object({
   projectId: z.string(),
   projectName: z.string(),
-  distanceM: z.number(),
+  /** Distance to the project's mapped alignment; absent for a record linked by road name only. */
+  distanceM: z.number().optional(),
   score: z.number(),
   reasons: z.array(z.string()),
+  /** "location": the pin is on or near the project's geometry. "name": a fetched record names the road at the pin. */
+  linkedBy: z.enum(["location", "name"]).optional(),
 });
 export type ProjectMatch = z.infer<typeof ProjectMatchSchema>;
+
+/** How a match is described in the UI and the complaint. */
+export function matchPlacement(m: Pick<ProjectMatch, "distanceM" | "linkedBy">): string {
+  if (m.linkedBy === "name" || m.distanceM === undefined) return "linked by road name";
+  return m.distanceM < 15 ? "on the alignment" : `${m.distanceM < 1000 ? `${Math.round(m.distanceM)} m` : `${(m.distanceM / 1000).toFixed(1)} km`} away`;
+}
 
 export const TraceStepSchema = z.object({
   at: z.string(),
@@ -309,6 +318,8 @@ export const InvestigationSchema = z.object({
   summary: z.string().optional(),
   analysis: z.string().optional(),
   trace: z.array(TraceStepSchema),
+  /** Ids of public records the investigator fetched live (archived in lib/records). */
+  records: z.array(z.string()).optional(),
   error: z.string().optional(),
   usage: z
     .object({ inputTokens: z.number(), outputTokens: z.number(), modelCalls: z.number() })

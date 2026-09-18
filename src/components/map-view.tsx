@@ -203,11 +203,9 @@ export function MapView({
   useEffect(() => {
     const map = mapRef.current;
     if (!ready || !map || framed.current || !fitToData) return;
-    const pts: [number, number][] = [
-      ...cases.map((c) => [c.lng, c.lat] as [number, number]),
-      ...projects.flatMap((p) => coordsOf(p.geometry)),
-      ...(pick ? [[pick.lng, pick.lat] as [number, number]] : []),
-    ];
+    // Frame the reports when there are any (projects now reach well outside the city), else the projects.
+    const reports: [number, number][] = [...cases.map((c) => [c.lng, c.lat] as [number, number]), ...(pick ? [[pick.lng, pick.lat] as [number, number]] : [])];
+    const pts: [number, number][] = reports.length ? reports : projects.flatMap((p) => coordsOf(p.geometry));
     if (pts.length === 0) return;
     framed.current = true;
     if (pts.length === 1) {

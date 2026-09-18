@@ -1,6 +1,6 @@
 {
  "version": 1,
- "description": "CivicProof source corpus: public records for Bengaluru road works, retrieved 18 Sep 2026. Every file is checked against its SHA-256 at ingest.",
+ "description": "CivicProof source corpus: public records for road works in and around Bengaluru, retrieved 18–19 Sep 2026. Every file is checked against its SHA-256 at ingest.",
  "documents": [
   {
    "id": "ommas-slr-pmgsy3-bangalore-urban",
@@ -103,6 +103,198 @@
    "licence": "Government Open Data License – India (GODL)",
    "notes": "Aggregate cross-check: Bangalore U = 12 roads, 108.44 km, matching the OMMAS list.",
    "sha256": "9d042bcc07ffbbdb23008d0bcf8da11d6468d8bed82cf496db7619e56e77f100"
+  },
+  {
+   "id": "ommas-quality-grading-bengaluru-rural",
+   "title": "Works Wise Grading Abstract — NQM/SQM inspections, Bangalore R, Jan 2016 to Sep 2026 (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/QualityMonitoringArea/QualityMonitoring/QMMonWorksDetailLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-quality-grading-bengaluru-rural.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS quality-monitoring report viewer on 2026-09-19. Rendered row by row with the report's own column labels.",
+   "sha256": "ab43d873c7d0e3e39609ee7267753eb1b4c46510c836fb264173a0efaca5f523"
+  },
+  {
+   "id": "ommas-slr-pmgsy1-bengaluru-rural",
+   "title": "SLR: Statewise List of Works — Karnataka, Bangalore R, PMGSY-I (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy1-bengaluru-rural.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Bangalore R, all blocks, all years, PMGSY-I). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "5abcd8af3b535b2118f37235c46f16572a3b494602512317e9c3f0d32362c9e3"
+  },
+  {
+   "id": "ommas-slr-pmgsy2-bengaluru-rural",
+   "title": "SLR: Statewise List of Works — Karnataka, Bangalore R, PMGSY-II (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy2-bengaluru-rural.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Bangalore R, all blocks, all years, PMGSY-II). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "dcdceac282024a6b96cf093f03ada6f4a87ced52280d4807a12fd7736eeb2d68"
+  },
+  {
+   "id": "ommas-slr-pmgsy3-bengaluru-rural",
+   "title": "SLR: Statewise List of Works — Karnataka, Bangalore R, PMGSY-III (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy3-bengaluru-rural.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Bangalore R, all blocks, all years, PMGSY-III). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "4de008b3d19874e55cffc90a64e06202826d2ce927c00ee7bf4930aa7a5c7915"
+  },
+  {
+   "id": "ommas-slr-pmgsy1-ramanagara",
+   "title": "SLR: Statewise List of Works — Karnataka, Ramanagara, PMGSY-I (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy1-ramanagara.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Ramanagara, all blocks, all years, PMGSY-I). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "b5606e8b5b22795cfeead408c26b5174fc889232b96b74145a12ab390ce29f06"
+  },
+  {
+   "id": "ommas-slr-pmgsy2-ramanagara",
+   "title": "SLR: Statewise List of Works — Karnataka, Ramanagara, PMGSY-II (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy2-ramanagara.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Ramanagara, all blocks, all years, PMGSY-II). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "4651c6f16c0e7cb88ebceab04e6fbe6f0adcfee6fdc543a52ba6b082387b7907"
+  },
+  {
+   "id": "ommas-slr-pmgsy3-ramanagara",
+   "title": "SLR: Statewise List of Works — Karnataka, Ramanagara, PMGSY-III (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy3-ramanagara.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Ramanagara, all blocks, all years, PMGSY-III). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "afeeec95104aedc5b9763a2dc0541fd477ebc120746d0426041ae5e8204389c4"
+  },
+  {
+   "id": "ommas-slr-pmgsy1-chikkaballapura",
+   "title": "SLR: Statewise List of Works — Karnataka, Chikkaballapura, PMGSY-I (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy1-chikkaballapura.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Chikkaballapura, all blocks, all years, PMGSY-I). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "a0ee72ebb09be0b14f17b6f87d0465f2acdde8944932e136fe72243bc15666af"
+  },
+  {
+   "id": "ommas-slr-pmgsy2-chikkaballapura",
+   "title": "SLR: Statewise List of Works — Karnataka, Chikkaballapura, PMGSY-II (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy2-chikkaballapura.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Chikkaballapura, all blocks, all years, PMGSY-II). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "58e6e23bea697948c4f1efdf6ac42ee3400380d07a73c290544c1b660a7a5796"
+  },
+  {
+   "id": "ommas-slr-pmgsy3-chikkaballapura",
+   "title": "SLR: Statewise List of Works — Karnataka, Chikkaballapura, PMGSY-III (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy3-chikkaballapura.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Chikkaballapura, all blocks, all years, PMGSY-III). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "e995fe13df79a89d74e5fd17bf80145998830f0739b056592b3ed49b2f65e702"
+  },
+  {
+   "id": "ommas-slr-pmgsy1-kolar",
+   "title": "SLR: Statewise List of Works — Karnataka, Kolar, PMGSY-I (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy1-kolar.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Kolar, all blocks, all years, PMGSY-I). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "a8556071112f494ba8bfeb4245f33133d9227a0517c37ceb8ae6fbd077bc2c38"
+  },
+  {
+   "id": "ommas-slr-pmgsy2-kolar",
+   "title": "SLR: Statewise List of Works — Karnataka, Kolar, PMGSY-II (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy2-kolar.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Kolar, all blocks, all years, PMGSY-II). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "9b5e1583c61b88d80e902b51b783b593f09374bfb046264d43a58042d1c01bae"
+  },
+  {
+   "id": "ommas-slr-pmgsy3-kolar",
+   "title": "SLR: Statewise List of Works — Karnataka, Kolar, PMGSY-III (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy3-kolar.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Kolar, all blocks, all years, PMGSY-III). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "b68cea62748dd78fae45815c2d26ba19d40aef5b74c83f198f7661766d30c6df"
+  },
+  {
+   "id": "ommas-slr-pmgsy1-tumakuru",
+   "title": "SLR: Statewise List of Works — Karnataka, Tumakuru, PMGSY-I (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy1-tumakuru.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Tumakuru, all blocks, all years, PMGSY-I). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "3d372da2c28598a9f55136531b5e7a0fc316571acc082acbe91af922ab6bf7ca"
+  },
+  {
+   "id": "ommas-slr-pmgsy2-tumakuru",
+   "title": "SLR: Statewise List of Works — Karnataka, Tumakuru, PMGSY-II (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy2-tumakuru.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Tumakuru, all blocks, all years, PMGSY-II). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "56f642667b799eee9c22e47a504e0a74d3c4e8a8273d79cdff2aafa9aa2db77d"
+  },
+  {
+   "id": "ommas-slr-pmgsy3-tumakuru",
+   "title": "SLR: Statewise List of Works — Karnataka, Tumakuru, PMGSY-III (CSV export)",
+   "publisher": "NRIDA, Ministry of Rural Development (OMMAS citizen reports)",
+   "sourceType": "official_web",
+   "url": "https://pmgsy.dord.gov.in/ProposalArea/Proposal/StateListWiseRoadsLayout",
+   "retrievedAt": "2026-09-19",
+   "file": "ommas-slr-pmgsy3-tumakuru.csv",
+   "licence": "© NRRDA (report footer). OMMAS's legal notice restricts republication without NRIDA's written permission; included here only to verify the quoted records, with attribution and links.",
+   "notes": "Exported as CSV from the OMMAS citizen report viewer on 2026-09-19 (district Tumakuru, all blocks, all years, PMGSY-III). Rendered row by row with the report's own column labels. Costs in ₹ lakh, lengths in km.",
+   "sha256": "9fc790e0c56bec8a945c4787d130b9ee5add3f2a31783f7fdfa7928ef1daa955"
   }
  ]
 }

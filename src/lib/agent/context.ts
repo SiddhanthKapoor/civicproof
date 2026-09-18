@@ -8,6 +8,7 @@ import type {
   TraceStep,
 } from "@/lib/schemas";
 import type { Corpus } from "@/lib/corpus";
+import type { LiveRecord } from "@/lib/records/types";
 
 export type AgentEvent =
   | { type: "trace"; step: TraceStep }
@@ -32,6 +33,11 @@ export interface RunContext {
   missing: MissingItem[];
   proposedActions: Array<Pick<NextAction, "type" | "title" | "rationale" | "basedOnClaimIds">>;
   pagesRead: Set<string>;
+  /** Public records fetched live this run, and the ids searches returned (the only ones it may fetch). */
+  liveRecords: LiveRecord[];
+  foundRecordIds: Set<string>;
+  liveSearches: number;
+  liveFetches: number;
   /** The road and locality at the pin, from the geocoder (records name roads, not coordinates). */
   place?: { road?: string; locality?: string; district?: string; label: string; provider: string };
   summary?: string;
@@ -54,6 +60,10 @@ export function createRunContext(caseData: Case, corpus: Corpus, emit: (e: Agent
     missing: [],
     proposedActions: [],
     pagesRead: new Set(),
+    liveRecords: [],
+    foundRecordIds: new Set(),
+    liveSearches: 0,
+    liveFetches: 0,
     finished: false,
     emit,
     trace(step) {

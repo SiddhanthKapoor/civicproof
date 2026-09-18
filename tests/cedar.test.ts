@@ -68,6 +68,14 @@ describe("agent-tools.cedar", () => {
     expect(check("shell", { cmd: "rm -rf /" })).toBe("deny");
     expect(check("set_case_status", { status: "submitted" })).toBe("deny");
   });
+  it("lets the agent fetch only public records its own search returned, within a budget", () => {
+    const found = { found_record_ids: ["kppp-tender-1"], live_fetches: 0, live_searches: 0 };
+    expect(check("search_public_records", { query: "Mullur road" }, found)).toBe("allow");
+    expect(check("search_public_records", { query: "Mullur road" }, { ...found, live_searches: 6 })).toBe("deny");
+    expect(check("fetch_public_record", { record_id: "kppp-tender-1" }, found)).toBe("allow");
+    expect(check("fetch_public_record", { record_id: "kppp-tender-999" }, found)).toBe("deny");
+    expect(check("fetch_public_record", { record_id: "kppp-tender-1" }, { ...found, live_fetches: 6 })).toBe("deny");
+  });
   it("enforces per-run budgets", () => {
     expect(check("read_document_page", { doc_id: "d", page: 1 }, { call_count: 25 })).toBe("deny");
   });

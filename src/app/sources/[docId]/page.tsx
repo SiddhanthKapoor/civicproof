@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCorpus } from "@/lib/corpus";
+import { corpusWithRecords } from "@/lib/records";
 import { locateExcerpt } from "@/lib/locate";
 import { buttonClass, Container, ExternalIcon, formatDate } from "@/components/ui";
 import { cn } from "@/lib/utils";
@@ -9,14 +9,15 @@ import { ScrollToHit } from "@/components/scroll-to-hit";
 
 export async function generateMetadata(props: PageProps<"/sources/[docId]">): Promise<Metadata> {
   const { docId } = await props.params;
-  const d = getCorpus().getDocument(docId);
+  const d = (await corpusWithRecords([docId])).getDocument(docId);
   return { title: d ? d.title : "Document not found" };
 }
 
 export default async function DocumentPage(props: PageProps<"/sources/[docId]">) {
   const { docId } = await props.params;
   const sp = await props.searchParams;
-  const corpus = getCorpus();
+  // Curated records, or a record the investigator fetched live and archived.
+  const corpus = await corpusWithRecords([docId]);
   const doc = corpus.getDocument(docId);
   if (!doc) notFound();
   const pages = corpus.pageCount(docId);
@@ -72,7 +73,7 @@ export default async function DocumentPage(props: PageProps<"/sources/[docId]">)
             )}
           </article>
           <p className="mt-3 text-[12.5px] text-ink-3">
-            Text as extracted by CivicProof&apos;s ingest step. Structured records (portal API responses) are shown as field: value lines.
+            Text as extracted by CivicProof (at ingest, or when the investigator fetched the record). Structured records (portal API responses) are shown as field: value lines.
           </p>
         </div>
 
@@ -83,7 +84,7 @@ export default async function DocumentPage(props: PageProps<"/sources/[docId]">)
               <dd className="text-ink">{formatDate(doc.retrievedAt)}</dd>
             </div>
             <div>
-              <dt className="text-ink-3">SHA-256 of the stored file</dt>
+              <dt className="text-ink-3">{doc.notes?.startsWith("Fetched by the investigator") ? "SHA-256 of the portal's response" : "SHA-256 of the stored file"}</dt>
               <dd className="break-all font-mono text-[11.5px] text-ink">{doc.sha256}</dd>
             </div>
             {doc.url && (
@@ -113,12 +114,14 @@ export default async function DocumentPage(props: PageProps<"/sources/[docId]">)
             <div className="rounded-2xl border border-rule bg-card p-4 shadow-card">
               <p className="text-[13px] text-ink-3">Projects using this record</p>
               <ul className="mt-2 space-y-1.5">
-                {projects.map((p) => (
+                {projects.slice(0, 12).map((p) => (
                   <li key={p.id}>
                     <Link href={`/projects/${p.id}`} className="text-[13.5px] leading-snug text-ink hover:text-accent">{p.name}</Link>
                   </li>
                 ))}
               </ul>
+              {projects.length > 12 && <p className="mt-2 text-[12.5px] text-ink-3">and {projects.length - 12} more</p>}
+
             </div>
           )}
           {pages > 1 && (

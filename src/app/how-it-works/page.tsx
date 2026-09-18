@@ -21,7 +21,8 @@ const LOOP = [
 ];
 
 const LIMITS = [
-  "The corpus is small and hand-assembled: 8 Bengaluru road projects from 9 public documents. A location with no project in the corpus gets an honest “not found” and an RTI draft, not a guess.",
+  "City coverage is thin: two city road packages have records (BBMP white-topping and Smart City Tender SURE). Every other project is a rural PMGSY road in Bengaluru Urban, Bengaluru Rural, Ramanagara, Chikkaballapura, Kolar or Tumakuru. Most have no published map line and are found by name. A location nothing matches gets an honest “not found” and an RTI draft, not a guess.",
+  "Live search covers the government's PMGSY portal (OMMAS). The state procurement portal's tender search sits behind a captcha and is not used; BBMP's works-bill public view was not answering when this was built.",
   "City road alignments are traced from OpenStreetMap by road name, and whole roads are drawn where the tender covers only a reach. Distances for those projects are approximate.",
   "PMGSY maintenance windows are computed from the physical completion date and the programme guideline's 5-year rule. The individual contract was not available to confirm its terms.",
   "Contract agreements, completion certificates and measurement books are rarely published. Where they are missing, CivicProof asks for them rather than inferring them.",

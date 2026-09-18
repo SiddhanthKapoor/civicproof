@@ -65,6 +65,8 @@ export const config = {
   nominatimContact: env("NOMINATIM_CONTACT") ?? "civicproof-hackathon",
   /** "amazon-location" (Amazon Location Service Places API, on AWS), "nominatim" (local) or "none" (tests). */
   geocoder: (env("CIVICPROOF_GEOCODER") ?? "nominatim") as "amazon-location" | "nominatim" | "none",
+  /** Test-only: point the OMMAS client at a local stand-in. */
+  ommasBaseUrl: env("OMMAS_BASE_URL"),
   /** Test-only: point the Amazon Location client at a local stand-in. */
   locationEndpoint: env("LOCATION_ENDPOINT"),
 } as const;

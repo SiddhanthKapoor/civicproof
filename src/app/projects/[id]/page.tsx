@@ -34,7 +34,7 @@ export default async function ProjectPage(props: PageProps<"/projects/[id]">) {
     evidence.push(...r.evidence);
   }
   const cases = (await getStore().list(500)).filter((c) => c.projectId === id);
-  const length = geometryLengthM(project.geometry!);
+  const length = project.geometry ? geometryLengthM(project.geometry) : undefined;
 
   return (
     <div className="pb-12">
@@ -50,7 +50,12 @@ export default async function ProjectPage(props: PageProps<"/projects/[id]">) {
           {project.summary && <p className="mt-3 max-w-3xl text-[16px] text-ink-2">{project.summary}</p>}
           <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-[13.5px]">
             <div><dt className="text-ink-3">Location</dt><dd className="text-ink">{project.locality ?? project.city}</dd></div>
-            <div><dt className="text-ink-3">Alignment drawn</dt><dd className="text-ink">{formatDistance(length)} · {project.geometrySource.kind === "official" ? "official GIS" : "approximate (OpenStreetMap)"}</dd></div>
+            <div>
+              <dt className="text-ink-3">Alignment drawn</dt>
+              <dd className="text-ink">
+                {length === undefined ? "none published: found by name" : `${formatDistance(length)} · ${project.geometrySource.kind === "official" ? "official GIS" : "approximate (OpenStreetMap)"}`}
+              </dd>
+            </div>
             <div><dt className="text-ink-3">Documents</dt><dd className="text-ink">{project.documents.length}</dd></div>
             <div><dt className="text-ink-3">Verified facts</dt><dd className="text-verified">{claims.filter((c) => c.verification === "verified").length} of {claims.length}</dd></div>
           </dl>
@@ -63,8 +68,12 @@ export default async function ProjectPage(props: PageProps<"/projects/[id]">) {
         </div>
         <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
           <div className="overflow-hidden rounded-2xl border border-rule bg-card shadow-card">
-            <ProjectMap project={{ id: project.id, name: project.name, geometry: project.geometry!, approx: project.geometrySource.kind !== "official" }} cases={cases.map((c) => ({ id: c.id, lat: c.lat, lng: c.lng, status: c.status }))} />
-            <p className="border-t border-rule px-4 py-3 text-[12.5px] text-ink-3">{project.geometrySource.note}</p>
+            {project.geometry ? (
+              <ProjectMap project={{ id: project.id, name: project.name, geometry: project.geometry, approx: project.geometrySource.kind !== "official" }} cases={cases.map((c) => ({ id: c.id, lat: c.lat, lng: c.lng, status: c.status }))} />
+            ) : (
+              <p className="px-4 pt-4 text-[13px] font-medium text-ink">No map geometry</p>
+            )}
+            <p className={project.geometry ? "border-t border-rule px-4 py-3 text-[12.5px] text-ink-3" : "px-4 pb-4 pt-1 text-[12.5px] text-ink-3"}>{project.geometrySource.note}</p>
           </div>
 
           {authority && (

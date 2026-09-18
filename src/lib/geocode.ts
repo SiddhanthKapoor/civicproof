@@ -16,7 +16,9 @@ export interface Place {
   lat: number;
   lng: number;
   road?: string;
+  /** Neighbourhood or suburb. */
   locality?: string;
+  /** Revenue district, e.g. "Bengaluru Urban" (how state records are organised). */
   district?: string;
   provider: "amazon-location" | "nominatim";
 }
@@ -57,7 +59,7 @@ function fromAmazon(title: string | undefined, a: Address | undefined, position:
     lng: position[0],
     road,
     locality,
-    district: a?.District,
+    district: a?.SubRegion?.Name,
     provider: "amazon-location",
   };
 }
@@ -90,7 +92,7 @@ function fromNominatim(p: NominatimPlace): Place {
     lng: Number(p.lon),
     road: a.road,
     locality,
-    district: a.city_district,
+    district: a.state_district ?? a.county,
     provider: "nominatim",
   };
 }

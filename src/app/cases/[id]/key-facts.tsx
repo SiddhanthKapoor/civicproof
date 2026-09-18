@@ -1,8 +1,9 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
-import type { PublicCase, Verification } from "@/lib/schemas";
-import { formatDistance } from "@/lib/geo";
+import { matchPlacement, type PublicCase, type Verification } from "@/lib/schemas";
+
+const upperFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 import { cn } from "@/lib/utils";
 
 interface Tile {
@@ -41,7 +42,7 @@ export function KeyFacts({ caseData }: { caseData: PublicCase }) {
 
   const tiles: Tile[] = [
     match
-      ? { label: "Project", value: match.projectName.length > 48 ? match.projectName.slice(0, 46) + "…" : match.projectName, note: `${match.distanceM < 15 ? "On the alignment" : formatDistance(match.distanceM) + " away"}${ambiguous ? " · another project equally close" : ""}`, tone: ambiguous ? "partial" : "accent" }
+      ? { label: "Project", value: match.projectName.length > 48 ? match.projectName.slice(0, 46) + "…" : match.projectName, note: `${upperFirst(matchPlacement(match))}${ambiguous ? " · another project equally close" : ""}`, tone: ambiguous ? "partial" : "accent" }
       : { label: "Project", value: "Not identified", note: "No project in the corpus at this spot", tone: "missing" },
     contractor
       ? { label: "Contractor", value: contractor.value ?? contractor.text, note: contractor.verification === "verified" ? "Verified in the official record" : "Not confirmed verbatim", tone: toneFor(contractor.verification) }

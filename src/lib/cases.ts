@@ -6,7 +6,8 @@ import "server-only";
 import { z } from "zod";
 import { getStore } from "@/lib/store";
 import { getBlobs } from "@/lib/blob";
-import { getCorpus } from "@/lib/corpus";
+import { getCorpus, type Corpus } from "@/lib/corpus";
+import { corpusWithRecords } from "@/lib/records";
 import { authorize } from "@/lib/authz";
 import { newCaseId, newId, newOwnerKey, ownerKeyMatches, sha256Hex } from "@/lib/ids";
 import { log } from "@/lib/log";
@@ -253,8 +254,9 @@ export function appealUnavailable(c: Case, today = new Date().toISOString().slic
  * Builds a packet from the case. `forOwner` fills in the reporter's name and contact; drafts
  * anyone else sees carry placeholders instead.
  */
-export function draftPacket(c: Case, kind: PacketKind, opts: { forOwner?: boolean } = {}): Packet {
-  const corpus = getCorpus();
+export function draftPacket(c: Case, kind: PacketKind, opts: { forOwner?: boolean; corpus?: Corpus } = {}): Packet {
+  // Pass `corpus` from casesCorpus(c) when the investigation linked a record fetched at run time.
+  const corpus = opts.corpus ?? getCorpus();
   const project = c.investigation?.selectedProjectId ? corpus.getProject(c.investigation.selectedProjectId) : undefined;
   const authority = corpus.getAuthority(project?.agencyId);
   const reporter = opts.forOwner ? { name: c.reporterName, contact: c.reporterContact } : undefined;
@@ -268,6 +270,11 @@ export function draftPacket(c: Case, kind: PacketKind, opts: { forOwner?: boolea
   return kind === "rti" ? buildRti(c, project, authority, now, reporter) : buildComplaint(c, project, authority, now, reporter);
 }
 
+/** The shared corpus plus the public records this case's investigation fetched live. */
+export function casesCorpus(c: Case): Promise<Corpus> {
+  return corpusWithRecords(c.investigation?.records ?? []);
+}
+
 /** The reporter's packets: what they saved, or fresh drafts with their details filled in. Owner only. */
 export async function ownerPackets(caseId: string, ownerKey: string | null): Promise<{ packets: Partial<Record<PacketKind, Packet>>; saved: PacketKind[] }> {
   const c = await getStore().get(caseId);
@@ -276,9 +283,10 @@ export async function ownerPackets(caseId: string, ownerKey: string | null): Pro
   const d = authorize(isOwner ? { type: "Reporter", id: caseId } : { type: "Public", id: "anonymous" }, "ViewPrivateDetails", caseId, { is_owner: isOwner });
   if (!d.allowed) throw new ForbiddenError(d.policies, "Only the person who filed this report can see their saved packets.");
   const packets: Partial<Record<PacketKind, Packet>> = {};
+  const corpus = await casesCorpus(c);
   for (const kind of PACKET_KINDS) {
     if (kind === "appeal" && appealUnavailable(c)) continue;
-    packets[kind] = c.packets[kind] ?? draftPacket(c, kind, { forOwner: true });
+    packets[kind] = c.packets[kind] ?? draftPacket(c, kind, { forOwner: true, corpus });
   }
   return { packets, saved: PACKET_KINDS.filter((k) => c.packets[k]) };
 }
@@ -311,7 +319,7 @@ export async function savePacket(
   const isOwner = ownerKeyMatches(ownerKey, current.ownerKeyHash);
 
   if (!edit && !isOwner && !opts.system) {
-    return { caseData: current, packet: draftPacket(current, kind), persisted: false };
+    return { caseData: current, packet: draftPacket(current, kind, { corpus: await casesCorpus(current) }), persisted: false };
   }
   if (kind === "appeal") {
     const reason = appealUnavailable(current);
@@ -323,10 +331,11 @@ export async function savePacket(
     if (!d.allowed) throw new ForbiddenError(d.policies, "Only the reporter can save edits. You can still copy or download your edited version.");
   }
 
+  const corpus = await casesCorpus(current);
   const at = new Date().toISOString();
   let saved: Packet | undefined;
   const caseData = await store.update(caseId, (c) => {
-    const base = draftPacket(c, kind, { forOwner: isOwner });
+    const base = draftPacket(c, kind, { forOwner: isOwner, corpus });
     const packet: Packet = edit ? { ...base, addressedTo: edit.addressedTo, subject: edit.subject, sections: edit.sections, editedAt: at } : base;
     saved = packet;
     const moveToPrepared =

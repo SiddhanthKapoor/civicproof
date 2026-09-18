@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getStore } from "@/lib/store";
-import { appealUnavailable, draftPacket } from "@/lib/cases";
+import { appealUnavailable, casesCorpus, draftPacket } from "@/lib/cases";
 import { PacketEditor } from "./packet-editor";
 
 export const dynamic = "force-dynamic";
@@ -20,10 +20,11 @@ export default async function PacketPage(props: PageProps<"/cases/[id]/packet">)
   // Public drafts, built fresh from the case. The reporter's saved packets are private and are
   // loaded in the browser with the owner key.
   const appealNote = appealUnavailable(c);
+  const corpus = await casesCorpus(c);
   const packets = {
-    complaint: draftPacket(c, "complaint"),
-    rti: draftPacket(c, "rti"),
-    ...(appealNote ? {} : { appeal: draftPacket(c, "appeal") }),
+    complaint: draftPacket(c, "complaint", { corpus }),
+    rti: draftPacket(c, "rti", { corpus }),
+    ...(appealNote ? {} : { appeal: draftPacket(c, "appeal", { corpus }) }),
   };
   return (
     <PacketEditor

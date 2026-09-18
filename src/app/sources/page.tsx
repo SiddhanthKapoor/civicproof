@@ -18,6 +18,9 @@ export default function SourcesPage() {
   const corpus = getCorpus();
   const citedBy = new Map<string, string[]>();
   for (const p of corpus.projects) for (const d of p.documents) citedBy.set(d, [...(citedBy.get(d) ?? []), p.id]);
+  const byArea = new Map<string, typeof corpus.projects>();
+  for (const p of corpus.projects) byArea.set(p.city, [...(byArea.get(p.city) ?? []), p]);
+  const mapped = corpus.projects.filter((p) => p.geometry).length;
 
   return (
     <Container className="pb-10 pt-10 sm:pt-12">
@@ -64,13 +67,25 @@ export default function SourcesPage() {
       <div className="mt-10 grid gap-6 md:grid-cols-2">
         <div className="rounded-2xl border border-rule p-5">
           <p className="text-[14px] font-medium">Projects in the corpus</p>
-          <ul className="mt-3 space-y-2">
-            {corpus.projects.map((p) => (
-              <li key={p.id}>
-                <Link href={`/projects/${p.id}`} className="text-[14px] leading-snug text-ink-2 hover:text-accent">{p.name}</Link>
-              </li>
+          <p className="mt-1 text-[13px] text-ink-3">
+            {corpus.projects.length} works; {mapped} have a published alignment and are matched by location, the rest by name.
+          </p>
+          <div className="mt-3 space-y-1">
+            {[...byArea].map(([area, list]) => (
+              <details key={area} className="group rounded-lg border border-rule px-3 py-2">
+                <summary className="cursor-pointer text-[14px] text-ink marker:text-ink-3">
+                  {area} <span className="text-ink-3">· {list.length}</span>
+                </summary>
+                <ul tabIndex={0} aria-label={`Projects in ${area}`} className="mt-2 max-h-72 space-y-1.5 overflow-y-auto pr-1">
+                  {list.map((p) => (
+                    <li key={p.id}>
+                      <Link href={`/projects/${p.id}`} className="text-[13px] leading-snug text-ink-2 hover:text-accent">{p.name}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </details>
             ))}
-          </ul>
+          </div>
         </div>
         <div className="rounded-2xl border border-rule p-5 text-[14px] leading-relaxed text-ink-2">
           <p className="font-medium text-ink">Use and licences</p>

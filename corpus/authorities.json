@@ -58,5 +58,110 @@
    "requestWordLimit": 150,
    "requestRule": "Karnataka Right to Information Rules, 2005, rule 14 (inserted in 2008): a request shall relate to one subject matter and shall not ordinarily exceed 150 words."
   }
+ },
+ {
+  "id": "pmgsy-dpiu-bengaluru-rural",
+  "name": "District Programme Implementation Unit (PMGSY), Bengaluru Rural",
+  "shortName": "PMGSY DPIU Bengaluru Rural",
+  "jurisdiction": "PMGSY rural roads in Bengaluru Rural district (recorded in OMMAS as “DPIU Of Bangalore r”)",
+  "officer": "The Executive Engineer, District Programme Implementation Unit (PMGSY), Bengaluru Rural",
+  "grievance": {
+   "name": "CPGRAMS (Department of Rural Development)",
+   "url": "https://pgportal.gov.in",
+   "note": "PMGSY is a centrally sponsored scheme of the Ministry of Rural Development; CPGRAMS accepts grievances and forwards state matters to the state government."
+  },
+  "rti": {
+   "addressee": "The Public Information Officer, District Programme Implementation Unit (PMGSY), Bengaluru Rural",
+   "portalUrl": "https://rtionline.karnataka.gov.in",
+   "fee": "The Karnataka RTI Rules prescribe a ₹10 application fee; applicants below the poverty line are exempt.",
+   "note": "The DPIU works under the state's rural roads agency, so the Karnataka RTI Online portal applies.",
+   "sourceUrl": "https://rtionline.karnataka.gov.in/index.php?lan=E",
+   "requestWordLimit": 150,
+   "requestRule": "Karnataka Right to Information Rules, 2005, rule 14 (inserted in 2008): a request shall relate to one subject matter and shall not ordinarily exceed 150 words."
+  }
+ },
+ {
+  "id": "pmgsy-dpiu-ramanagara",
+  "name": "District Programme Implementation Unit (PMGSY), Ramanagara (Bengaluru South)",
+  "shortName": "PMGSY DPIU Ramanagara (Bengaluru South)",
+  "jurisdiction": "PMGSY rural roads in Ramanagara (Bengaluru South) district (recorded in OMMAS as “DPIU Of Ramanagaram”)",
+  "officer": "The Executive Engineer, District Programme Implementation Unit (PMGSY), Ramanagara (Bengaluru South)",
+  "grievance": {
+   "name": "CPGRAMS (Department of Rural Development)",
+   "url": "https://pgportal.gov.in",
+   "note": "PMGSY is a centrally sponsored scheme of the Ministry of Rural Development; CPGRAMS accepts grievances and forwards state matters to the state government."
+  },
+  "rti": {
+   "addressee": "The Public Information Officer, District Programme Implementation Unit (PMGSY), Ramanagara (Bengaluru South)",
+   "portalUrl": "https://rtionline.karnataka.gov.in",
+   "fee": "The Karnataka RTI Rules prescribe a ₹10 application fee; applicants below the poverty line are exempt.",
+   "note": "The DPIU works under the state's rural roads agency, so the Karnataka RTI Online portal applies.",
+   "sourceUrl": "https://rtionline.karnataka.gov.in/index.php?lan=E",
+   "requestWordLimit": 150,
+   "requestRule": "Karnataka Right to Information Rules, 2005, rule 14 (inserted in 2008): a request shall relate to one subject matter and shall not ordinarily exceed 150 words."
+  }
+ },
+ {
+  "id": "pmgsy-dpiu-chikkaballapura",
+  "name": "District Programme Implementation Unit (PMGSY), Chikkaballapura",
+  "shortName": "PMGSY DPIU Chikkaballapura",
+  "jurisdiction": "PMGSY rural roads in Chikkaballapura district (recorded in OMMAS as “DPIU Of Chikkaballapur”)",
+  "officer": "The Executive Engineer, District Programme Implementation Unit (PMGSY), Chikkaballapura",
+  "grievance": {
+   "name": "CPGRAMS (Department of Rural Development)",
+   "url": "https://pgportal.gov.in",
+   "note": "PMGSY is a centrally sponsored scheme of the Ministry of Rural Development; CPGRAMS accepts grievances and forwards state matters to the state government."
+  },
+  "rti": {
+   "addressee": "The Public Information Officer, District Programme Implementation Unit (PMGSY), Chikkaballapura",
+   "portalUrl": "https://rtionline.karnataka.gov.in",
+   "fee": "The Karnataka RTI Rules prescribe a ₹10 application fee; applicants below the poverty line are exempt.",
+   "note": "The DPIU works under the state's rural roads agency, so the Karnataka RTI Online portal applies.",
+   "sourceUrl": "https://rtionline.karnataka.gov.in/index.php?lan=E",
+   "requestWordLimit": 150,
+   "requestRule": "Karnataka Right to Information Rules, 2005, rule 14 (inserted in 2008): a request shall relate to one subject matter and shall not ordinarily exceed 150 words."
+  }
+ },
+ {
+  "id": "pmgsy-dpiu-kolar",
+  "name": "District Programme Implementation Unit (PMGSY), Kolar",
+  "shortName": "PMGSY DPIU Kolar",
+  "jurisdiction": "PMGSY rural roads in Kolar district (recorded in OMMAS as “DPIU Of Kolar”)",
+  "officer": "The Executive Engineer, District Programme Implementation Unit (PMGSY), Kolar",
+  "grievance": {
+   "name": "CPGRAMS (Department of Rural Development)",
+   "url": "https://pgportal.gov.in",
+   "note": "PMGSY is a centrally sponsored scheme of the Ministry of Rural Development; CPGRAMS accepts grievances and forwards state matters to the state government."
+  },
+  "rti": {
+   "addressee": "The Public Information Officer, District Programme Implementation Unit (PMGSY), Kolar",
+   "portalUrl": "https://rtionline.karnataka.gov.in",
+   "fee": "The Karnataka RTI Rules prescribe a ₹10 application fee; applicants below the poverty line are exempt.",
+   "note": "The DPIU works under the state's rural roads agency, so the Karnataka RTI Online portal applies.",
+   "sourceUrl": "https://rtionline.karnataka.gov.in/index.php?lan=E",
+   "requestWordLimit": 150,
+   "requestRule": "Karnataka Right to Information Rules, 2005, rule 14 (inserted in 2008): a request shall relate to one subject matter and shall not ordinarily exceed 150 words."
+  }
+ },
+ {
+  "id": "pmgsy-dpiu-tumakuru",
+  "name": "District Programme Implementation Unit (PMGSY), Tumakuru",
+  "shortName": "PMGSY DPIU Tumakuru",
+  "jurisdiction": "PMGSY rural roads in Tumakuru district (recorded in OMMAS as “DPIU Of Tumkur”)",
+  "officer": "The Executive Engineer, District Programme Implementation Unit (PMGSY), Tumakuru",
+  "grievance": {
+   "name": "CPGRAMS (Department of Rural Development)",
+   "url": "https://pgportal.gov.in",
+   "note": "PMGSY is a centrally sponsored scheme of the Ministry of Rural Development; CPGRAMS accepts grievances and forwards state matters to the state government."
+  },
+  "rti": {
+   "addressee": "The Public Information Officer, District Programme Implementation Unit (PMGSY), Tumakuru",
+   "portalUrl": "https://rtionline.karnataka.gov.in",
+   "fee": "The Karnataka RTI Rules prescribe a ₹10 application fee; applicants below the poverty line are exempt.",
+   "note": "The DPIU works under the state's rural roads agency, so the Karnataka RTI Online portal applies.",
+   "sourceUrl": "https://rtionline.karnataka.gov.in/index.php?lan=E",
+   "requestWordLimit": 150,
+   "requestRule": "Karnataka Right to Information Rules, 2005, rule 14 (inserted in 2008): a request shall relate to one subject matter and shall not ordinarily exceed 150 words."
+  }
  }
 ]

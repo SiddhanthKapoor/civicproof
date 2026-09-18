@@ -2,7 +2,7 @@ import { z } from "zod";
 import { PacketKindSchema } from "@/lib/schemas";
 import { getStore } from "@/lib/store";
 import { getBlobs } from "@/lib/blob";
-import { draftPacket, ForbiddenError, PacketEditSchema } from "@/lib/cases";
+import { casesCorpus, draftPacket, ForbiddenError, PacketEditSchema } from "@/lib/cases";
 import { renderPacketPdf } from "@/lib/pdf";
 import { ownerKeyMatches, sha256Hex } from "@/lib/ids";
 import { clientIp, handle, ownerKeyFrom, problem, rateLimited } from "@/lib/http";
@@ -28,7 +28,8 @@ export const POST = handle("cases.packet.pdf", async (req: Request, ctx: RouteCo
   const isOwner = ownerKeyMatches(ownerKeyFrom(req), c.ownerKeyHash);
   let base: Packet;
   try {
-    base = isOwner ? (c.packets[body.kind] ?? draftPacket(c, body.kind, { forOwner: true })) : draftPacket(c, body.kind);
+    const corpus = await casesCorpus(c);
+    base = isOwner ? (c.packets[body.kind] ?? draftPacket(c, body.kind, { forOwner: true, corpus })) : draftPacket(c, body.kind, { corpus });
   } catch (e) {
     if (e instanceof ForbiddenError) return problem(409, e.message);
     throw e;

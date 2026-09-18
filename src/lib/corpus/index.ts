@@ -65,7 +65,8 @@ export function loadCorpus(root = path.join(process.cwd(), "corpus")): Corpus {
   const projects = ProjectSchema.array()
     .parse(readJson(path.join(root, "projects.json")))
     .map((p) => ({ ...p, geometry: p.geometry ?? geomById.get(p.id) }));
-  const missingGeometry = projects.filter((p) => !p.geometry).map((p) => p.id);
+  // A project may lack geometry only if its record says so (found by name, not by location).
+  const missingGeometry = projects.filter((p) => !p.geometry && p.geometrySource.kind !== "none").map((p) => p.id);
   if (missingGeometry.length) throw new Error(`Projects without geometry: ${missingGeometry.join(", ")}`);
   const authorities = AuthoritySchema.array().parse(readJson(path.join(root, "authorities.json")));
   const pagesFile = PagesFileSchema.parse(readJson(path.join(root, "generated", "pages.json")));
@@ -117,6 +118,7 @@ export function loadCorpus(root = path.join(process.cwd(), "corpus")): Corpus {
     },
     projectsNear(p, radiusM) {
       return projects
+        .filter((project) => project.geometry)
         .map((project) => ({ project, distanceM: distanceToGeometry(p, project.geometry!) }))
         .filter((x) => x.distanceM <= radiusM)
         .sort((a, b) => a.distanceM - b.distanceM);

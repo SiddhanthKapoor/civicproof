@@ -22,6 +22,7 @@ Full hashes are in `corpus/manifest.json`; `npm run ingest` refuses to build if 
 
 | Project | Records | Geometry |
 |---|---|---|
+| 771 PMGSY roads in Bengaluru Rural, Ramanagara, Chikkaballapura, Kolar and Tumakuru (PMGSY-I 582, II 58, III 131), imported by `scripts/import-ommas.mts` | OMMAS road-list CSV exports (per district and scheme) rendered row by row with the report's own column labels; OMMAS quality grades (Bengaluru Rural); PMGSY Guidelines para 17.2. 7,537 reference facts generated from the rows, each kept only if the app's verifier accepts it | PMGSY-III: GeoSadak PRCD 2022 proposals, matched to OMMAS by district, block, year and road name (122 of 131; 121 high confidence, 1 medium). PMGSY-I/II: no official geometry published, so these are found by name |
 | Six PMGSY-III roads in Bengaluru Urban (KN03-62, -63, -65, -67, -69, -70) | OMMAS road list (package, sanction cost, contractor, completion dates, stage), OMMAS quality grades, PMGSY Guidelines para 17.2 (5-year maintenance with the same contractor) | GeoSadak PRCD 2022 lines, matched by package number and road name (official) |
 | BBMP White Topping, GoK Grants 2023-24, Package 2 (MG Road, Residency Road and four others) | KPPP tender document (scope, 5-year defect liability, roads), KPPP award record (selected bidder, negotiated value), KPPP tender record (department, award date) | OpenStreetMap traces by road name (approximate) |
 | Bengaluru Smart City Tender SURE Phase A, Package 7 (RRM Road, Lavelle Road, Brigade Road) | BSCL status presentation (agency, cost, work order date, status), CAG Report 11/2025 (audit finding on smart roads) | OpenStreetMap traces by road name (approximate) |
@@ -30,13 +31,19 @@ Each project carries curated reference fields (85 in total), each with a verbati
 
 ## How each source was obtained
 
-- **OMMAS** (pmgsy.dord.gov.in): citizen reports rendered by the report viewer and exported as PDF (Karnataka › Bangalore U › PMGSY-III). `omms.nic.in` no longer resolves.
+- **OMMAS** (pmgsy.dord.gov.in): citizen reports rendered by the report viewer and exported as PDF (Karnataka › Bangalore U › PMGSY-III) or CSV (the five surrounding districts, PMGSY-I to III, retrieved 19 Sep 2026). `omms.nic.in` no longer resolves.
+- **OMMAS, live**: the investigator's `search_public_records` drives the same report viewer at run time (layout page for the anti-forgery token, report request, viewer, CSV export) for the report's district, and `fetch_public_record` archives one road's row with the SHA-256 of the whole export (`src/lib/records/sources/ommas.ts`). No login or captcha.
+- **GeoSadak proposals** (github.com/datameet/pmgsy-geosadak, GODL-India): PMGSY-III road lines for Karnataka; the join to OMMAS is by district and block codes (shared with OMMAS), sanction year and road name.
 - **KPPP** (kppp.karnataka.gov.in): the portal's public JSON API (`works-tender-full-view`, `get-selected-bid-for-lumpsum`, `works-tender-file/…/download-file`). JSON responses are rendered deterministically into `field: value` lines at ingest; epoch timestamps and E-notation amounts are annotated with readable values.
 - **BSCL presentation**: BSCL's own site did not resolve; the copy is from OpenCity.in's data portal and is labelled as such.
 - **CAG**: Report No. 11 of 2025 PDF from the CAG Karnataka audit-report page.
 - **data.gov.in**: used only as a cross-check (Bangalore U: 12 roads, 108.44 km, matches OMMAS).
 
 ## Checked but not used
+
+- **KPPP tender search**: the portal shows a captcha before its search form. The captcha is checked only in the browser, so calling the search API directly would bypass it; CivicProof does not. Fetching a known tender by its ID needs no captcha and is how the bundled KPPP records were obtained.
+- **BBMP Works Bill Public View** (accounts.bbmp.gov.in/PublicView): official and captcha-free, searchable by work, ward or contractor, but every data call returned HTTP 500 on 19 Sep 2026.
+- **OpenCity BBMP work orders and road history**: useful city data (contracts, amounts, defect-liability dates), but secondary, and the files include contractors' and engineers' phone numbers; not added yet.
 
 - eMARG "Know Your Road" and CPPP results of tenders: behind captchas (not bypassed).
 - bbmp.gov.in, site.bbmp.gov.in, smartcitybengaluru.in, pmgsy.nic.in: unreachable on 18 Sep 2026.

@@ -39,14 +39,14 @@ function* plan(ctx: RunContext): Generator<Step> {
 
   const top = ctx.matches[0];
   const runnerUp = ctx.matches[1];
-  const ambiguous = runnerUp && top.score - runnerUp.score < 0.05 && Math.abs(top.distanceM - runnerUp.distanceM) < 30;
+  const ambiguous = runnerUp && top.score - runnerUp.score < 0.05 && Math.abs((top.distanceM ?? 0) - (runnerUp.distanceM ?? 0)) < 30;
   yield { tool: "select_project", input: { project_id: top.projectId, reasons: top.reasons } };
   if (ambiguous) {
     yield {
       tool: "flag_missing",
       input: {
         field: "location_match",
-        reason: `Two projects are equally close: ${top.projectName} (${formatDistance(top.distanceM)}) and ${runnerUp.projectName} (${formatDistance(runnerUp.distanceM)}). Which contract covers this exact spot is not established.`,
+        reason: `Two projects are equally close: ${top.projectName} (${formatDistance(top.distanceM ?? 0)}) and ${runnerUp.projectName} (${formatDistance(runnerUp.distanceM ?? 0)}). Which contract covers this exact spot is not established.`,
         requestable_record: "Key map or reach details showing which contract covers this location",
       },
     };
@@ -90,9 +90,9 @@ function* plan(ctx: RunContext): Generator<Step> {
     tool: "finish",
     input: {
       summary:
-        (top.distanceM < 15
+        ((top.distanceM ?? 0) < 15
           ? `The reported location lies on the alignment of ${project.name}. `
-          : `The reported location is ${formatDistance(top.distanceM)} from ${project.name}. `) +
+          : `The reported location is ${formatDistance(top.distanceM ?? 0)} from ${project.name}. `) +
         (verified.length
           ? `${verified.length} fact${verified.length === 1 ? " was" : "s were"} confirmed verbatim in ${docs.size} official document${docs.size === 1 ? "" : "s"} (${facts.join(", ")}). `
           : "No fact could be confirmed verbatim in the available documents. ") +

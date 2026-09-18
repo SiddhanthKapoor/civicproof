@@ -29,12 +29,13 @@ function Arrow({ d, label, lx, ly }: { d: string; label?: string; lx?: number; l
 export function ArchitectureDiagram() {
   return (
     <div tabIndex={0} role="group" aria-label="Architecture diagram (scrolls sideways on small screens)" className="overflow-x-auto rounded-2xl border border-rule bg-paper-2/40 p-4">
-      <svg viewBox="0 0 1120 520" className="min-w-[860px]" role="img" aria-labelledby="arch-title arch-desc">
+      <svg viewBox="0 0 1120 590" className="min-w-[860px]" role="img" aria-labelledby="arch-title arch-desc">
         <title id="arch-title">CivicProof architecture on AWS</title>
         <desc id="arch-desc">
           The browser calls a Lambda Function URL in response-streaming mode. Inside Lambda, the Next.js app runs a Strands agent whose
-          tool calls are authorized by Cedar and whose claims are checked by a verifier against the bundled records corpus. Lambda reads and
-          writes DynamoDB and S3, calls the language model (Gemini or Amazon Bedrock), and logs to CloudWatch.
+          tool calls are authorized by Cedar and whose claims are checked by a verifier against the bundled records corpus and records it
+          fetches live from official portals, archived in S3. Lambda calls Gemini (key in Secrets Manager) with Amazon Nova on Bedrock as
+          fallback, Textract for OCR, Amazon Location for the road at a pin, reads and writes DynamoDB, and sends metrics to CloudWatch.
         </desc>
         <defs>
           <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -46,7 +47,7 @@ export function ArchitectureDiagram() {
         <Arrow d="M170 248 H232" label="HTTPS" lx={201} ly={238} />
 
         {/* Lambda */}
-        <rect x={236} y={40} width={560} height={440} rx={18} fill="none" stroke="var(--ink)" strokeWidth={1.4} />
+        <rect x={236} y={40} width={560} height={492} rx={18} fill="none" stroke="var(--ink)" strokeWidth={1.4} />
         <text x={256} y={68} fontSize={13} fontWeight={600} fill="var(--ink)" fontFamily="var(--font-sans)">AWS Lambda · Function URL (response streaming)</text>
         <text x={256} y={86} fontSize={11.5} fill="var(--ink-3)" fontFamily="var(--font-sans)">Next.js 16 standalone server via Lambda Web Adapter · deployed with AWS SAM</text>
 
@@ -55,8 +56,8 @@ export function ArchitectureDiagram() {
         <Box x={256} y={322} w={200} h={78} title="Case service" sub={"Owner key, timeline,\npackets, PDF"} />
 
         <Box x={486} y={108} w={290} h={78} title="Cedar policies" sub={"agent-tools.cedar · case-actions.cedar\ndeny by default, per-run budgets"} tone="accent" />
-        <Box x={486} y={206} w={290} h={96} title="Tools + grounding verifier" sub={"find_projects_near, read_document_page,\nrecord_claim → quote must appear verbatim\non the cited page, or the claim is unverified"} />
-        <Box x={486} y={322} w={290} h={78} title="Records corpus (bundled)" sub={"9 documents · 319 pages · SHA-256 checked\nproject alignments (GeoSadak, OSM)"} />
+        <Box x={486} y={206} w={290} h={96} title="Tools + grounding verifier" sub={"find_projects_near, search/fetch_public_record,\nrecord_claim → quote must appear verbatim\non the cited page, or the claim is unverified"} />
+        <Box x={486} y={322} w={290} h={96} title="Records" sub={"bundled corpus: SHA-256 checked, project\nalignments (GeoSadak, OSM); plus records\nfetched live, archived with URL and hash"} />
 
         <Arrow d="M356 186 V206" />
         <Arrow d="M456 240 H486" />
@@ -64,21 +65,25 @@ export function ArchitectureDiagram() {
         <Arrow d="M631 302 V322" />
         <Arrow d="M356 302 V322" />
 
-        {/* AWS services */}
-        <Box x={860} y={40} w={240} h={72} title="Language model" sub={"Gemini or Amazon Bedrock\ntool use + vision"} tone="accent" />
-        <Box x={860} y={126} w={240} h={72} title="Amazon Textract" sub={"OCR for scanned uploads\n(RTI replies, letters)"} />
-        <Box x={860} y={212} w={240} h={72} title="Amazon DynamoDB" sub={"cases (optimistic locking)\ndaily run counters (TTL)"} />
-        <Box x={860} y={298} w={240} h={72} title="Amazon S3" sub={"photos, private documents, PDFs\nSSE, no public access"} />
-        <Box x={860} y={384} w={240} h={72} title="Amazon CloudWatch" sub={"structured logs, alarm,\nmetric filters"} />
+        {/* Services the app calls */}
+        <Box x={860} y={40} w={240} h={60} title="Gemini · Amazon Nova" sub={"Gemini runs the agent; Nova on\nBedrock takes over if it fails"} tone="accent" />
+        <Box x={860} y={112} w={240} h={60} title="Official portals (live)" sub={"KPPP tenders, OMMAS lists:\nsearched and fetched by the agent"} />
+        <Box x={860} y={184} w={240} h={60} title="Amazon S3" sub={"photos, PDFs, archive of\nfetched records"} />
+        <Box x={860} y={256} w={240} h={60} title="Amazon Textract" sub={"OCR for scanned uploads\n(RTI replies, letters)"} />
+        <Box x={860} y={328} w={240} h={60} title="Location · Secrets Manager" sub={"road name at the pin;\nthe Gemini key"} />
+        <Box x={860} y={400} w={240} h={60} title="Amazon DynamoDB" sub={"cases (optimistic locking)\ndaily run counters (TTL)"} />
+        <Box x={860} y={472} w={240} h={60} title="Amazon CloudWatch" sub={"logs, per-run metrics (EMF),\ndashboard, alarm"} />
 
-        <Arrow d="M796 76 H860" label="Converse" lx={828} ly={68} />
-        <Arrow d="M796 162 H860" />
-        <Arrow d="M796 248 H860" />
-        <Arrow d="M796 334 H860" />
-        <Arrow d="M796 420 H860" />
+        <Arrow d="M796 70 H860" label="tool use" lx={828} ly={62} />
+        <Arrow d="M796 142 H860" />
+        <Arrow d="M796 214 H860" />
+        <Arrow d="M796 286 H860" />
+        <Arrow d="M796 358 H860" />
+        <Arrow d="M796 430 H860" />
+        <Arrow d="M796 502 H860" />
 
-        <text x={20} y={500} fontSize={11} fill="var(--ink-3)" fontFamily="var(--font-sans)">
-          Outside AWS: OpenFreeMap vector tiles and OpenStreetMap Nominatim (address search), both keyless and rate-limited server-side.
+        <text x={20} y={568} fontSize={11} fill="var(--ink-3)" fontFamily="var(--font-sans)">
+          Outside AWS: the Gemini API, the official portals, and OpenFreeMap vector tiles. OpenStreetMap Nominatim replaces Amazon Location only when running locally.
         </text>
       </svg>
     </div>

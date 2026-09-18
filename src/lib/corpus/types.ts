@@ -38,7 +38,8 @@ export const ProjectSchema = z.object({
   geometry: GeometrySchema.optional(),
   /** Where the coordinates came from; official records rarely publish geometry. */
   geometrySource: z.object({
-    kind: z.enum(["official", "openstreetmap", "geocoded"]),
+    // "none": a record fetched at run time with no map location, linked by road name.
+    kind: z.enum(["official", "openstreetmap", "geocoded", "none"]),
     note: z.string(),
     url: z.string().optional(),
   }),

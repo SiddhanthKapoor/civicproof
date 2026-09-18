@@ -6,7 +6,7 @@
 **Track:** Ship It (live on AWS). Also eligible for Build It (Strands Agents + Cedar + SAM), and Best UI.
 **Live URL:** _add after `./scripts/deploy.sh`_
 **Video:** _add YouTube link_
-**Repository:** _add GitHub link_
+**Repository:** https://github.com/SiddhanthKapoor/civicproof (private; share access with the judges or make it public before submitting)
 
 ## What it does
 
@@ -18,12 +18,14 @@ Residents, resident associations, ward volunteers and local journalists who alre
 
 ## How AWS is used
 
-- **Amazon Bedrock**: supported alternative model host for the investigator (`Planner=bedrock`, Converse API with tool use and vision); this build runs Gemini by default.
-- **Strands Agents** (AWS open source): the agent loop, Bedrock provider, hooks, and its Cedar intervention.
-- **Cedar** (AWS open source): policies on every agent tool call and every change to a case. The agent cannot mark a case submitted or resolved.
+- **Amazon Bedrock (Amazon Nova)**: when Gemini runs out of quota or stays overloaded, the investigation continues on Nova mid-run, keeping the project it selected and the facts it verified; with `Planner=bedrock` Nova runs it end to end.
+- **Strands Agents** (AWS open source): the agent loop, the Gemini and Bedrock providers, retries, hooks, and its Cedar intervention.
+- **Cedar** (AWS open source): policies on every agent tool call (including which live records the agent may fetch, and how many) and every change to a case. The agent cannot mark a case submitted or resolved.
 - **AWS Lambda** with the Lambda Web Adapter and a response-streaming Function URL, so each agent step streams to the browser.
+- **Amazon S3**: photos, packet PDFs, and the archive of public records the agent fetches live, each with its URL, retrieval time and SHA-256.
+- **Amazon Location Service**: address search, and the road name at a report's pin, which is how the agent searches the procurement portal.
 - **Amazon Textract** to read scanned RTI replies so they can be quoted.
-- **Amazon DynamoDB** for cases (optimistic locking) and budget counters; **Amazon S3** for photos and packet PDFs; **Amazon CloudWatch** for structured logs, an alarm and metric filters; **AWS SAM** for least-privilege infrastructure as code.
+- **AWS Secrets Manager** for the Gemini key; **Amazon DynamoDB** for cases (optimistic locking) and budget counters; **Amazon CloudWatch** for logs, per-run metrics in Embedded Metric Format (verified share, denials, conflicts, waits), a dashboard and an alarm; **AWS SAM** for least-privilege infrastructure as code.
 
 ## What is real
 

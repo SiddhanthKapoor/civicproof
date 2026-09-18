@@ -12,6 +12,9 @@
 |---|---|---|
 | `get_case_report` | read | Title, description, category, location and how it was obtained, photo EXIF summary, AI photo description if any, and any documents the reporter added (searchable and readable with the tools below). |
 | `find_projects_near(radius_m)` | read | Distance from the pin to each project alignment (point-to-polyline), plus type-of-work and road-name matches. Cedar caps the radius at 2 km. |
+| `find_projects_by_name(query)` | read | Projects whose name, place names or block match the query, for roads with no published alignment. Gives the distance from the pin where a project has geometry, so a same-named road elsewhere is not mistaken for this one. |
+| `search_public_records(query)` | read, live | Searches the report district's OMMAS road lists (PMGSY-I to III) on the government portal. Returns leads only. Cedar: at most 6 per run. |
+| `fetch_public_record(record_id)` | read, live | Fetches one road's OMMAS row, archives it (S3 on AWS) with URL, time and SHA-256, and adds it to the run's corpus so it can be read, quoted and linked by name. Cedar: only ids a search returned, at most 6 per run. |
 | `select_project(project_id, reasons)` | proposal | Cedar only permits ids the location search returned (`context.session.candidate_ids`). |
 | `list_project_documents` · `search_documents` · `read_document_page` | read | MiniSearch full-text over all pages; pages are returned verbatim (clipped at 7,000 chars). |
 | `record_claim(field, text, value, origin, citations[])` | proposal | Runs the verifier; returns the verdict and rejection reasons so the model can correct a quote once. |

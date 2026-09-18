@@ -1,7 +1,7 @@
 /**
  * Evaluation:  npm run eval              (uses the configured planner: Gemini when GEMINI_API_KEY is set)
  *
- * For each project in the corpus, files a synthetic report on its alignment (in a throwaway local
+ * For each project in the corpus that has a map alignment, files a synthetic report on it (in a throwaway local
  * store), runs the investigator, and scores the result against the human-curated reference facts:
  *
  *   linked      did it link the report to the right project
@@ -45,6 +45,8 @@ async function main() {
 
   for (const project of corpus.projects) {
     if (only.length && !only.includes(project.id)) continue;
+    // Projects without an alignment are found by name, which a synthetic pin can't exercise.
+    if (!project.geometry) continue;
     const g = project.geometry!;
     const line = g.type === "LineString" ? g.coordinates : g.type === "MultiLineString" ? g.coordinates.reduce((a, b) => (b.length > a.length ? b : a)) : [g.coordinates];
     const [lng, lat] = line[Math.floor(line.length / 2)];

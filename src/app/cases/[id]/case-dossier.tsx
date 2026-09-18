@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import type { Claim, Evidence, MissingItem, PublicCase } from "@/lib/schemas";
-import { CATEGORY_LABELS } from "@/lib/schemas";
+import { CATEGORY_LABELS, matchPlacement } from "@/lib/schemas";
 import type { StageId } from "@/lib/agent/stages";
 import { formatDistance } from "@/lib/geo";
 import { Button, buttonClass, Container, DemoTag, ExternalIcon, formatDate, StatusPill } from "@/components/ui";
@@ -26,9 +26,10 @@ const MapView = dynamic(() => import("@/components/map-view").then((m) => m.MapV
 export interface DossierProject {
   id: string;
   name: string;
-  geometry: GeoJSON.Geometry;
+  /** Absent for a record fetched at run time and linked by road name. */
+  geometry?: GeoJSON.Geometry;
   geometryNote: string;
-  geometryKind: "official" | "openstreetmap" | "geocoded";
+  geometryKind: "official" | "openstreetmap" | "geocoded" | "none";
   locality?: string;
   authorityName?: string;
   officer?: string;
@@ -216,7 +217,10 @@ export function CaseDossier({ initial, projects, nearby = [] }: { initial: Publi
   const canRun = !live.running && (caseData.timeline.filter((e) => e.type === "investigation_started").length < 5);
 
   const mapCases = useMemo(() => [{ id: caseData.id, lat: caseData.location.lat, lng: caseData.location.lng, status: caseData.status }], [caseData.id, caseData.location.lat, caseData.location.lng, caseData.status]);
-  const mapProjects = useMemo(() => projects.map((p) => ({ id: p.id, name: p.name, geometry: p.geometry, approx: p.geometryKind !== "official" })), [projects]);
+  const mapProjects = useMemo(
+    () => projects.flatMap((p) => (p.geometry ? [{ id: p.id, name: p.name, geometry: p.geometry, approx: p.geometryKind !== "official" }] : [])),
+    [projects],
+  );
 
   return (
     <div className="pb-10">
@@ -239,7 +243,7 @@ export function CaseDossier({ initial, projects, nearby = [] }: { initial: Publi
             <span>Reported {formatDate(caseData.reportedAt)}</span>
             <span>{caseData.location.locality ?? caseData.location.address ?? `${caseData.location.lat.toFixed(5)}, ${caseData.location.lng.toFixed(5)}`}</span>
             {selected && match && inv?.status !== "complete" && (
-              <span className="text-ink">Linked to {selected.name.length > 60 ? selected.name.slice(0, 60) + "…" : selected.name} · {match.distanceM < 15 ? "on the alignment" : formatDistance(match.distanceM)}</span>
+              <span className="text-ink">Linked to {selected.name.length > 60 ? selected.name.slice(0, 60) + "…" : selected.name} · {matchPlacement(match)}</span>
             )}
           </div>
           {caseData.demo && caseData.demoNote && <p className="mt-3 max-w-3xl text-[13px] text-ink-3">{caseData.demoNote}</p>}
@@ -266,7 +270,11 @@ export function CaseDossier({ initial, projects, nearby = [] }: { initial: Publi
           <div className="mt-6 flex flex-wrap gap-2">
             <Link href={`/cases/${caseData.id}/packet?kind=complaint`} className={buttonClass("primary", "md")}>Complaint packet</Link>
             <Link href={`/cases/${caseData.id}/packet?kind=rti`} className={buttonClass("secondary", "md")}>RTI draft</Link>
-            {selected && <Link href={`/projects/${selected.id}`} className={buttonClass("ghost", "md")}>Project record</Link>}
+            {selected && (
+              <Link href={selected.geometryKind === "none" ? `/sources/${selected.id}` : `/projects/${selected.id}`} className={buttonClass("ghost", "md")}>
+                Project record
+              </Link>
+            )}
           </div>
         </Container>
       </div>

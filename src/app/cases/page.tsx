@@ -10,7 +10,8 @@ export const dynamic = "force-dynamic";
 export default async function CasesPage() {
   const cases = await getStore().list(500);
   const corpus = getCorpus();
-  const projects = corpus.projects.map((p) => ({ id: p.id, name: p.name, geometry: p.geometry!, kind: p.geometrySource.kind }));
+  // Only projects with a published alignment can be drawn; the rest are found by name.
+  const projects = corpus.projects.flatMap((p) => (p.geometry ? [{ id: p.id, name: p.name, geometry: p.geometry, kind: p.geometrySource.kind }] : []));
   return (
     <div>
       <Container className="pb-6 pt-10 sm:pt-12">

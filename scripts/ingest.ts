@@ -15,6 +15,7 @@ import path from "node:path";
 import { cleanPage, pdfPages as extractPdfPages } from "../src/lib/pdf-text";
 import { ManifestSchema, ProjectSchema, AuthoritySchema } from "../src/lib/corpus/types";
 import { verifyClaim, type CorpusReader } from "../src/lib/agent/verifier";
+import { jsonPages, ommasPages, redactContacts, type OmmasLayout } from "../src/lib/records/render";
 
 const ROOT = path.join(process.cwd(), "corpus");
 
@@ -26,26 +27,9 @@ async function pdfPages(buf: Buffer): Promise<string[]> {
   return extractPdfPages(new Uint8Array(buf));
 }
 
-/** Flattens a JSON API response into "path: value" lines, 60 lines per page. */
-function jsonPages(buf: Buffer, opts: { keys?: string[] } = {}): string[] {
-  const data = JSON.parse(buf.toString("utf8"));
-  const lines: string[] = [];
-  const walk = (v: unknown, p: string) => {
-    if (v === null || v === undefined || v === "") return;
-    if (Array.isArray(v)) return v.forEach((x, i) => walk(x, `${p}[${i}]`));
-    if (typeof v === "object") return Object.entries(v as Record<string, unknown>).forEach(([k, x]) => walk(x, p ? `${p}.${k}` : k));
-    if (opts.keys && !opts.keys.some((k) => p === k || p.endsWith(`.${k}`) || p.startsWith(k))) return;
-    let s = String(v).replace(/\s+/g, " ").trim();
-    if (s.length > 400) return; // skip encrypted blobs and base64
-    // Deterministic annotations so machine formats can be quoted as dates and amounts.
-    if (/^\d{13}$/.test(s) && Number(s) > 946684800000 && Number(s) < 4102444800000) { const iso = new Date(Number(s)).toISOString(); s += ` (${iso.slice(0, 10)} ${iso.slice(11, 19)} UTC)`; }
-    else if (/^\d+(\.\d+)?E\d+$/i.test(s)) s += ` (= ${Number(s).toFixed(2)})`;
-    lines.push(`${p}: ${s}`);
-  };
-  walk(data, "");
-  const pages: string[] = [];
-  for (let i = 0; i < lines.length; i += 60) pages.push(lines.slice(i, i + 60).join("\n"));
-  return pages;
+/** Official JSON API responses are rendered by the same code the live-record fetchers use. */
+function jsonPagesFromFile(buf: Buffer, opts: { keys?: string[] } = {}): string[] {
+  return jsonPages(JSON.parse(buf.toString("utf8")), opts);
 }
 
 function parseCsv(text: string): string[][] {
@@ -102,7 +86,7 @@ async function main() {
   AuthoritySchema.array().parse(JSON.parse(await fs.readFile(path.join(ROOT, "authorities.json"), "utf8")));
   const extraction = JSON.parse(await fs.readFile(path.join(ROOT, "extraction.json"), "utf8").catch(() => "{}")) as Record<
     string,
-    { json?: { keys?: string[] }; csv?: { column: string; includes: string[] } }
+    { json?: { keys?: string[] }; csv?: { column: string; includes: string[] }; ommas?: OmmasLayout }
   >;
 
   const pages: Record<string, { sha256: string; pages: string[] }> = {};
@@ -121,10 +105,13 @@ async function main() {
     const ext = path.extname(doc.file).toLowerCase();
     let p: string[];
     if (ext === ".pdf") p = await pdfPages(buf);
-    else if (ext === ".json") p = jsonPages(buf, extraction[doc.id]?.json);
+    else if (ext === ".json") p = jsonPagesFromFile(buf, extraction[doc.id]?.json);
+    else if (ext === ".csv" && extraction[doc.id]?.ommas) p = ommasPages(buf.toString("utf8"), extraction[doc.id].ommas!);
     else if (ext === ".csv") p = csvPages(buf, extraction[doc.id]?.csv);
     else if (ext === ".html" || ext === ".htm") p = htmlPages(buf);
     else p = [cleanPage(buf.toString("utf8"))];
+    // Pages are shown publicly on /sources: drop officials' phone numbers and emails the portals print.
+    p = p.map(redactContacts);
     const empty = p.filter((x) => x.length < 20).length;
     pages[doc.id] = { sha256: hash, pages: p };
     console.log(`✓ ${doc.id}: ${p.length} page${p.length === 1 ? "" : "s"}${empty ? ` (${empty} with no text layer)` : ""} · ${hash.slice(0, 12)}`);
