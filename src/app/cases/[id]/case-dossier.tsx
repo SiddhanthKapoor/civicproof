@@ -15,6 +15,7 @@ import { Findings } from "./findings";
 import { ProvenanceChain } from "./chain";
 import { Candidates } from "./candidates";
 import { RtiClockCard } from "./rti-clock-card";
+import { KeyFacts } from "./key-facts";
 import { NextActions } from "./actions";
 import { saveOwnerKey, useStoredOwnerKey } from "@/lib/use-owner-key";
 import { Timeline, TrackingPanel } from "./tracking";
@@ -228,9 +229,12 @@ export function CaseDossier({ initial, projects }: { initial: PublicCase; projec
             <span>Observed {formatDate(caseData.observedOn)}</span>
             <span>Reported {formatDate(caseData.reportedAt)}</span>
             <span>{caseData.location.locality ?? caseData.location.address ?? `${caseData.location.lat.toFixed(5)}, ${caseData.location.lng.toFixed(5)}`}</span>
-            {selected && match && <span className="text-ink">Linked to {selected.name.length > 60 ? selected.name.slice(0, 60) + "…" : selected.name} · {match.distanceM < 15 ? "on the alignment" : formatDistance(match.distanceM)}</span>}
+            {selected && match && inv?.status !== "complete" && (
+              <span className="text-ink">Linked to {selected.name.length > 60 ? selected.name.slice(0, 60) + "…" : selected.name} · {match.distanceM < 15 ? "on the alignment" : formatDistance(match.distanceM)}</span>
+            )}
           </div>
           {caseData.demo && caseData.demoNote && <p className="mt-3 max-w-3xl text-[13px] text-ink-3">{caseData.demoNote}</p>}
+          <KeyFacts caseData={caseData} />
           <div className="mt-6 flex flex-wrap gap-2">
             <Link href={`/cases/${caseData.id}/packet?kind=complaint`} className={buttonClass("primary", "md")}>Complaint packet</Link>
             <Link href={`/cases/${caseData.id}/packet?kind=rti`} className={buttonClass("secondary", "md")}>RTI draft</Link>
