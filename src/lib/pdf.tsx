@@ -25,7 +25,7 @@ const s = StyleSheet.create({
 });
 
 function PacketDoc({ packet, caseId }: { packet: Packet; caseId: string }) {
-  const title = packet.kind === "rti" ? "RTI APPLICATION — DRAFT" : "COMPLAINT — DRAFT";
+  const title = packet.kind === "rti" ? "RTI APPLICATION — DRAFT" : packet.kind === "appeal" ? "RTI FIRST APPEAL — DRAFT" : "COMPLAINT — DRAFT";
   return (
     <Document title={pdfSafe(packet.subject)} author="CivicProof draft" subject={`CivicProof ${caseId}`}>
       <Page size="A4" style={s.page}>

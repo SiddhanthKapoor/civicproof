@@ -1,11 +1,12 @@
 import { z } from "zod";
+import { PacketKindSchema } from "@/lib/schemas";
 import { ForbiddenError, PacketEditSchema, savePacket } from "@/lib/cases";
 import { toPublicCase } from "@/lib/schemas";
 import { handle, json, ownerKeyFrom, problem } from "@/lib/http";
 
 export const runtime = "nodejs";
 
-const Body = z.object({ kind: z.enum(["complaint", "rti"]), edit: PacketEditSchema.optional() });
+const Body = z.object({ kind: PacketKindSchema, edit: PacketEditSchema.optional() });
 
 /** Drafts (or, for the owner, saves an edited) complaint or RTI packet. */
 export const POST = handle("cases.packet", async (req: Request, ctx: RouteContext<"/api/cases/[id]/packet">) => {

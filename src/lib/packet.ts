@@ -11,6 +11,7 @@ import { CATEGORY_LABELS, CLAIM_FIELD_LABELS } from "@/lib/schemas";
 import type { Authority, Project } from "@/lib/corpus";
 import { fmtDate } from "@/lib/agent/finalize";
 import { parseDates } from "@/lib/agent/text";
+import type { RtiClock } from "@/lib/rti-clock";
 
 export const PACKET_DISCLAIMER =
   "Draft prepared with CivicProof. It states only what the cited records say and what the reporter observed; it makes no allegation. Check every detail, add your contact information, and edit as needed before submitting. CivicProof has not sent this to any authority.";
@@ -203,7 +204,7 @@ export function buildRti(c: Case, project: Project | undefined, authority: Autho
       {
         id: "to",
         heading: "To",
-        body: `${authority?.rti?.addressee ?? "The Public Information Officer"}\n${authority?.name ?? "[Name and address of the public authority]"}`,
+        body: `${authority?.rti?.addressee ?? "The Public Information Officer, [name of the public authority]"}\n[Office address]`,
       },
       {
         id: "applicant",
@@ -233,6 +234,51 @@ export function buildRti(c: Case, project: Project | undefined, authority: Autho
     ],
     disclaimer:
       "Draft RTI application prepared with CivicProof. Check the correct Public Information Officer and fee rules for the authority before filing. A reply is due within 30 days of receipt (Section 7(1)); if none is received, a first appeal lies under Section 19(1).",
+  };
+}
+
+/**
+ * First appeal under Section 19(1) when an RTI application has gone unanswered.
+ * Built only from what the reporter recorded (submission date, channel, reference).
+ */
+export function buildAppeal(c: Case, project: Project | undefined, authority: Authority | undefined, clock: RtiClock, now = new Date()): Packet {
+  const where = c.location.locality ?? c.location.address ?? `${c.location.lat.toFixed(5)}, ${c.location.lng.toFixed(5)}`;
+  const body = authority?.name ?? "[Name of the public authority]";
+  return {
+    kind: "appeal",
+    generatedAt: now.toISOString(),
+    addressedTo: `The First Appellate Authority, ${body}`,
+    subject: "First appeal under Section 19(1) of the Right to Information Act, 2005",
+    sections: [
+      { id: "appellant", heading: "Appellant", body: "Name: [Your full name]\nAddress for correspondence: [Your address]\nPhone / email: [Optional]" },
+      {
+        id: "application",
+        heading: "Particulars of the RTI application",
+        body: [
+          `Date of application: ${fmtDate(clock.submittedOn)}`,
+          clock.channel ? `Filed through: ${clock.channel}` : "",
+          clock.referenceNumber ? `Registration / reference number: ${clock.referenceNumber}` : "Registration / reference number: [if any]",
+          `Addressed to: ${authority?.rti?.addressee ?? `The Public Information Officer, ${body}`}`,
+          `Subject: records relating to ${project ? `"${project.name}"` : `road works at ${where}`} (CivicProof case ${c.id}).`,
+        ]
+          .filter(Boolean)
+          .join("\n"),
+      },
+      {
+        id: "grounds",
+        heading: "Grounds of appeal",
+        body: `No decision or information was received within 30 days of the application, the period set by Section 7(1). Under Section 7(2) this is deemed a refusal. The reply was due by ${fmtDate(clock.replyDue)}, and this appeal is filed within 30 days of that date as permitted by Section 19(1).`,
+      },
+      {
+        id: "relief",
+        heading: "Relief sought",
+        body: "1. Direct the Public Information Officer to furnish the information sought in the application.\n2. Since the time limit was not complied with, direct that the information be provided free of charge, as provided by Section 7(6).\n3. Any other order the First Appellate Authority considers appropriate.",
+      },
+      { id: "enclosures", heading: "Enclosures", body: "1. Copy of the RTI application\n2. Proof of submission and fee payment" },
+      { id: "declaration", heading: "Declaration", body: "I am a citizen of India. The facts stated above are true to the best of my knowledge.\n\nPlace: [ ]\nDate: [ ]\nSignature: [ ]" },
+    ],
+    disclaimer:
+      "Draft first appeal prepared with CivicProof from the submission details you recorded. Check the name of the First Appellate Authority (an officer senior to the PIO) and any state-specific format before filing. CivicProof has not sent this anywhere.",
   };
 }
 

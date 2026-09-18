@@ -26,7 +26,7 @@ const WORKER_URL = "/maplibre/maplibre-gl-worker.mjs";
 /** Case status → marker colour. Colour means state, so only a few are used. */
 export const STATUS_COLOR: Record<string, string> = {
   reported: "#737987",
-  investigating: "#a3620a",
+  investigating: "#8f5507",
   evidence_found: "#2542c8",
   case_prepared: "#2542c8",
   submitted: "#16181d",

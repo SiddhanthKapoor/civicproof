@@ -14,6 +14,7 @@ import { InvestigationPanel, type LiveState } from "./investigation-panel";
 import { Findings } from "./findings";
 import { ProvenanceChain } from "./chain";
 import { Candidates } from "./candidates";
+import { RtiClockCard } from "./rti-clock-card";
 import { NextActions } from "./actions";
 import { saveOwnerKey, useStoredOwnerKey } from "@/lib/use-owner-key";
 import { Timeline, TrackingPanel } from "./tracking";
@@ -270,6 +271,7 @@ export function CaseDossier({ initial, projects }: { initial: PublicCase; projec
 
           <section className="space-y-5">
             <SectionHeading id="tracking" n="05" title="Tracking" />
+            <RtiClockCard caseId={caseData.id} timeline={caseData.timeline} />
             <TrackingPanel
               caseData={caseData}
               ownerKey={ownerKey}

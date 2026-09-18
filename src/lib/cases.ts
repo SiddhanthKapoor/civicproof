@@ -10,13 +10,16 @@ import { getCorpus } from "@/lib/corpus";
 import { authorize } from "@/lib/authz";
 import { newCaseId, newId, newOwnerKey, ownerKeyMatches, sha256Hex } from "@/lib/ids";
 import { log } from "@/lib/log";
-import { buildComplaint, buildRti } from "@/lib/packet";
+import { buildAppeal, buildComplaint, buildRti } from "@/lib/packet";
+import { rtiClock } from "@/lib/rti-clock";
 import {
+  PacketKindSchema,
   StatusSchema,
   type Case,
   type CaseStatus,
   type NewReport,
   type Packet,
+  type PacketKind,
   type Photo,
   type TimelineEvent,
 } from "@/lib/schemas";
@@ -206,6 +209,7 @@ export async function recordTimeline(caseId: string, ownerKey: string | null, in
       date: input.date,
       followUpDate: due,
       notes: input.notes,
+      packet: input.packet,
     });
   } else if (input.type === "response_received") {
     events.push({ id: newId("ev"), at, type: "response_received", actor: "reporter", summary: "Response received", date: input.date, referenceNumber: input.referenceNumber, notes: input.notes });
@@ -227,15 +231,20 @@ export async function recordTimeline(caseId: string, ownerKey: string | null, in
 // Packets
 // ---------------------------------------------------------------------------
 
-export function draftPacket(c: Case, kind: "complaint" | "rti"): Packet {
+export function draftPacket(c: Case, kind: PacketKind): Packet {
   const corpus = getCorpus();
   const project = c.investigation?.selectedProjectId ? corpus.getProject(c.investigation.selectedProjectId) : undefined;
   const authority = corpus.getAuthority(project?.agencyId);
+  if (kind === "appeal") {
+    const clock = rtiClock(c.timeline, new Date().toISOString().slice(0, 10));
+    if (!clock) throw new ForbiddenError([], "A first appeal needs a recorded RTI submission. Record the RTI application in Tracking first.");
+    return buildAppeal(c, project, authority, clock);
+  }
   return kind === "rti" ? buildRti(c, project, authority) : buildComplaint(c, project, authority);
 }
 
 export const PacketEditSchema = z.object({
-  kind: z.enum(["complaint", "rti"]),
+  kind: PacketKindSchema,
   addressedTo: z.string().trim().min(2).max(200),
   subject: z.string().trim().min(4).max(300),
   sections: z
@@ -245,7 +254,7 @@ export const PacketEditSchema = z.object({
 });
 
 /** Generates (or regenerates) a packet and stores it. Owners may save edited sections. */
-export async function savePacket(caseId: string, ownerKey: string | null, kind: "complaint" | "rti", edit?: z.infer<typeof PacketEditSchema>): Promise<Case> {
+export async function savePacket(caseId: string, ownerKey: string | null, kind: PacketKind, edit?: z.infer<typeof PacketEditSchema>): Promise<Case> {
   const store = getStore();
   const current = await store.get(caseId);
   if (!current) throw new Error("Case not found");
@@ -275,7 +284,7 @@ export async function savePacket(caseId: string, ownerKey: string | null, kind: 
           at,
           type: edit ? "packet_edited" : "packet_generated",
           actor: edit ? "reporter" : "system",
-          summary: `${kind === "rti" ? "RTI application" : "Complaint packet"} ${edit ? "edited by the reporter" : "drafted"}`,
+          summary: `${kind === "rti" ? "RTI application" : kind === "appeal" ? "First appeal" : "Complaint packet"} ${edit ? "edited by the reporter" : "drafted"}`,
         },
       ],
     };

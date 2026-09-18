@@ -99,3 +99,19 @@ describe("investigation", () => {
     expect(list.length).toBeGreaterThanOrEqual(3);
   });
 });
+
+describe("RTI first appeal", () => {
+  it("drafts a Section 19(1) appeal only after an RTI submission is recorded", async () => {
+    const { caseData, ownerKey } = await createCase({ ...base, title: "Appeal flow test case", lat: 12.894573, lng: 77.71297 }, []);
+    await runInvestigation(caseData.id, () => {});
+    await expect(savePacket(caseData.id, null, "appeal")).rejects.toThrow(/RTI submission/);
+    await recordTimeline(caseData.id, ownerKey, { type: "complaint_submitted", channel: "RTI Online (Karnataka)", referenceNumber: "KA/RTI/2026/1", date: "2026-07-01", packet: "rti" });
+    const withAppeal = await savePacket(caseData.id, null, "appeal");
+    const appeal = withAppeal.packets.appeal!;
+    expect(appeal.subject).toContain("Section 19(1)");
+    const text = appeal.sections.map((s) => s.body).join("\n");
+    expect(text).toContain("KA/RTI/2026/1");
+    expect(text).toContain("Section 7(2)");
+    expect(text).toContain("31 Jul 2026"); // reply was due 30 days after 1 Jul 2026
+  });
+});

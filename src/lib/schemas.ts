@@ -343,6 +343,8 @@ export const TimelineEventSchema = z.object({
   date: z.string().optional(),
   followUpDate: z.string().optional(),
   notes: z.string().optional(),
+  /** Which document a submission was: drives the statutory clock for RTI applications. */
+  packet: z.enum(["complaint", "rti", "appeal"]).optional(),
   fromStatus: StatusSchema.optional(),
   toStatus: StatusSchema.optional(),
 });
@@ -353,8 +355,12 @@ export const PacketSectionSchema = z.object({
   heading: z.string(),
   body: z.string(),
 });
+export const PACKET_KINDS = ["complaint", "rti", "appeal"] as const;
+export const PacketKindSchema = z.enum(PACKET_KINDS);
+export type PacketKind = z.infer<typeof PacketKindSchema>;
+
 export const PacketSchema = z.object({
-  kind: z.enum(["complaint", "rti"]),
+  kind: PacketKindSchema,
   generatedAt: z.string(),
   editedAt: z.string().optional(),
   addressedTo: z.string(),
@@ -388,7 +394,7 @@ export const CaseSchema = z.object({
   /** sha256 of the owner key issued at creation; required for owner actions. */
   ownerKeyHash: z.string(),
   investigation: InvestigationSchema.optional(),
-  packets: z.object({ complaint: PacketSchema.optional(), rti: PacketSchema.optional() }).default({}),
+  packets: z.object({ complaint: PacketSchema.optional(), rti: PacketSchema.optional(), appeal: PacketSchema.optional() }).default({}),
   timeline: z.array(TimelineEventSchema),
 });
 export type Case = z.infer<typeof CaseSchema>;

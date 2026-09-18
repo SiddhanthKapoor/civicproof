@@ -9,7 +9,9 @@ import { Button, Container } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { useStoredOwnerKey } from "@/lib/use-owner-key";
 
-type Kind = "complaint" | "rti";
+type Kind = "complaint" | "rti" | "appeal";
+const KIND_TITLE: Record<Kind, string> = { complaint: "Complaint packet", rti: "RTI application", appeal: "RTI first appeal" };
+const KIND_TAB: Record<Kind, string> = { complaint: "Complaint", rti: "RTI draft", appeal: "First appeal" };
 
 function AutoTextarea({ value, onChange, className, label }: { value: string; onChange: (v: string) => void; className?: string; label: string }) {
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -48,16 +50,17 @@ export function PacketEditor({
   demo: boolean;
   investigated: boolean;
   initialKind: Kind;
-  packets: Record<Kind, Packet>;
+  packets: Partial<Record<Kind, Packet>> & Record<"complaint" | "rti", Packet>;
   saved: Record<Kind, boolean>;
 }) {
   const [kind, setKind] = useState<Kind>(initialKind);
   const [docs, setDocs] = useState(packets);
-  const [dirty, setDirty] = useState<Record<Kind, boolean>>({ complaint: false, rti: false });
+  const [dirty, setDirty] = useState<Record<Kind, boolean>>({ complaint: false, rti: false, appeal: false });
+  const kinds = (["complaint", "rti", "appeal"] as Kind[]).filter((k) => docs[k]);
   const ownerKey = useStoredOwnerKey(caseId);
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
-  const doc = docs[kind];
+  const doc = docs[kind] ?? docs.complaint;
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -152,11 +155,11 @@ export function PacketEditor({
         </nav>
         <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="font-serif text-[36px] leading-tight tracking-[-0.01em] sm:text-[44px]">{kind === "rti" ? "RTI application" : "Complaint packet"}</h1>
+            <h1 className="font-serif text-[36px] leading-tight tracking-[-0.01em] sm:text-[44px]">{KIND_TITLE[kind]}</h1>
             <p className="mt-1 max-w-2xl text-[14.5px] text-ink-2">For “{caseTitle}”. Everything is editable. Nothing is sent from here.</p>
           </div>
           <div className="relative flex rounded-full bg-paper-3 p-1" role="tablist" aria-label="Document type">
-            {(["complaint", "rti"] as Kind[]).map((k) => (
+            {kinds.map((k) => (
               <button
                 key={k}
                 role="tab"
@@ -165,7 +168,7 @@ export function PacketEditor({
                 className={cn("relative h-9 rounded-full px-4 text-[14px] transition-colors", kind === k ? "text-ink" : "text-ink-2 hover:text-ink")}
               >
                 {kind === k && <motion.span layoutId="packet-tab" className="absolute inset-0 -z-10 rounded-full bg-card shadow-card" transition={{ type: "spring", bounce: 0.15, duration: 0.4 }} />}
-                {k === "rti" ? "RTI draft" : "Complaint"}
+                {KIND_TAB[k]}
               </button>
             ))}
           </div>
@@ -190,7 +193,7 @@ export function PacketEditor({
             <p className="no-print absolute right-4 top-4 rounded-full border border-dashed border-ink/25 px-2.5 py-0.5 text-[11.5px] text-ink-3">Demo report</p>
           )}
           <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-3">
-            CivicProof · {kind === "rti" ? "RTI application" : "Complaint"} · draft · {caseId}
+            CivicProof · {KIND_TITLE[kind]} · draft · {caseId}
           </p>
           <div className="mt-6 space-y-1 font-sans text-[13.5px] text-ink-2">
             <div className="flex gap-2">
@@ -241,7 +244,7 @@ export function PacketEditor({
             <ul className="mt-2 space-y-1.5 text-[13px] text-ink-2">
               <li>Check the addressee and the office’s current channel.</li>
               <li>Read every fact against its numbered source.</li>
-              <li>{kind === "rti" ? "Fill in your name and address, and pay the fee." : "Attach your photos and add your contact details."}</li>
+              <li>{kind === "complaint" ? "Attach your photos and add your contact details." : kind === "rti" ? "Fill in your name and address, and pay the fee." : "Name the First Appellate Authority and attach a copy of the RTI application."}</li>
               <li>Record the reference number on the case page.</li>
             </ul>
             <Link href={`/cases/${caseId}#tracking`} className="mt-3 inline-block text-[13px] font-medium text-ink underline decoration-rule-strong underline-offset-4">

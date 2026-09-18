@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { PacketKindSchema } from "@/lib/schemas";
 import { getStore } from "@/lib/store";
 import { getBlobs } from "@/lib/blob";
-import { draftPacket, PacketEditSchema } from "@/lib/cases";
+import { draftPacket, ForbiddenError, PacketEditSchema } from "@/lib/cases";
 import { renderPacketPdf } from "@/lib/pdf";
 import { sha256Hex } from "@/lib/ids";
 import { handle, problem } from "@/lib/http";
@@ -10,7 +11,7 @@ import type { Packet } from "@/lib/schemas";
 
 export const runtime = "nodejs";
 
-const Body = z.object({ kind: z.enum(["complaint", "rti"]), edit: PacketEditSchema.optional() });
+const Body = z.object({ kind: PacketKindSchema, edit: PacketEditSchema.optional() });
 
 /**
  * Renders the packet (including unsaved edits sent by the browser) to PDF. The rendered file
@@ -22,7 +23,13 @@ export const POST = handle("cases.packet.pdf", async (req: Request, ctx: RouteCo
   const c = await getStore().get(id);
   if (!c) return problem(404, "Case not found.");
 
-  const base: Packet = c.packets[body.kind] ?? draftPacket(c, body.kind);
+  let base: Packet;
+  try {
+    base = c.packets[body.kind] ?? draftPacket(c, body.kind);
+  } catch (e) {
+    if (e instanceof ForbiddenError) return problem(409, e.message);
+    throw e;
+  }
   const packet: Packet = body.edit ? { ...base, addressedTo: body.edit.addressedTo, subject: body.edit.subject, sections: body.edit.sections } : base;
   const pdf = await renderPacketPdf(packet, c.id);
   const hash = sha256Hex(pdf);
