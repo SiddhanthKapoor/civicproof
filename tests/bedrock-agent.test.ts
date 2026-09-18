@@ -78,7 +78,9 @@ describe("investigation through the Bedrock Converse API", () => {
     const inv = done.investigation!;
 
     expect(requests[0].path).toContain("/model/global.anthropic.claude-opus-5/converse");
-    const toolNames = (requests[0].body.toolConfig?.tools ?? []).map((t) => (t as { toolSpec: { name: string } }).toolSpec.name);
+    const tools = (requests[0].body.toolConfig?.tools ?? []) as Array<{ toolSpec?: { name: string }; cachePoint?: unknown }>;
+    const toolNames = tools.filter((t) => t.toolSpec).map((t) => t.toolSpec!.name);
+    expect(tools.some((t) => t.cachePoint)).toBe(true); // prompt caching is on
     expect(toolNames).toContain("record_claim");
     expect(toolNames).not.toContain("set_case_status");
 
