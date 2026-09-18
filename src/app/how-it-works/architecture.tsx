@@ -28,7 +28,7 @@ function Arrow({ d, label, lx, ly }: { d: string; label?: string; lx?: number; l
 
 export function ArchitectureDiagram() {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-rule bg-paper-2/40 p-4">
+    <div tabIndex={0} role="group" aria-label="Architecture diagram (scrolls sideways on small screens)" className="overflow-x-auto rounded-2xl border border-rule bg-paper-2/40 p-4">
       <svg viewBox="0 0 1120 520" className="min-w-[860px]" role="img" aria-labelledby="arch-title arch-desc">
         <title id="arch-title">CivicProof architecture on AWS</title>
         <desc id="arch-desc">

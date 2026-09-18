@@ -231,7 +231,7 @@ export default async function Home() {
                 <span className="font-mono text-[12px] text-paper/60">policies/case-actions.cedar</span>
                 <span className="text-[11px] text-paper/40">enforced on every change</span>
               </div>
-              <pre className="overflow-x-auto px-5 py-4 font-mono text-[12.5px] leading-relaxed text-paper/85">
+              <pre tabIndex={0} aria-label="Cedar policy excerpt" className="overflow-x-auto px-5 py-4 font-mono text-[12.5px] leading-relaxed text-paper/85">
 {`// Nobody except the reporter can declare a case
 // submitted, answered, resolved or closed.
 forbid (principal, action == Action::"ChangeStatus", resource)

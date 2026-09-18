@@ -114,7 +114,7 @@ export default function HowItWorksPage() {
         <Reveal delay={0.1}>
           <div className="rounded-2xl border border-rule bg-card p-5 shadow-card">
             <p className="text-[12px] font-medium uppercase tracking-[0.12em] text-ink-3">A rejected claim: real verifier output</p>
-            <pre className="mt-3 overflow-x-auto rounded-xl bg-paper-2 p-4 font-mono text-[12px] leading-relaxed text-ink-2">
+            <pre tabIndex={0} aria-label="Example verifier output" className="mt-3 overflow-x-auto rounded-xl bg-paper-2 p-4 font-mono text-[12px] leading-relaxed text-ink-2">
 {`record_claim({
   field: "contractor",
   value: "M/s Example Builders",
@@ -146,7 +146,7 @@ export default function HowItWorksPage() {
             <Reveal key={f}>
               <div className="overflow-hidden rounded-2xl border border-ink/80 bg-ink">
                 <p className="border-b border-paper/10 px-5 py-3 font-mono text-[12px] text-paper/60">policies/{f}</p>
-                <pre className="max-h-[520px] overflow-auto px-5 py-4 font-mono text-[12px] leading-relaxed text-paper/85">{policy(f)}</pre>
+                <pre tabIndex={0} aria-label={`policies/${f}`} className="max-h-[520px] overflow-auto px-5 py-4 font-mono text-[12px] leading-relaxed text-paper/85">{policy(f)}</pre>
               </div>
             </Reveal>
           ))}

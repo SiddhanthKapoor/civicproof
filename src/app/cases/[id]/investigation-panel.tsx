@@ -81,7 +81,7 @@ export function TraceFeed({ trace, live, max }: { trace: TraceStep[]; live?: boo
   }, [trace.length, live]);
   const items = max ? trace.slice(-max) : trace;
   return (
-    <ol ref={ref} className={cn("space-y-1 overflow-y-auto font-mono text-[12.5px] leading-relaxed", live ? "max-h-[300px]" : "max-h-[420px]")} aria-live={live ? "polite" : undefined}>
+    <ol ref={ref} tabIndex={0} aria-label="Agent trace" className={cn("space-y-1 overflow-y-auto font-mono text-[12.5px] leading-relaxed", live ? "max-h-[300px]" : "max-h-[420px]")} aria-live={live ? "polite" : undefined}>
       <AnimatePresence initial={false}>
         {items.map((t, i) => {
           const k = KIND_ICON[t.kind];

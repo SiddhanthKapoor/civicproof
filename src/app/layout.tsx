@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Instrument_Sans, Newsreader } from "next/font/google";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
+import { MotionProvider } from "@/components/motion-provider";
 import "./globals.css";
 
 const newsreader = Newsreader({
@@ -52,11 +53,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
-        <SiteNav />
-        <main id="main" className="flex-1">
-          {children}
-        </main>
-        <SiteFooter />
+        <MotionProvider>
+          <SiteNav />
+          <main id="main" className="flex-1">
+            {children}
+          </main>
+          <SiteFooter />
+        </MotionProvider>
       </body>
     </html>
   );
