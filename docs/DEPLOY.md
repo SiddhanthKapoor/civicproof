@@ -56,7 +56,7 @@ fields @timestamp, event, caseId, engine, verifiedOfficial, inputTokens, outputT
 ## Cost notes
 
 - Lambda, DynamoDB on-demand, S3, Textract (only for scanned uploads) and CloudWatch at demo volumes: cents.
-- Bedrock is the variable: one investigation is roughly 15–25 model turns over a small corpus. Use `MaxRunsPerDay` to cap spend, or `Planner=rules` for a zero-model deployment.
+- Bedrock is the variable: one investigation is roughly 15–25 model turns over a small corpus, and each turn re-sends the conversation. Prompt caching is on (tools, system prompt and conversation prefix), so repeated context is billed at the cache-read rate. Run `CIVICPROOF_PLANNER=bedrock npm run eval` once to see real token counts, use `MaxRunsPerDay` to cap spend, or `Planner=rules` for a zero-model deployment.
 
 ## Troubleshooting
 

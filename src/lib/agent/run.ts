@@ -46,6 +46,9 @@ function bedrockModel(maxTokens: number): BedrockModel {
     region: config.bedrockRegion,
     modelId: config.bedrockModelId,
     maxTokens,
+    // Prompt caching: tools, system prompt and the growing conversation prefix are re-sent every
+    // turn, so caching them cuts most of an investigation's input-token cost.
+    cacheConfig: { strategy: config.bedrockModelId.includes("anthropic") ? "anthropic" : "auto" },
     ...(config.bedrockEndpoint
       ? { stream: false, clientConfig: { endpoint: config.bedrockEndpoint, credentials: { accessKeyId: "test", secretAccessKey: "test" } } }
       : {}),
