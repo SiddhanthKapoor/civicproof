@@ -4,7 +4,7 @@
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { isAuthorized } from "@cedar-policy/cedar-wasm/nodejs";
+import { isAuthorized, policySetTextToParts } from "@cedar-policy/cedar-wasm/nodejs";
 import type { CaseStatus } from "@/lib/schemas";
 
 export type CaseAction =
@@ -17,6 +17,7 @@ export type CaseAction =
   | "EditPacket"
   | "AddEvidence"
   | "ViewPrivateDocument"
+  | "ViewPrivateDetails"
   | "ChangeStatus";
 
 export type Principal =
@@ -33,9 +34,14 @@ export interface CaseActionContext {
   max_runs_per_day?: number;
 }
 
-let policies: string | undefined;
-function loadPolicies(): string {
-  policies ??= readFileSync(path.join(process.cwd(), "policies", "case-actions.cedar"), "utf8");
+let policies: Record<string, string> | undefined;
+/** The policy file split into policies keyed by their @id, so decisions name the policy that made them. */
+function loadPolicies(): Record<string, string> {
+  if (policies) return policies;
+  const text = readFileSync(path.join(process.cwd(), "policies", "case-actions.cedar"), "utf8");
+  const parts = policySetTextToParts(text);
+  if (parts.type === "failure") throw new Error(`case-actions.cedar: ${parts.errors.map((e) => e.message).join("; ")}`);
+  policies = Object.fromEntries(parts.policies.map((p, i) => [/@id\("([^"]+)"\)/.exec(p)?.[1] ?? `policy${i}`, p]));
   return policies;
 }
 

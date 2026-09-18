@@ -2,7 +2,7 @@
  * Statutory clock for an RTI application (Right to Information Act, 2005):
  *   Section 7(1)  – reply within 30 days of receipt
  *   Section 7(2)  – no reply in time is deemed a refusal
- *   Section 19(1) – first appeal within 30 days of that period expiring (or of the reply)
+ *   Section 19(1) – first appeal within 30 days of that period expiring, or of receiving the reply
  * Dates are counted from the submission date the reporter recorded.
  */
 import type { TimelineEvent } from "@/lib/schemas";
@@ -12,6 +12,8 @@ export interface RtiClock {
   channel?: string;
   referenceNumber?: string;
   replyDue: string;
+  /** Date of the first response recorded after the application, if any. */
+  repliedOn?: string;
   appealBy: string;
   state: "waiting" | "overdue" | "replied" | "appeal_window_closed";
   /** Days until the next deadline (negative when past it). */
@@ -33,15 +35,19 @@ export function rtiClock(timeline: TimelineEvent[], today: string): RtiClock | u
     .filter((e) => e.type === "complaint_submitted" && e.packet === "rti" && e.date)
     .sort((a, b) => b.at.localeCompare(a.at))[0];
   if (!submission?.date) return undefined;
-  const replied = timeline.some((e) => e.type === "response_received" && e.at > submission.at);
+  const reply = timeline
+    .filter((e) => e.type === "response_received" && e.at > submission.at)
+    .sort((a, b) => a.at.localeCompare(b.at))[0];
+  const repliedOn = reply ? (reply.date ?? reply.at.slice(0, 10)) : undefined;
   const replyDue = addDaysIso(submission.date, 30);
-  const appealBy = addDaysIso(replyDue, 30);
-  const state = replied ? "replied" : today <= replyDue ? "waiting" : today <= appealBy ? "overdue" : "appeal_window_closed";
+  const appealBy = addDaysIso(repliedOn ?? replyDue, 30);
+  const state = repliedOn ? "replied" : today <= replyDue ? "waiting" : today <= appealBy ? "overdue" : "appeal_window_closed";
   return {
     submittedOn: submission.date,
     channel: submission.channel,
     referenceNumber: submission.referenceNumber,
     replyDue,
+    repliedOn,
     appealBy,
     state,
     daysLeft: daysBetween(today, state === "waiting" ? replyDue : appealBy),

@@ -434,12 +434,16 @@ export const CaseSchema = z.object({
 export type Case = z.infer<typeof CaseSchema>;
 
 /** The shape returned by public APIs: private fields removed. */
-export type PublicCase = Omit<Case, "ownerKeyHash" | "reporterContact">;
+/**
+ * What anyone with the link may see. The reporter's name and contact, and the packets they saved
+ * (which they may have filled in with their name and address), stay private to the owner key.
+ */
+export type PublicCase = Omit<Case, "ownerKeyHash" | "reporterContact" | "reporterName" | "packets"> & { savedPackets: PacketKind[] };
 
 export function toPublicCase(c: Case): PublicCase {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { ownerKeyHash, reporterContact, ...rest } = c;
-  return rest;
+  const { ownerKeyHash, reporterContact, reporterName, packets, ...rest } = c;
+  return { ...rest, savedPackets: PACKET_KINDS.filter((k) => packets[k]) };
 }
 
 // ---------------------------------------------------------------------------

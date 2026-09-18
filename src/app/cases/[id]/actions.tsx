@@ -33,7 +33,7 @@ export function NextActions({ caseData }: { caseData: PublicCase }) {
             {a.origin === "ai" ? (
               <span className="rounded-full border border-dashed border-accent/50 px-2.5 py-0.5 text-[12px] text-accent">AI suggestion</span>
             ) : (
-              <span className="text-[12px] text-ink-3">Derived from verified facts</span>
+              <span className="text-[12px] text-ink-3">{a.type === "rti_request" || a.type === "add_evidence" ? "Derived from the open questions" : "Derived from verified facts"}</span>
             )}
           </div>
           <h3 className="mt-2.5 font-serif text-[21px] leading-snug">{a.title}</h3>

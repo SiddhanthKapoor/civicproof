@@ -157,7 +157,7 @@ export default function HowItWorksPage() {
         <Reveal>
           <h2 className="font-serif text-[30px] leading-tight">Security and privacy</h2>
           <ul className="mt-4 space-y-2.5 text-[15px] leading-relaxed text-ink-2">
-            <li>No secrets in the browser. AWS access comes from the Lambda execution role, scoped to one table, one bucket and the configured Bedrock model.</li>
+            <li>No secrets in the browser. AWS access comes from the Lambda execution role, scoped to one table, one bucket, Claude models on Bedrock, and Textract text detection (which has no resource-level permissions).</li>
             <li>Uploads are checked by magic bytes, size-limited, re-encoded in the browser, fingerprinted with SHA-256 and served from a private bucket through the app.</li>
             <li>Reporter contact details are stored with the case and never returned by any public API.</li>
             <li>Every input is validated with Zod on the server; error responses never include internals.</li>

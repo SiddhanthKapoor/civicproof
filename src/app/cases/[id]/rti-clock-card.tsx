@@ -16,7 +16,9 @@ export function RtiClockCard({ caseId, timeline }: { caseId: string; timeline: T
     clock.state === "replied" ? "border-verified/30 bg-verified-soft/50" : clock.state === "waiting" ? "border-rule bg-card" : "border-contradicted/30 bg-contradicted-soft/50";
   const steps = [
     { label: "Filed", date: clock.submittedOn, done: true },
-    { label: "Reply due · s.7(1)", date: clock.replyDue, done: clock.state !== "waiting" },
+    clock.repliedOn
+      ? { label: "Reply received", date: clock.repliedOn, done: true }
+      : { label: "Reply due · s.7(1)", date: clock.replyDue, done: clock.state !== "waiting" },
     { label: "First appeal by · s.19(1)", date: clock.appealBy, done: clock.state === "appeal_window_closed" },
   ];
   return (
@@ -27,7 +29,10 @@ export function RtiClockCard({ caseId, timeline }: { caseId: string; timeline: T
           <p className="mt-1.5 max-w-xl text-[15px] font-medium leading-snug">
             {clock.state === "waiting" && `Reply due by ${formatDate(clock.replyDue)}: ${clock.daysLeft} day${clock.daysLeft === 1 ? "" : "s"} left.`}
             {clock.state === "overdue" && `No reply recorded by ${formatDate(clock.replyDue)}. Under Section 7(2) that is a deemed refusal; a first appeal can be filed until ${formatDate(clock.appealBy)}.`}
-            {clock.state === "replied" && "A response has been recorded. If it is incomplete, a first appeal lies within 30 days of receiving it."}
+            {clock.state === "replied" &&
+              (clock.daysLeft >= 0
+                ? `A reply was recorded on ${formatDate(clock.repliedOn!)}. If it refuses or leaves out information, a first appeal lies until ${formatDate(clock.appealBy)} (Section 19(1)).`
+                : `A reply was recorded on ${formatDate(clock.repliedOn!)}. The 30 days for a first appeal ended on ${formatDate(clock.appealBy)}; the First Appellate Authority may still admit a late appeal for sufficient cause.`)}
             {clock.state === "appeal_window_closed" && `The 30-day window for a first appeal ended on ${formatDate(clock.appealBy)}. The First Appellate Authority may still admit a late appeal for sufficient cause (proviso to Section 19(1)).`}
           </p>
           <p className="mt-1 text-[12.5px] text-ink-3">

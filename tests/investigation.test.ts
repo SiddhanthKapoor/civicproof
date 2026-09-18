@@ -9,17 +9,19 @@ import path from "node:path";
 import { wordCount } from "@/lib/packet-text";
 import { buildRti } from "@/lib/packet";
 import { getCorpus } from "@/lib/corpus";
+import { toPublicCase } from "@/lib/schemas";
 
 let createCase: typeof import("@/lib/cases").createCase;
 let savePacket: typeof import("@/lib/cases").savePacket;
 let recordTimeline: typeof import("@/lib/cases").recordTimeline;
+let ownerPackets: typeof import("@/lib/cases").ownerPackets;
 let runInvestigation: typeof import("@/lib/agent/run").runInvestigation;
 let getStore: typeof import("@/lib/store").getStore;
 
 beforeAll(async () => {
   vi.stubEnv("CIVICPROOF_DATA_DIR", mkdtempSync(path.join(tmpdir(), "civicproof-test-")));
   vi.stubEnv("CIVICPROOF_PLANNER", "rules");
-  ({ createCase, savePacket, recordTimeline } = await import("@/lib/cases"));
+  ({ createCase, savePacket, recordTimeline, ownerPackets } = await import("@/lib/cases"));
   ({ runInvestigation } = await import("@/lib/agent/run"));
   ({ getStore } = await import("@/lib/store"));
 });
@@ -128,17 +130,66 @@ describe("investigation", () => {
 });
 
 describe("RTI first appeal", () => {
-  it("drafts a Section 19(1) appeal only after an RTI submission is recorded", async () => {
-    const { caseData, ownerKey } = await createCase({ ...base, title: "Appeal flow test case", lat: 12.894573, lng: 77.71297 }, []);
-    await runInvestigation(caseData.id, () => {});
-    await expect(savePacket(caseData.id, ownerKey, "appeal")).rejects.toThrow(/RTI submission/);
-    await recordTimeline(caseData.id, ownerKey, { type: "complaint_submitted", channel: "RTI Online (Karnataka)", referenceNumber: "KA/RTI/2026/1", date: "2026-07-01", packet: "rti" });
-    const { packet: appeal } = await savePacket(caseData.id, null, "appeal");
-    expect(appeal.subject).toContain("Section 19(1)");
-    const text = appeal.sections.map((s) => s.body).join("\n");
+  const daysAgo = (n: number) => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10);
+  const fileRti = async (title: string, filedDaysAgo: number) => {
+    const { caseData, ownerKey } = await createCase({ ...base, title, lat: 12.894573, lng: 77.71297 }, []);
+    await recordTimeline(caseData.id, ownerKey, { type: "complaint_submitted", channel: "RTI Online (Karnataka)", referenceNumber: "KA/RTI/2026/1", date: daysAgo(filedDaysAgo), packet: "rti" });
+    return { id: caseData.id, ownerKey };
+  };
+  const appealText = async (id: string) => (await savePacket(id, null, "appeal")).packet.sections.map((s) => s.body).join("\n");
+
+  it("needs a recorded RTI application, and a reply that is overdue or on record", async () => {
+    const { caseData, ownerKey } = await createCase({ ...base, title: "Appeal gate test case", lat: 12.894573, lng: 77.71297 }, []);
+    await expect(savePacket(caseData.id, ownerKey, "appeal")).rejects.toThrow(/recorded RTI application/);
+    const waiting = await fileRti("Appeal waiting test case", 3);
+    await expect(savePacket(waiting.id, waiting.ownerKey, "appeal")).rejects.toThrow(/is due by/);
+  });
+
+  it("appeals a deemed refusal when no reply came within 30 days", async () => {
+    const { id } = await fileRti("Appeal overdue test case", 40);
+    const text = await appealText(id);
     expect(text).toContain("KA/RTI/2026/1");
-    expect(text).toContain("Section 7(2)");
-    expect(text).toContain("31 Jul 2026"); // reply was due 30 days after 1 Jul 2026
+    expect(text).toContain("deemed a refusal");
+    expect(text).toContain("within 30 days of that date");
+    expect(text).toContain("Section 7(6)");
+  });
+
+  it("asks for the delay to be condoned once the appeal window has passed", async () => {
+    const text = await appealText((await fileRti("Appeal late test case", 75)).id);
+    expect(text).toContain("condoned under the proviso to Section 19(1)");
+  });
+
+  it("appeals a reply the reporter disagrees with, without claiming there was none", async () => {
+    const { id, ownerKey } = await fileRti("Appeal reply test case", 20);
+    await recordTimeline(id, ownerKey, { type: "response_received", date: daysAgo(5), notes: "Partial reply: work order not supplied." });
+    const text = await appealText(id);
+    expect(text).toContain("reply was received on");
+    expect(text).toContain("I am aggrieved");
+    expect(text).not.toContain("deemed a refusal");
+    expect(text).not.toContain("Section 7(6)"); // the reply came in time
+    const c = await getStore().get(id);
+    expect(c!.status).toBe("submitted"); // a reply doesn't mean the case is waiting or resolved
+  });
+});
+
+describe("privacy", () => {
+  it("keeps the reporter's name, contact and saved packets to the owner", async () => {
+    const { caseData, ownerKey } = await createCase(
+      { ...base, title: "Privacy test case", lat: 12.894573, lng: 77.71297, reporterName: "Asha Rao", reporterContact: "asha@example.org" },
+      [],
+    );
+    await runInvestigation(caseData.id, () => {});
+    await savePacket(caseData.id, ownerKey, "complaint");
+    const stored = (await getStore().get(caseData.id))!;
+    const pub = toPublicCase(stored);
+    expect(JSON.stringify(pub)).not.toMatch(/Asha Rao|asha@example/);
+    expect(pub.savedPackets).toEqual(["complaint"]);
+
+    const mine = await ownerPackets(caseData.id, ownerKey);
+    expect(mine.packets.complaint!.sections.find((s) => s.id === "sender")!.body).toContain("Asha Rao");
+    await expect(ownerPackets(caseData.id, null)).rejects.toThrow(/Only the person/);
+    const publicDraft = (await savePacket(caseData.id, null, "complaint")).packet;
+    expect(JSON.stringify(publicDraft)).not.toMatch(/Asha Rao|asha@example/);
   });
 });
 

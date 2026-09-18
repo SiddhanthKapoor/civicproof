@@ -1,4 +1,7 @@
+import type { Metadata } from "next";
 import { ButtonLink, Container } from "@/components/ui";
+
+export const metadata: Metadata = { title: "Not found" };
 
 export default function NotFound() {
   return (

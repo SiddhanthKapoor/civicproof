@@ -20,6 +20,13 @@ describe("rtiClock", () => {
     const reply: TimelineEvent = { id: "e2", at: "2026-08-20T10:00:00.000Z", type: "response_received", actor: "reporter", summary: "reply" };
     expect(rtiClock([submitted, reply], "2026-09-10")!.state).toBe("replied");
   });
+  it("counts the appeal window from the date the reply was received", () => {
+    const reply: TimelineEvent = { id: "e2", at: "2026-08-20T10:00:00.000Z", type: "response_received", actor: "reporter", summary: "reply", date: "2026-08-18" };
+    const c = rtiClock([submitted, reply], "2026-09-10")!;
+    expect(c.repliedOn).toBe("2026-08-18");
+    expect(c.appealBy).toBe("2026-09-17");
+    expect(c.daysLeft).toBe(7);
+  });
   it("ignores complaint submissions", () => {
     expect(rtiClock([{ ...submitted, packet: "complaint" }], "2026-09-10")).toBeUndefined();
   });

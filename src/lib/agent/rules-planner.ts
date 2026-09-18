@@ -23,7 +23,7 @@ function* plan(ctx: RunContext): Generator<Step> {
       tool: "flag_missing",
       input: {
         field: "project_name",
-        reason: "No public-works project in the records corpus is located within 2 km of this report.",
+        reason: "No public-works project in the records CivicProof holds is within 2 km of this report.",
         requestable_record: "List of road works sanctioned or executed on this stretch in the last five years, with work orders",
       },
     };

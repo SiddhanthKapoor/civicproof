@@ -144,7 +144,7 @@ Resources:
         AuthType: NONE
         InvokeMode: RESPONSE_STREAM
       Policies:
-        # Least privilege: one table, one bucket, one model family. Nothing else.
+        # Least privilege: one table, one bucket, one model family, and Textract OCR. Nothing else.
         - DynamoDBCrudPolicy:
             TableName: !Ref CasesTable
         - S3CrudPolicy:
@@ -158,7 +158,8 @@ Resources:
               Resource:
                 - !Sub arn:aws:bedrock:*:${AWS::AccountId}:inference-profile/${BedrockModelId}
                 - arn:aws:bedrock:*::foundation-model/anthropic.claude-*
-                - arn:aws:bedrock:*::foundation-model/amazon.nova-*
+                # Global cross-region inference profiles route to region-less foundation-model ARNs.
+                - arn:aws:bedrock:::foundation-model/anthropic.claude-*
             # Textract text detection has no resource-level permissions; reads S3 with this role.
             - Sid: OcrScannedUploads
               Effect: Allow

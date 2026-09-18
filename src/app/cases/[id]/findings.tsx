@@ -90,7 +90,7 @@ export function Findings({
         <section className="rounded-2xl border border-dashed border-rule-strong bg-paper-2/60">
           <header className="border-b border-dashed border-rule-strong px-5 py-3.5">
             <h3 className="font-serif text-[19px] leading-tight">Not established by the records</h3>
-            <p className="mt-0.5 text-[13px] text-ink-3">Each of these can be requested. The RTI draft asks for exactly these records.</p>
+            <p className="mt-0.5 text-[13px] text-ink-3">Each of these can be requested. The RTI draft asks for these records first.</p>
           </header>
           <ul className="divide-y divide-dashed divide-rule-strong px-5">
             {missing.map((m) => (

@@ -12,11 +12,13 @@ import { newCaseId, newId, newOwnerKey, ownerKeyMatches, sha256Hex } from "@/lib
 import { log } from "@/lib/log";
 import { buildAppeal, buildComplaint, buildRti } from "@/lib/packet";
 import { rtiClock } from "@/lib/rti-clock";
+import { fmtDate } from "@/lib/agent/finalize";
 import { pdfPages } from "@/lib/pdf-text";
 import { ocrEnabled, ocrPages } from "@/lib/ocr";
 import {
   CASE_DOCUMENT_KINDS,
   CASE_DOCUMENT_LABELS,
+  PACKET_KINDS,
   PacketKindSchema,
   StatusSchema,
   type Case,
@@ -187,7 +189,8 @@ export async function recordTimeline(caseId: string, ownerKey: string | null, in
 
   let toStatus: CaseStatus | undefined;
   if (input.type === "complaint_submitted") toStatus = "submitted";
-  if (input.type === "response_received" || input.type === "follow_up_scheduled") toStatus = current.status === "submitted" ? "awaiting_response" : undefined;
+  // A recorded response leaves the status for the reporter to decide (resolved, closed, or still open).
+  if (input.type === "follow_up_scheduled") toStatus = current.status === "submitted" ? "awaiting_response" : undefined;
   if (input.type === "status_changed") toStatus = input.toStatus;
 
   const principal = isOwner ? ({ type: "Reporter", id: caseId } as const) : ({ type: "Public", id: "anonymous" } as const);
@@ -237,16 +240,47 @@ export async function recordTimeline(caseId: string, ownerKey: string | null, in
 // Packets
 // ---------------------------------------------------------------------------
 
-export function draftPacket(c: Case, kind: PacketKind): Packet {
+/** Why a first appeal can't be drafted yet, or undefined when it can. */
+export function appealUnavailable(c: Case, today = new Date().toISOString().slice(0, 10)): string | undefined {
+  const clock = rtiClock(c.timeline, today);
+  if (!clock) return "A first appeal needs a recorded RTI application. Record it under Tracking on the case page first.";
+  if (clock.state === "waiting")
+    return `The reply to the RTI application is due by ${fmtDate(clock.replyDue)}. An appeal for want of a reply can be drafted after that date; if a reply arrives and you disagree with it, record it under Tracking first.`;
+  return undefined;
+}
+
+/**
+ * Builds a packet from the case. `forOwner` fills in the reporter's name and contact; drafts
+ * anyone else sees carry placeholders instead.
+ */
+export function draftPacket(c: Case, kind: PacketKind, opts: { forOwner?: boolean } = {}): Packet {
   const corpus = getCorpus();
   const project = c.investigation?.selectedProjectId ? corpus.getProject(c.investigation.selectedProjectId) : undefined;
   const authority = corpus.getAuthority(project?.agencyId);
+  const reporter = opts.forOwner ? { name: c.reporterName, contact: c.reporterContact } : undefined;
+  const now = new Date();
   if (kind === "appeal") {
-    const clock = rtiClock(c.timeline, new Date().toISOString().slice(0, 10));
-    if (!clock) throw new ForbiddenError([], "A first appeal needs a recorded RTI submission. Record the RTI application in Tracking first.");
-    return buildAppeal(c, project, authority, clock);
+    const today = now.toISOString().slice(0, 10);
+    const reason = appealUnavailable(c, today);
+    if (reason) throw new ForbiddenError([], reason);
+    return buildAppeal(c, project, authority, rtiClock(c.timeline, today)!, now, reporter);
   }
-  return kind === "rti" ? buildRti(c, project, authority) : buildComplaint(c, project, authority);
+  return kind === "rti" ? buildRti(c, project, authority, now, reporter) : buildComplaint(c, project, authority, now, reporter);
+}
+
+/** The reporter's packets: what they saved, or fresh drafts with their details filled in. Owner only. */
+export async function ownerPackets(caseId: string, ownerKey: string | null): Promise<{ packets: Partial<Record<PacketKind, Packet>>; saved: PacketKind[] }> {
+  const c = await getStore().get(caseId);
+  if (!c) throw new Error("Case not found");
+  const isOwner = ownerKeyMatches(ownerKey, c.ownerKeyHash);
+  const d = authorize(isOwner ? { type: "Reporter", id: caseId } : { type: "Public", id: "anonymous" }, "ViewPrivateDetails", caseId, { is_owner: isOwner });
+  if (!d.allowed) throw new ForbiddenError(d.policies, "Only the person who filed this report can see their saved packets.");
+  const packets: Partial<Record<PacketKind, Packet>> = {};
+  for (const kind of PACKET_KINDS) {
+    if (kind === "appeal" && appealUnavailable(c)) continue;
+    packets[kind] = c.packets[kind] ?? draftPacket(c, kind, { forOwner: true });
+  }
+  return { packets, saved: PACKET_KINDS.filter((k) => c.packets[k]) };
 }
 
 export const PacketEditSchema = z.object({
@@ -279,6 +313,10 @@ export async function savePacket(
   if (!edit && !isOwner && !opts.system) {
     return { caseData: current, packet: draftPacket(current, kind), persisted: false };
   }
+  if (kind === "appeal") {
+    const reason = appealUnavailable(current);
+    if (reason) throw new ForbiddenError([], reason);
+  }
 
   if (edit) {
     const d = authorize(isOwner ? { type: "Reporter", id: caseId } : { type: "Public", id: "anonymous" }, "EditPacket", caseId, { is_owner: isOwner });
@@ -288,7 +326,7 @@ export async function savePacket(
   const at = new Date().toISOString();
   let saved: Packet | undefined;
   const caseData = await store.update(caseId, (c) => {
-    const base = draftPacket(c, kind);
+    const base = draftPacket(c, kind, { forOwner: isOwner });
     const packet: Packet = edit ? { ...base, addressedTo: edit.addressedTo, subject: edit.subject, sections: edit.sections, editedAt: at } : base;
     saved = packet;
     const moveToPrepared =

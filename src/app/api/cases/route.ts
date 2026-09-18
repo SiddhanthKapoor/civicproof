@@ -41,7 +41,15 @@ export const POST = handle("cases.create", async (req: Request) => {
 
   const files = form.getAll("photos").filter((f): f is File => typeof f !== "string");
   if (files.length > config.maxPhotos) return problem(400, `Attach at most ${config.maxPhotos} photos.`, { fields: { photos: `At most ${config.maxPhotos} photos.` } });
-  const metas = z.array(PhotoMetaSchema).parse(JSON.parse(field("photoMeta") ?? "[]"));
+  // A chunked upload has no content-length; check what actually arrived.
+  if (files.reduce((sum, f) => sum + f.size, 0) > MAX_BODY) return problem(413, "Photos are too large. Try fewer photos (they are resized in your browser before upload).");
+  let rawMeta: unknown;
+  try {
+    rawMeta = JSON.parse(field("photoMeta") ?? "[]");
+  } catch {
+    return problem(400, "Photo details could not be read. Please try again.");
+  }
+  const metas = z.array(PhotoMetaSchema).parse(rawMeta);
 
   const photos: Array<{ bytes: Uint8Array; meta: z.infer<typeof PhotoMetaSchema> }> = [];
   for (const [i, f] of files.entries()) {

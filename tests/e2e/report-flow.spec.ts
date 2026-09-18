@@ -89,3 +89,27 @@ test("reporter adds an RTI reply; only they can read it", async ({ page, request
   expect(res.status()).toBe(403);
   await stranger.close();
 });
+
+test("the reporter's name and saved packets stay private", async ({ page, request, browser }) => {
+  const form = { title: "Privacy check on Kodathi road", description: "Checking that the reporter's details stay private.", category: "pothole", lat: "12.894573", lng: "77.71297", locationSource: "map_pin", observedOn: "2026-09-12", reporterName: "Meera Iyer" };
+  const { id, ownerKey } = (await (await request.post("/api/cases", { multipart: form })).json()) as { id: string; ownerKey: string };
+  expect(JSON.stringify(await (await request.get(`/api/cases/${id}`)).json())).not.toContain("Meera Iyer");
+  expect((await request.get(`/api/cases/${id}/packet`)).status()).toBe(403);
+
+  // The owner's browser fills their name into the complaint.
+  await page.goto("/");
+  await page.evaluate(([i, k]) => localStorage.setItem(`civicproof:owner:${i}`, k), [id, ownerKey]);
+  await page.goto(`/cases/${id}/packet?kind=complaint`);
+  await expect(page.getByLabel("From")).toHaveValue(/Name: Meera Iyer/);
+
+  // Anyone else gets placeholders.
+  const stranger = await browser.newPage();
+  await stranger.goto(`/cases/${id}/packet?kind=complaint`);
+  await expect(stranger.getByLabel("From")).toHaveValue(/\[Your full name\]/);
+  await expect(stranger.getByText("Meera Iyer")).toHaveCount(0);
+  await stranger.close();
+
+  // No RTI on record yet, so asking for an appeal explains why instead of drafting one.
+  await page.goto(`/cases/${id}/packet?kind=appeal`);
+  await expect(page.getByText(/A first appeal needs a recorded RTI application/)).toBeVisible();
+});

@@ -30,7 +30,8 @@ function rowFrom(claim: Claim | undefined, evidence: Evidence[], label?: string)
 
 async function loadSpecimen() {
   const store = getStore();
-  const list = await store.list(100);
+  // Only labelled demo reports appear on the home page, never someone's real report.
+  const list = (await store.list(500)).filter((c) => c.demo);
   const pick = list.find((c) => c.projectId?.startsWith("pmgsy") && c.verifiedClaims > 0) ?? list.find((c) => c.verifiedClaims > 0);
   if (!pick) return null;
   const c = await store.get(pick.id);
@@ -265,7 +266,7 @@ unless { principal is Reporter && context.is_owner };`}
               { k: "AWS Lambda", v: "The app runs behind a Function URL in response-streaming mode, via the Lambda Web Adapter." },
               { k: "DynamoDB + S3", v: "Cases in one table with optimistic locking; photos, private documents and PDFs in a private bucket." },
               { k: "CloudWatch", v: "Structured logs for every case, run, denial and packet; an error alarm and metric filters." },
-              { k: "AWS SAM", v: "One template, least-privilege IAM: one table, one bucket, one model family." },
+              { k: "AWS SAM", v: "One template, least-privilege IAM: one table, one bucket, one model family, plus Textract." },
             ].map((a) => (
               <div key={a.k} className="bg-card p-6">
                 <h3 className="text-[16px] font-semibold">{a.k}</h3>

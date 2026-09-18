@@ -334,8 +334,13 @@ export function CaseDossier({ initial, projects, nearby = [] }: { initial: Publi
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={`/api/media/${photo.key}`} alt={`Photo submitted with ${caseData.id}`} className="aspect-[4/3] w-full object-cover" />
                 <figcaption className="space-y-1 border-t border-rule px-4 py-3 text-[12px] text-ink-3">
-                  <p>
-                    <span className="text-ink-2">SHA-256</span> <span className="font-mono">{photo.sha256.slice(0, 24)}…</span>
+                  {photo.originalSha256 && (
+                    <p title={photo.originalSha256}>
+                      <span className="text-ink-2">Original SHA-256</span> <span className="font-mono">{photo.originalSha256.slice(0, 20)}…</span>
+                    </p>
+                  )}
+                  <p title={photo.sha256}>
+                    <span className="text-ink-2">{photo.originalSha256 ? "Stored copy" : "SHA-256"}</span> <span className="font-mono">{photo.sha256.slice(0, 20)}…</span>
                   </p>
                   {photo.exif?.takenAt && <p>Taken {new Date(photo.exif.takenAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" })} (EXIF)</p>}
                   {photo.credit && <p>{photo.credit}</p>}
@@ -379,7 +384,6 @@ export function CaseDossier({ initial, projects, nearby = [] }: { initial: Publi
           <div className="rounded-2xl border border-rule bg-card p-4 shadow-card">
             <p className="text-[12px] font-medium uppercase tracking-[0.12em] text-ink-3">The report</p>
             <p className="mt-2 whitespace-pre-line text-[14px] leading-relaxed text-ink-2">{caseData.description}</p>
-            {caseData.reporterName && <p className="mt-2 text-[12.5px] text-ink-3">Reported by {caseData.reporterName}</p>}
           </div>
 
           {nearby.length > 0 && (

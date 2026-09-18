@@ -43,7 +43,8 @@ export function PacketEditor({
   investigated,
   initialKind,
   packets,
-  saved,
+  saved: initialSaved,
+  notice,
 }: {
   caseId: string;
   caseTitle: string;
@@ -52,12 +53,41 @@ export function PacketEditor({
   initialKind: Kind;
   packets: Partial<Record<Kind, Packet>> & Record<"complaint" | "rti", Packet>;
   saved: Record<Kind, boolean>;
+  /** Shown above the document, e.g. why a first appeal can't be drafted yet. */
+  notice?: string;
 }) {
   const [kind, setKind] = useState<Kind>(initialKind);
   const [docs, setDocs] = useState(packets);
   const [dirty, setDirty] = useState<Record<Kind, boolean>>({ complaint: false, rti: false, appeal: false });
+  const [saved, setSaved] = useState(initialSaved);
   const kinds = (["complaint", "rti", "appeal"] as Kind[]).filter((k) => docs[k]);
   const ownerKey = useStoredOwnerKey(caseId);
+  const dirtyRef = useRef(dirty);
+  useEffect(() => {
+    dirtyRef.current = dirty;
+  }, [dirty]);
+
+  // The page renders public drafts. The reporter's saved packets (and drafts with their name and
+  // contact filled in) are private, so they are fetched with the owner key.
+  useEffect(() => {
+    if (!ownerKey) return;
+    let cancelled = false;
+    fetch(`/api/cases/${caseId}/packet`, { headers: { "x-owner-key": ownerKey }, cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { packets: Partial<Record<Kind, Packet>>; saved: Kind[] } | null) => {
+        if (!d || cancelled) return;
+        setDocs((prev) => {
+          const next = { ...prev };
+          for (const k of Object.keys(d.packets) as Kind[]) if (!dirtyRef.current[k]) next[k] = d.packets[k]!;
+          return next;
+        });
+        setSaved({ complaint: d.saved.includes("complaint"), rti: d.saved.includes("rti"), appeal: d.saved.includes("appeal") });
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [caseId, ownerKey]);
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const doc = docs[kind] ?? docs.complaint;
@@ -87,7 +117,7 @@ export function PacketEditor({
     try {
       const r = await fetch(`/api/cases/${caseId}/packet/pdf`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", ...(ownerKey ? { "x-owner-key": ownerKey } : {}) },
         body: JSON.stringify({ kind, edit: edit() }),
       });
       if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error ?? "PDF failed");
@@ -120,7 +150,8 @@ export function PacketEditor({
         return;
       }
       setDirty((x) => ({ ...x, [kind]: false }));
-      setStatus("Saved to the case.");
+      setSaved((x) => ({ ...x, [kind]: true }));
+      setStatus("Saved to the case. Saved packets are visible only with your owner key.");
     } finally {
       setBusy(null);
     }
@@ -177,6 +208,7 @@ export function PacketEditor({
             ))}
           </div>
         </div>
+        {notice && <p className="mt-4 rounded-xl bg-paper-3 px-4 py-3 text-[14px] text-ink-2">{notice}</p>}
         {!investigated && (
           <p className="mt-4 rounded-xl bg-partial-soft px-4 py-3 text-[14px] text-partial">
             This case hasn&apos;t been investigated yet, so the draft contains only the report. <Link href={`/cases/${caseId}`} className="underline">Run the investigation</Link> first.
@@ -251,7 +283,7 @@ export function PacketEditor({
             <ul className="mt-2 space-y-1.5 text-[13px] text-ink-2">
               <li>Check the addressee and the office’s current channel.</li>
               <li>Read every fact against its numbered source.</li>
-              <li>{kind === "complaint" ? "Attach your photos and add your contact details." : kind === "rti" ? "Fill in your name and address, and pay the fee." : "Name the First Appellate Authority and attach a copy of the RTI application."}</li>
+              <li>{kind === "complaint" ? "Attach your photos and check your name and contact details." : kind === "rti" ? "Fill in your name and address, and pay the fee." : "Name the First Appellate Authority and attach a copy of the RTI application."}</li>
               <li>Record the reference number on the case page.</li>
             </ul>
             <Link href={`/cases/${caseId}#tracking`} className="mt-3 inline-block text-[13px] font-medium text-ink underline decoration-rule-strong underline-offset-4">

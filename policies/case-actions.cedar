@@ -3,7 +3,7 @@
 // Evaluated by the API (lib/authz.ts) before any state change.
 //   principal : Public::"anonymous" | Reporter::"<case id>" (holds the owner key) | Agent::"investigator"
 //   action    : ViewCase | CreateCase | StartInvestigation | RecordSubmission | RecordResponse
-//               | AddNote | EditPacket | AddEvidence | ViewPrivateDocument | ChangeStatus
+//               | AddNote | EditPacket | AddEvidence | ViewPrivateDocument | ViewPrivateDetails | ChangeStatus
 //   resource  : Case::"<case id>"
 //   context   : { is_owner, to_status, runs_for_case, max_runs_per_case, runs_today, max_runs_per_day }
 
@@ -29,6 +29,7 @@ permit (
     Action::"EditPacket",
     Action::"AddEvidence",
     Action::"ViewPrivateDocument",
+    Action::"ViewPrivateDetails",
     Action::"ChangeStatus"
   ],
   resource

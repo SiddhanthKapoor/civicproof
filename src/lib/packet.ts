@@ -14,6 +14,12 @@ import { parseDates } from "@/lib/agent/text";
 import type { RtiClock } from "@/lib/rti-clock";
 import { wordCount } from "@/lib/packet-text";
 
+/** The reporter's own details. Only passed when the packet is built for the owner; public drafts get placeholders. */
+export interface ReporterDetails {
+  name?: string;
+  contact?: string;
+}
+
 export const PACKET_DISCLAIMER =
   "Draft prepared with CivicProof. It states only what the cited records say and what the reporter observed; it makes no allegation. Check every detail, add your contact information, and edit as needed before submitting. CivicProof has not sent this to any authority.";
 
@@ -31,6 +37,7 @@ const FIELD_ORDER = [
   "completion_date",
   "completion_period",
   "defect_liability",
+  "maintenance_cost",
   "roads_covered",
   "scope",
   "work_status",
@@ -89,7 +96,7 @@ function locationLine(c: Case) {
   return `${c.location.address ? c.location.address + " — " : ""}${c.location.lat.toFixed(6)}, ${c.location.lng.toFixed(6)} (${src}). Map: https://www.openstreetmap.org/?mlat=${c.location.lat.toFixed(6)}&mlon=${c.location.lng.toFixed(6)}#map=18/${c.location.lat.toFixed(5)}/${c.location.lng.toFixed(5)}`;
 }
 
-export function buildComplaint(c: Case, project: Project | undefined, authority: Authority | undefined, now = new Date()): Packet {
+export function buildComplaint(c: Case, project: Project | undefined, authority: Authority | undefined, now = new Date(), reporter?: ReporterDetails): Packet {
   const inv = c.investigation;
   const claims = inv?.claims ?? [];
   const { order, list } = citeMap(inv?.evidence ?? []);
@@ -133,10 +140,13 @@ export function buildComplaint(c: Case, project: Project | undefined, authority:
 
   if (verified.length || window) {
     const lines: string[] = [];
-    for (const f of FIELD_ORDER) {
-      for (const cl of verified.filter((x) => x.field === f)) {
-        lines.push(`• ${CLAIM_FIELD_LABELS[f]}: ${withReadableDate(cl)}${refs(cl, order)}`);
-      }
+    const rank = (f: string) => {
+      const i = (FIELD_ORDER as readonly string[]).indexOf(f);
+      return i === -1 ? FIELD_ORDER.length : i;
+    };
+    // Every verified fact is listed (the summary counts them), in a readable order.
+    for (const cl of [...verified].sort((a, b) => rank(a.field) - rank(b.field))) {
+      lines.push(`• ${CLAIM_FIELD_LABELS[cl.field]}: ${withReadableDate(cl)}${refs(cl, order)}`);
     }
     if (window) lines.push(`• Defect liability window: ${window.text}${refs(window, order)} (computed from the cited dates)`);
     sections.push({
@@ -148,7 +158,9 @@ export function buildComplaint(c: Case, project: Project | undefined, authority:
 
   const questions = [
     ...conflicts.map((cf) => `• ${CLAIM_FIELD_LABELS[cf.field]}: ${cf.description}`),
-    ...(inv?.missing ?? []).map((m) => `• ${m.label}: ${m.reason}${m.requestableRecord ? ` (record: ${m.requestableRecord})` : ""}`),
+    ...(inv?.missing ?? [])
+      .filter((m) => project || m.field !== "project_name")
+      .map((m) => `• ${m.label}: ${m.reason}${m.requestableRecord ? ` (record: ${m.requestableRecord})` : ""}`),
   ];
   if (questions.length) sections.push({ id: "questions", heading: "Unresolved questions", body: questions.join("\n") });
 
@@ -160,13 +172,25 @@ export function buildComplaint(c: Case, project: Project | undefined, authority:
     "3. Share an action-taken report with the expected date of repair and the complaint reference number.",
   ];
   sections.push({ id: "request", heading: "Requested action", body: asks.join("\n") });
+  sections.push({
+    id: "sender",
+    heading: "From",
+    body: `Name: ${reporter?.name ?? "[Your full name]"}\nContact: ${reporter?.contact ?? "[Phone or email, so the office can reply]"}\nDate: ${fmtDate(now.toISOString().slice(0, 10))}`,
+  });
 
   const evidenceLines = list.map((e, i) => {
     const page = e.page ? `, p. ${e.page}` : "";
-    const where = e.sourceType === "user_upload" ? " (copy attached; obtained by the reporter)" : e.sourceUrl ? ` ${e.sourceUrl}` : "";
-    return `[${i + 1}] ${e.sourceTitle} — ${e.publisher ?? "publisher not recorded"}${page}. "${e.excerpt.replace(/\s+/g, " ").slice(0, 280)}"${where} (retrieved ${e.retrievedAt})`;
+    const excerpt = `"${e.excerpt.replace(/\s+/g, " ").slice(0, 280)}"`;
+    const source =
+      e.sourceType === "user_upload" ? "(copy attached; obtained by the reporter)" : `(retrieved ${e.retrievedAt})${e.sourceUrl ? ` ${e.sourceUrl}` : ""}`;
+    return `[${i + 1}] ${e.sourceTitle} — ${e.publisher ?? "publisher not recorded"}${page}. ${excerpt} ${source}`;
   });
-  const photoLines = c.photos.map((p, i) => `Photo ${i + 1}: SHA-256 ${p.sha256}${p.exif?.takenAt ? `, taken ${p.exif.takenAt} per EXIF` : ""}${p.credit ? ` — ${p.credit}` : ""}`);
+  // The original's fingerprint is what the reporter can match against the file on their phone;
+  // the stored copy is the resized version CivicProof holds.
+  const photoLines = c.photos.map(
+    (p, i) =>
+      `Photo ${i + 1}: ${p.originalSha256 ? `original file SHA-256 ${p.originalSha256} (computed on the reporter's device); ` : ""}copy held by CivicProof SHA-256 ${p.sha256}${p.exif?.takenAt ? `; taken ${p.exif.takenAt} per EXIF` : ""}${p.credit ? ` — ${p.credit}` : ""}`,
+  );
   sections.push({
     id: "evidence",
     heading: "Supporting evidence",
@@ -183,7 +207,7 @@ export function buildComplaint(c: Case, project: Project | undefined, authority:
   };
 }
 
-export function buildRti(c: Case, project: Project | undefined, authority: Authority | undefined, now = new Date()): Packet {
+export function buildRti(c: Case, project: Project | undefined, authority: Authority | undefined, now = new Date(), reporter?: ReporterDetails): Packet {
   const inv = c.investigation;
   const where = c.location.locality ?? c.location.address ?? `${c.location.lat.toFixed(5)}, ${c.location.lng.toFixed(5)}`;
   const work = project ? `the work "${project.name}"` : `road works on the stretch at ${where} (${c.location.lat.toFixed(5)}, ${c.location.lng.toFixed(5)})`;
@@ -215,18 +239,13 @@ export function buildRti(c: Case, project: Project | undefined, authority: Autho
   return {
     kind: "rti",
     generatedAt: now.toISOString(),
-    addressedTo: authority?.rti?.addressee ?? "The Public Information Officer",
+    addressedTo: `${authority?.rti?.addressee ?? "The Public Information Officer, [name of the public authority]"}\n[Office address]`,
     subject: "Application for information under Section 6(1) of the Right to Information Act, 2005",
     sections: [
       {
-        id: "to",
-        heading: "To",
-        body: `${authority?.rti?.addressee ?? "The Public Information Officer, [name of the public authority]"}\n[Office address]`,
-      },
-      {
         id: "applicant",
         heading: "Applicant",
-        body: "Name: [Your full name]\nAddress for correspondence: [Your address]\nPhone / email: [Optional]",
+        body: `Name: ${reporter?.name ?? "[Your full name]"}\nAddress for correspondence: [Your address]\nPhone / email: ${reporter?.contact ?? "[Optional]"}`,
       },
       {
         id: "information",
@@ -254,16 +273,41 @@ export function buildRti(c: Case, project: Project | undefined, authority: Autho
  * First appeal under Section 19(1) when an RTI application has gone unanswered.
  * Built only from what the reporter recorded (submission date, channel, reference).
  */
-export function buildAppeal(c: Case, project: Project | undefined, authority: Authority | undefined, clock: RtiClock, now = new Date()): Packet {
+/** Grounds that match what the reporter recorded: no reply in time, or a reply they disagree with. */
+function appealGrounds(clock: RtiClock): string[] {
+  const outOfTime = clock.daysLeft < 0;
+  if (clock.repliedOn) {
+    return [
+      `The Public Information Officer's reply was received on ${fmtDate(clock.repliedOn)}.${clock.repliedOn > clock.replyDue ? ` That is after ${fmtDate(clock.replyDue)}, when the 30-day period in Section 7(1) ended.` : ""} I am aggrieved by the decision because [say which items were refused, not answered or answered incompletely, and why the reply does not meet the request].`,
+      outOfTime
+        ? `This appeal is filed after the 30 days allowed by Section 19(1), which ended on ${fmtDate(clock.appealBy)}. I request that the delay be condoned under the proviso to Section 19(1): [state the reason for the delay].`
+        : "This appeal is filed within 30 days of receiving the reply, as permitted by Section 19(1).",
+    ];
+  }
+  return [
+    `No decision or information was received within 30 days of the application, the period set by Section 7(1). Under Section 7(2) this is deemed a refusal. The reply was due by ${fmtDate(clock.replyDue)}.`,
+    outOfTime
+      ? `This appeal is filed after the 30 days allowed by Section 19(1), which ended on ${fmtDate(clock.appealBy)}. I request that the delay be condoned under the proviso to Section 19(1): [state the reason for the delay].`
+      : "This appeal is filed within 30 days of that date, as permitted by Section 19(1).",
+  ];
+}
+
+export function buildAppeal(c: Case, project: Project | undefined, authority: Authority | undefined, clock: RtiClock, now = new Date(), reporter?: ReporterDetails): Packet {
   const where = c.location.locality ?? c.location.address ?? `${c.location.lat.toFixed(5)}, ${c.location.lng.toFixed(5)}`;
   const body = authority?.name ?? "[Name of the public authority]";
+  // Section 7(6): information is free when the reply did not come within the time limit.
+  const late = !clock.repliedOn || clock.repliedOn > clock.replyDue;
   return {
     kind: "appeal",
     generatedAt: now.toISOString(),
     addressedTo: `The First Appellate Authority, ${body}`,
     subject: "First appeal under Section 19(1) of the Right to Information Act, 2005",
     sections: [
-      { id: "appellant", heading: "Appellant", body: "Name: [Your full name]\nAddress for correspondence: [Your address]\nPhone / email: [Optional]" },
+      {
+        id: "appellant",
+        heading: "Appellant",
+        body: `Name: ${reporter?.name ?? "[Your full name]"}\nAddress for correspondence: [Your address]\nPhone / email: ${reporter?.contact ?? "[Optional]"}`,
+      },
       {
         id: "application",
         heading: "Particulars of the RTI application",
@@ -277,17 +321,23 @@ export function buildAppeal(c: Case, project: Project | undefined, authority: Au
           .filter(Boolean)
           .join("\n"),
       },
-      {
-        id: "grounds",
-        heading: "Grounds of appeal",
-        body: `No decision or information was received within 30 days of the application, the period set by Section 7(1). Under Section 7(2) this is deemed a refusal. The reply was due by ${fmtDate(clock.replyDue)}, and this appeal is filed within 30 days of that date as permitted by Section 19(1).`,
-      },
+      { id: "grounds", heading: "Grounds of appeal", body: appealGrounds(clock).join("\n\n") },
       {
         id: "relief",
         heading: "Relief sought",
-        body: "1. Direct the Public Information Officer to furnish the information sought in the application.\n2. Since the time limit was not complied with, direct that the information be provided free of charge, as provided by Section 7(6).\n3. Any other order the First Appellate Authority considers appropriate.",
+        body: [
+          "Direct the Public Information Officer to furnish the information sought in the application.",
+          ...(late ? ["Since the time limit in Section 7(1) was not complied with, direct that the information be provided free of charge, as provided by Section 7(6)."] : []),
+          "Any other order the First Appellate Authority considers appropriate.",
+        ]
+          .map((r, i) => `${i + 1}. ${r}`)
+          .join("\n"),
       },
-      { id: "enclosures", heading: "Enclosures", body: "1. Copy of the RTI application\n2. Proof of submission and fee payment" },
+      {
+        id: "enclosures",
+        heading: "Enclosures",
+        body: ["Copy of the RTI application", "Proof of submission and fee payment", ...(clock.repliedOn ? ["Copy of the reply received"] : [])].map((r, i) => `${i + 1}. ${r}`).join("\n"),
+      },
       { id: "declaration", heading: "Declaration", body: "I am a citizen of India. The facts stated above are true to the best of my knowledge.\n\nPlace: [ ]\nDate: [ ]\nSignature: [ ]" },
     ],
     disclaimer:

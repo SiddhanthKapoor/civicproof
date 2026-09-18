@@ -34,7 +34,7 @@ export default async function DocumentPage(props: PageProps<"/sources/[docId]">)
         <span aria-hidden>/</span>
         <span className="truncate text-ink-2">{doc.id}</span>
       </nav>
-      <h1 className="mt-4 max-w-4xl font-serif text-[30px] leading-[1.1] tracking-[-0.01em] sm:text-[40px]">{doc.title}</h1>
+      <h1 className="mt-4 max-w-4xl font-serif text-[30px] leading-[1.1] tracking-[-0.01em] [overflow-wrap:anywhere] sm:text-[40px]">{doc.title}</h1>
       <p className="mt-2 text-[14px] text-ink-2">{doc.publisher}</p>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">

@@ -123,8 +123,8 @@ See [.env.example](.env.example) for every setting.
 ## Test
 
 ```bash
-npm test            # 42 unit/integration tests (Vitest)
-npm run test:e2e    # 4 browser tests incl. an axe WCAG 2.1 AA audit (Playwright), against a running server
+npm test            # 47 unit/integration tests (Vitest)
+npm run test:e2e    # 5 browser tests incl. an axe WCAG 2.1 AA audit (Playwright), against a running server
                     # (they create cases: run that server with CIVICPROOF_DATA_DIR pointing at a scratch dir you've seeded)
 npm run check       # all of the above plus types and lint
 npm run eval        # scores the investigator against the 85 curated facts (set CIVICPROOF_PLANNER=bedrock to evaluate Claude)

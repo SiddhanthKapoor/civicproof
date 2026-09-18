@@ -87,7 +87,7 @@ export function missingChecklist(claims: Claim[], alreadyFlagged: MissingItem[],
       out.unshift({
         field: "project_name",
         label: CLAIM_FIELD_LABELS.project_name,
-        reason: "No public-works project in the records corpus matches this location.",
+        reason: "No public-works project in the records CivicProof holds matches this location.",
         requestableRecord: "List of road works sanctioned or executed on this stretch in the last five years, with work orders",
       });
     return out;
@@ -126,7 +126,7 @@ export function deriveNextActions(
     actions.push({
       type: "defect_liability_repair_request",
       title: "Request repair under the defect liability period",
-      rationale: `${window.text} Defect liability clauses in public works contracts generally oblige the contractor to rectify defects that appear during the period; the exact obligation depends on this contract's terms. The request goes to the executing agency, which enforces the contract.`,
+      rationale: `${window.text} Defect liability clauses in public works contracts generally oblige the contractor to rectify defects that appear during the period; the exact obligation depends on this contract's terms. The request goes to the executing agency, which enforces the contract.${authority?.grievance ? ` Send the complaint packet through ${authority.grievance.name}, then record the reference number here.` : ""}`,
       addressedTo: officer ?? (agencyName ? `Executive Engineer, ${agencyName}` : "The executing agency's Executive Engineer"),
       channel: authority?.grievance?.name,
       channelUrl: authority?.grievance?.url,
@@ -137,7 +137,9 @@ export function deriveNextActions(
     });
   }
 
-  if (authority?.grievance) {
+  // With a repair request, the complaint already goes to the same office through the same channel.
+  const repairRequested = actions.some((a) => a.type === "defect_liability_repair_request");
+  if (authority?.grievance && !repairRequested) {
     actions.push({
       type: "grievance_portal",
       title: `File the complaint with ${authority.shortName ?? authority.name}`,
@@ -172,7 +174,7 @@ export function deriveNextActions(
   }
 
   for (const p of aiProposals) {
-    if (actions.some((a) => a.type === p.type)) continue;
+    if (actions.some((a) => a.type === p.type) || (repairRequested && p.type === "grievance_portal")) continue;
     actions.push({ ...p, priority: 4, origin: "ai" });
   }
   return actions.sort((a, b) => a.priority - b.priority);
