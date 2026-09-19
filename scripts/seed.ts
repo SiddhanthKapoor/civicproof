@@ -43,6 +43,36 @@ const DEMOS: Array<NewReport & { packet?: boolean; goldenA?: boolean }> = [
     packet: true,
   },
   {
+    // Bengaluru city, identified by the work number printed on a BBMP ward work board. BBMP's
+    // register records the work, the ward and the contractor but no completion date and no
+    // defect-liability period, so the maintenance question stays UNKNOWN instead of being guessed.
+    title: "Potholes on the inner road in BTM Layout",
+    description:
+      "Several deep potholes along the inner road near the 16th Main junction in BTM Layout. Two-wheelers swerve around them and water collects in the largest one after rain.",
+    category: "pothole",
+    lat: 12.9166,
+    lng: 77.6101,
+    locationSource: "map_pin",
+    address: "BTM Layout, Ward 176, Bengaluru",
+    jobCode: "176-20-000042",
+    observedOn: "2026-09-13",
+  },
+  {
+    // One BBMP ward job number covering three different works by three different contractors — the
+    // civil work, the detailed project report and the project-management consultancy. CivicProof
+    // keeps all three and refuses to pick one.
+    title: "Broken road surface and missing drain covers in Ward 119",
+    description:
+      "The road surface has broken up across a long stretch and two drain covers are missing near the junction, leaving open holes next to the footpath.",
+    category: "pothole",
+    lat: 12.9716,
+    lng: 77.5946,
+    locationSource: "map_pin",
+    address: "Ward 119, Bengaluru",
+    jobCode: "119-23-000003",
+    observedOn: "2026-09-11",
+  },
+  {
     title: "Potholes on Thimmaiah Road near Kamaraj Road",
     description: "A cluster of potholes on Thimmaiah Road close to the Kamaraj Road end, deep enough to jolt cars at low speed.",
     category: "pothole",

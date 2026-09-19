@@ -43,6 +43,16 @@ export const ProjectSchema = z.object({
     note: z.string(),
     url: z.string().optional(),
   }),
+  /**
+   * How this project may be *established*, as opposed to merely suggested.
+   *
+   * "identifier" means the record covers an area rather than one identified road — a ward work
+   * order naming a whole ward, say — so a road or locality name matching it corroborates nothing:
+   * the same ward holds many such works, and the corpus may hold only one of them. Those are
+   * established by their own work number and by nothing else. Left unset, a project may also be
+   * established from its own record once the location or road name has narrowed the field.
+   */
+  identifiedBy: z.enum(["identifier"]).optional(),
   documents: z.array(z.string()).min(1),
   reference: z.array(ReferenceFieldSchema).default([]),
   /** One-line neutral description shown in listings. */

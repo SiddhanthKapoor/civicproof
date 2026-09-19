@@ -146984,5 +146984,981 @@
    }
   ],
   "summary": "PMGSY-III · package KN25123B · Turuvekere block · Completed"
+ },
+ {
+  "id": "bbmp-ward176-btm-potholes",
+  "name": "Potholes and Road cutting restoration in ward No 176 BTM Layout",
+  "roadNames": [
+   "BTM Layout",
+   "BTM"
+  ],
+  "locality": "BTM Layout, Ward 176, Bengaluru",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "agencyId": "bbmp",
+  "categories": [
+   "pothole",
+   "road_damage"
+  ],
+  "geometrySource": {
+   "kind": "none",
+   "note": "BBMP's work-order register records a payment for named work in a named ward, not a map location. This project is found by the road or locality named in the work description, never by proximity to a pin.",
+   "url": "https://data.opencity.in/dataset/bbmp-work-orders-and-payments-2025-26"
+  },
+  "identifiedBy": "identifier",
+  "documents": [
+   "opencity-bbmp-work-orders-2025-26-198-wards"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "BBMP's work-order register describes the work as “Potholes and Road cutting restoration in ward No 176 BTM Layout”.",
+    "value": "Potholes and Road cutting restoration in ward No 176 BTM Layout",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 11,
+      "quote": "Work: Potholes and Road cutting restoration in ward No 176 BTM Layout"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "The work carries BBMP job number 176-20-000042 in ward 176.",
+    "value": "176-20-000042",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 11,
+      "quote": "Job number: 176-20-000042; Ward: 176"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The work order is recorded in BBMP's own work-orders and payments register for 2025-26.",
+    "value": "BBMP",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 11,
+      "quote": "BBMP work orders and payments, 2025-26 (198-ward regime). Source: accounts.bbmp.gov.in, compiled by OpenCity."
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "The register names the contractor for this work order as “PURUSHOTHAM KUMAR J”.",
+    "value": "PURUSHOTHAM KUMAR J",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 11,
+      "quote": "Contractor: PURUSHOTHAM KUMAR J[phone removed]"
+     }
+    ],
+    "notes": "BBMP's register stores the contractor name in a fixed-width field, so a longer name is held truncated. It is reproduced exactly as recorded."
+   },
+   {
+    "field": "scope",
+    "text": "The recorded scope of the work order is “Potholes and Road cutting restoration in ward No 176 BTM Layout”.",
+    "value": "Potholes and Road cutting restoration in ward No 176 BTM Layout",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 11,
+      "quote": "Work: Potholes and Road cutting restoration in ward No 176 BTM Layout"
+     }
+    ]
+   }
+  ],
+  "summary": "BBMP ward work order 176-20-000042 (BTM Layout, Ward 176, Bengaluru). The register records the work, the ward and the contractor; it records no completion date and no defect-liability period."
+ },
+ {
+  "id": "bbmp-ward151-koramangala-drains",
+  "name": "Desilting of Drains and other Improvements of the drain works in Koramangala ward no 151",
+  "roadNames": [
+   "Koramangala"
+  ],
+  "locality": "Koramangala, Ward 151, Bengaluru",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "agencyId": "bbmp",
+  "categories": [
+   "drainage"
+  ],
+  "geometrySource": {
+   "kind": "none",
+   "note": "BBMP's work-order register records a payment for named work in a named ward, not a map location. This project is found by the road or locality named in the work description, never by proximity to a pin.",
+   "url": "https://data.opencity.in/dataset/bbmp-work-orders-and-payments-2025-26"
+  },
+  "identifiedBy": "identifier",
+  "documents": [
+   "opencity-bbmp-work-orders-2025-26-198-wards"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "BBMP's work-order register describes the work as “Desilting of Drains and other Improvements of the drain works in Koramangala ward no 151”.",
+    "value": "Desilting of Drains and other Improvements of the drain works in Koramangala ward no 151",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 37,
+      "quote": "Work: Desilting of Drains and other Improvements of the drain works in Koramangala ward no 151"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "The work carries BBMP job number 151-20-000068 in ward 151.",
+    "value": "151-20-000068",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 37,
+      "quote": "Job number: 151-20-000068; Ward: 151"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The work order is recorded in BBMP's own work-orders and payments register for 2025-26.",
+    "value": "BBMP",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 37,
+      "quote": "BBMP work orders and payments, 2025-26 (198-ward regime). Source: accounts.bbmp.gov.in, compiled by OpenCity."
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "The register names the contractor for this work order as “VENKATESH REDDY K”.",
+    "value": "VENKATESH REDDY K",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 37,
+      "quote": "Contractor: VENKATESH REDDY K[phone removed]"
+     }
+    ],
+    "notes": "BBMP's register stores the contractor name in a fixed-width field, so a longer name is held truncated. It is reproduced exactly as recorded."
+   },
+   {
+    "field": "scope",
+    "text": "The recorded scope of the work order is “Desilting of Drains and other Improvements of the drain works in Koramangala ward no 151”.",
+    "value": "Desilting of Drains and other Improvements of the drain works in Koramangala ward no 151",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 37,
+      "quote": "Work: Desilting of Drains and other Improvements of the drain works in Koramangala ward no 151"
+     }
+    ]
+   }
+  ],
+  "summary": "BBMP ward work order 151-20-000068 (Koramangala, Ward 151, Bengaluru). The register records the work, the ward and the contractor; it records no completion date and no defect-liability period."
+ },
+ {
+  "id": "bbmp-ward174-hsr-roads",
+  "name": "Improvements selected roads and drains 4th sector in ward No. 174 HSR Layout",
+  "roadNames": [
+   "HSR Layout",
+   "HSR"
+  ],
+  "locality": "HSR Layout 4th Sector, Ward 174, Bengaluru",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "agencyId": "bbmp",
+  "categories": [
+   "road_damage",
+   "pothole",
+   "drainage"
+  ],
+  "geometrySource": {
+   "kind": "none",
+   "note": "BBMP's work-order register records a payment for named work in a named ward, not a map location. This project is found by the road or locality named in the work description, never by proximity to a pin.",
+   "url": "https://data.opencity.in/dataset/bbmp-work-orders-and-payments-2025-26"
+  },
+  "identifiedBy": "identifier",
+  "documents": [
+   "opencity-bbmp-work-orders-2025-26-198-wards"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "BBMP's work-order register describes the work as “Improvements selected roads and drains 4th sector in ward No. 174 HSR Layout”.",
+    "value": "Improvements selected roads and drains 4th sector in ward No. 174 HSR Layout",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 36,
+      "quote": "Work: Improvements selected roads and drains 4th sector in ward No. 174 HSR Layout"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "The work carries BBMP job number 174-21-000013 in ward 174.",
+    "value": "174-21-000013",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 36,
+      "quote": "Job number: 174-21-000013; Ward: 174"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The work order is recorded in BBMP's own work-orders and payments register for 2025-26.",
+    "value": "BBMP",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 36,
+      "quote": "BBMP work orders and payments, 2025-26 (198-ward regime). Source: accounts.bbmp.gov.in, compiled by OpenCity."
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "The register names the contractor for this work order as “VAGXMI INNOVATIVE TE”.",
+    "value": "VAGXMI INNOVATIVE TE",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 36,
+      "quote": "Contractor: VAGXMI INNOVATIVE TE[phone removed]"
+     }
+    ],
+    "notes": "BBMP's register stores the contractor name in a fixed-width field, so a longer name is held truncated. This name is at that limit and appears incomplete in the source. It is reproduced exactly as recorded."
+   },
+   {
+    "field": "scope",
+    "text": "The recorded scope of the work order is “Improvements selected roads and drains 4th sector in ward No. 174 HSR Layout”.",
+    "value": "Improvements selected roads and drains 4th sector in ward No. 174 HSR Layout",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 36,
+      "quote": "Work: Improvements selected roads and drains 4th sector in ward No. 174 HSR Layout"
+     }
+    ]
+   }
+  ],
+  "summary": "BBMP ward work order 174-21-000013 (HSR Layout 4th Sector, Ward 174, Bengaluru). The register records the work, the ward and the contractor; it records no completion date and no defect-liability period."
+ },
+ {
+  "id": "bbmp-ward086-marathahalli-roads",
+  "name": "Improvements to roads and drains of tulasi theatre cross roads at Marathahalli ward no 86",
+  "roadNames": [
+   "Marathahalli",
+   "Tulasi Theatre Cross Road"
+  ],
+  "locality": "Marathahalli, Ward 86, Bengaluru",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "agencyId": "bbmp",
+  "categories": [
+   "road_damage",
+   "pothole",
+   "drainage"
+  ],
+  "geometrySource": {
+   "kind": "none",
+   "note": "BBMP's work-order register records a payment for named work in a named ward, not a map location. This project is found by the road or locality named in the work description, never by proximity to a pin.",
+   "url": "https://data.opencity.in/dataset/bbmp-work-orders-and-payments-2025-26"
+  },
+  "identifiedBy": "identifier",
+  "documents": [
+   "opencity-bbmp-work-orders-2025-26-198-wards"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "BBMP's work-order register describes the work as “Improvements to roads and drains of tulasi theatre cross roads at Marathahalli ward no 86”.",
+    "value": "Improvements to roads and drains of tulasi theatre cross roads at Marathahalli ward no 86",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 11,
+      "quote": "Work: Improvements to roads and drains of tulasi theatre cross roads at Marathahalli ward no 86"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "The work carries BBMP job number 086-20-000026 in ward 86.",
+    "value": "086-20-000026",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 11,
+      "quote": "Job number: 086-20-000026; Ward: 86"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The work order is recorded in BBMP's own work-orders and payments register for 2025-26.",
+    "value": "BBMP",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 11,
+      "quote": "BBMP work orders and payments, 2025-26 (198-ward regime). Source: accounts.bbmp.gov.in, compiled by OpenCity."
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "The register names the contractor for this work order as “R LAXMINARAYAN”.",
+    "value": "R LAXMINARAYAN",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 11,
+      "quote": "Contractor: R LAXMINARAYAN[phone removed]"
+     }
+    ],
+    "notes": "BBMP's register stores the contractor name in a fixed-width field, so a longer name is held truncated. It is reproduced exactly as recorded."
+   },
+   {
+    "field": "scope",
+    "text": "The recorded scope of the work order is “Improvements to roads and drains of tulasi theatre cross roads at Marathahalli ward no 86”.",
+    "value": "Improvements to roads and drains of tulasi theatre cross roads at Marathahalli ward no 86",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 11,
+      "quote": "Work: Improvements to roads and drains of tulasi theatre cross roads at Marathahalli ward no 86"
+     }
+    ]
+   }
+  ],
+  "summary": "BBMP ward work order 086-20-000026 (Marathahalli, Ward 86, Bengaluru). The register records the work, the ward and the contractor; it records no completion date and no defect-liability period."
+ },
+ {
+  "id": "bbmp-ward179-jayanagar-footpath",
+  "name": "Footpath maintenance in 5th block and 8th block Jayanagara and ITI layout surrounding areas in ward No. 179.",
+  "roadNames": [
+   "Jayanagara",
+   "Jayanagar",
+   "ITI Layout"
+  ],
+  "locality": "Jayanagar 5th and 8th Block, Ward 179, Bengaluru",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "agencyId": "bbmp",
+  "categories": [
+   "road_damage"
+  ],
+  "geometrySource": {
+   "kind": "none",
+   "note": "BBMP's work-order register records a payment for named work in a named ward, not a map location. This project is found by the road or locality named in the work description, never by proximity to a pin.",
+   "url": "https://data.opencity.in/dataset/bbmp-work-orders-and-payments-2025-26"
+  },
+  "identifiedBy": "identifier",
+  "documents": [
+   "opencity-bbmp-work-orders-2025-26-198-wards"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "BBMP's work-order register describes the work as “Footpath maintenance in 5th block and 8th block Jayanagara and ITI layout surrounding areas in ward No. 179.”.",
+    "value": "Footpath maintenance in 5th block and 8th block Jayanagara and ITI layout surrounding areas in ward No. 179.",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 6,
+      "quote": "Work: Footpath maintenance in 5th block and 8th block Jayanagara and ITI layout surrounding areas in ward No. 179."
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "The work carries BBMP job number 179-20-000059 in ward 179.",
+    "value": "179-20-000059",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 6,
+      "quote": "Job number: 179-20-000059; Ward: 179"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The work order is recorded in BBMP's own work-orders and payments register for 2025-26.",
+    "value": "BBMP",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 6,
+      "quote": "BBMP work orders and payments, 2025-26 (198-ward regime). Source: accounts.bbmp.gov.in, compiled by OpenCity."
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "The register names the contractor for this work order as “DHANANJAYA V”.",
+    "value": "DHANANJAYA V",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 6,
+      "quote": "Contractor: DHANANJAYA V[phone removed]"
+     }
+    ],
+    "notes": "BBMP's register stores the contractor name in a fixed-width field, so a longer name is held truncated. It is reproduced exactly as recorded."
+   },
+   {
+    "field": "scope",
+    "text": "The recorded scope of the work order is “Footpath maintenance in 5th block and 8th block Jayanagara and ITI layout surrounding areas in ward No. 179.”.",
+    "value": "Footpath maintenance in 5th block and 8th block Jayanagara and ITI layout surrounding areas in ward No. 179.",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 6,
+      "quote": "Work: Footpath maintenance in 5th block and 8th block Jayanagara and ITI layout surrounding areas in ward No. 179."
+     }
+    ]
+   }
+  ],
+  "summary": "BBMP ward work order 179-20-000059 (Jayanagar 5th and 8th Block, Ward 179, Bengaluru). The register records the work, the ward and the contractor; it records no completion date and no defect-liability period."
+ },
+ {
+  "id": "bbmp-ward019-sanjayanagar-roads",
+  "name": "Improvements to Roads and drains at Sanjayanagar and Surrounding areas in ward No 19 Sanjayanagar",
+  "roadNames": [
+   "Sanjayanagar",
+   "Sanjay Nagar"
+  ],
+  "locality": "Sanjayanagar, Ward 19, Bengaluru",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "agencyId": "bbmp",
+  "categories": [
+   "road_damage",
+   "pothole",
+   "drainage"
+  ],
+  "geometrySource": {
+   "kind": "none",
+   "note": "BBMP's work-order register records a payment for named work in a named ward, not a map location. This project is found by the road or locality named in the work description, never by proximity to a pin.",
+   "url": "https://data.opencity.in/dataset/bbmp-work-orders-and-payments-2025-26"
+  },
+  "identifiedBy": "identifier",
+  "documents": [
+   "opencity-bbmp-work-orders-2025-26-198-wards"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "BBMP's work-order register describes the work as “Improvements to Roads and drains at Sanjayanagar and Surrounding areas in ward No 19 Sanjayanagar”.",
+    "value": "Improvements to Roads and drains at Sanjayanagar and Surrounding areas in ward No 19 Sanjayanagar",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 8,
+      "quote": "Work: Improvements to Roads and drains at Sanjayanagar and Surrounding areas in ward No 19 Sanjayanagar"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "The work carries BBMP job number 019-20-000035 in ward 19.",
+    "value": "019-20-000035",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 8,
+      "quote": "Job number: 019-20-000035; Ward: 19"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The work order is recorded in BBMP's own work-orders and payments register for 2025-26.",
+    "value": "BBMP",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 8,
+      "quote": "BBMP work orders and payments, 2025-26 (198-ward regime). Source: accounts.bbmp.gov.in, compiled by OpenCity."
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "The register names the contractor for this work order as “Mr N SUDHAKAR REDD”.",
+    "value": "Mr N SUDHAKAR REDD",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 8,
+      "quote": "Contractor: Mr N SUDHAKAR REDD[phone removed]"
+     }
+    ],
+    "notes": "BBMP's register stores the contractor name in a fixed-width field, so a longer name is held truncated. It is reproduced exactly as recorded."
+   },
+   {
+    "field": "scope",
+    "text": "The recorded scope of the work order is “Improvements to Roads and drains at Sanjayanagar and Surrounding areas in ward No 19 Sanjayanagar”.",
+    "value": "Improvements to Roads and drains at Sanjayanagar and Surrounding areas in ward No 19 Sanjayanagar",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 8,
+      "quote": "Work: Improvements to Roads and drains at Sanjayanagar and Surrounding areas in ward No 19 Sanjayanagar"
+     }
+    ]
+   }
+  ],
+  "summary": "BBMP ward work order 019-20-000035 (Sanjayanagar, Ward 19, Bengaluru). The register records the work, the ward and the contractor; it records no completion date and no defect-liability period."
+ },
+ {
+  "id": "bbmp-ward159-kengeri-roads",
+  "name": "Improvements of Roads and Drains in Kengeri and Surrounding area in Ward No-159 Kengeri",
+  "roadNames": [
+   "Kengeri"
+  ],
+  "locality": "Kengeri, Ward 159, Bengaluru",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "agencyId": "bbmp",
+  "categories": [
+   "road_damage",
+   "pothole",
+   "drainage"
+  ],
+  "geometrySource": {
+   "kind": "none",
+   "note": "BBMP's work-order register records a payment for named work in a named ward, not a map location. This project is found by the road or locality named in the work description, never by proximity to a pin.",
+   "url": "https://data.opencity.in/dataset/bbmp-work-orders-and-payments-2025-26"
+  },
+  "identifiedBy": "identifier",
+  "documents": [
+   "opencity-bbmp-work-orders-2025-26-198-wards"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "BBMP's work-order register describes the work as “Improvements of Roads and Drains in Kengeri and Surrounding area in Ward No-159 Kengeri”.",
+    "value": "Improvements of Roads and Drains in Kengeri and Surrounding area in Ward No-159 Kengeri",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 13,
+      "quote": "Work: Improvements of Roads and Drains in Kengeri and Surrounding area in Ward No-159 Kengeri"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "The work carries BBMP job number 159-23-000001 in ward 159.",
+    "value": "159-23-000001",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 13,
+      "quote": "Job number: 159-23-000001; Ward: 159"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The work order is recorded in BBMP's own work-orders and payments register for 2025-26.",
+    "value": "BBMP",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 13,
+      "quote": "BBMP work orders and payments, 2025-26 (198-ward regime). Source: accounts.bbmp.gov.in, compiled by OpenCity."
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "The register names the contractor for this work order as “GANAPATHISTONECRUSHE”.",
+    "value": "GANAPATHISTONECRUSHE",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 13,
+      "quote": "Contractor: 031685 GANAPATHISTONECRUSHE[phone removed]"
+     }
+    ],
+    "notes": "BBMP's register stores the contractor name in a fixed-width field, so a longer name is held truncated. This name is at that limit and appears incomplete in the source. It is reproduced exactly as recorded."
+   },
+   {
+    "field": "scope",
+    "text": "The recorded scope of the work order is “Improvements of Roads and Drains in Kengeri and Surrounding area in Ward No-159 Kengeri”.",
+    "value": "Improvements of Roads and Drains in Kengeri and Surrounding area in Ward No-159 Kengeri",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 13,
+      "quote": "Work: Improvements of Roads and Drains in Kengeri and Surrounding area in Ward No-159 Kengeri"
+     }
+    ]
+   }
+  ],
+  "summary": "BBMP ward work order 159-23-000001 (Kengeri, Ward 159, Bengaluru). The register records the work, the ward and the contractor; it records no completion date and no defect-liability period."
+ },
+ {
+  "id": "bbmp-ward084-vijayanagar-crossroads",
+  "name": "Improvements to cross roads at Vijayanagar in Ward No. 84 Hagaduru",
+  "roadNames": [
+   "Vijayanagar",
+   "Hagaduru"
+  ],
+  "locality": "Vijayanagar, Ward 84, Bengaluru",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "agencyId": "bbmp",
+  "categories": [
+   "road_damage",
+   "pothole"
+  ],
+  "geometrySource": {
+   "kind": "none",
+   "note": "BBMP's work-order register records a payment for named work in a named ward, not a map location. This project is found by the road or locality named in the work description, never by proximity to a pin.",
+   "url": "https://data.opencity.in/dataset/bbmp-work-orders-and-payments-2025-26"
+  },
+  "identifiedBy": "identifier",
+  "documents": [
+   "opencity-bbmp-work-orders-2025-26-198-wards"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "BBMP's work-order register describes the work as “Improvements to cross roads at Vijayanagar in Ward No. 84 Hagaduru”.",
+    "value": "Improvements to cross roads at Vijayanagar in Ward No. 84 Hagaduru",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 12,
+      "quote": "Work: Improvements to cross roads at Vijayanagar in Ward No. 84 Hagaduru"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "The work carries BBMP job number 084-18-000082 in ward 84.",
+    "value": "084-18-000082",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 12,
+      "quote": "Job number: 084-18-000082; Ward: 84"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The work order is recorded in BBMP's own work-orders and payments register for 2025-26.",
+    "value": "BBMP",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 12,
+      "quote": "BBMP work orders and payments, 2025-26 (198-ward regime). Source: accounts.bbmp.gov.in, compiled by OpenCity."
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "The register names the contractor for this work order as “PNARAYANASWAMY”.",
+    "value": "PNARAYANASWAMY",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 12,
+      "quote": "Contractor: PNARAYANASWAMY[phone removed]"
+     }
+    ],
+    "notes": "BBMP's register stores the contractor name in a fixed-width field, so a longer name is held truncated. It is reproduced exactly as recorded."
+   },
+   {
+    "field": "scope",
+    "text": "The recorded scope of the work order is “Improvements to cross roads at Vijayanagar in Ward No. 84 Hagaduru”.",
+    "value": "Improvements to cross roads at Vijayanagar in Ward No. 84 Hagaduru",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 12,
+      "quote": "Work: Improvements to cross roads at Vijayanagar in Ward No. 84 Hagaduru"
+     }
+    ]
+   }
+  ],
+  "summary": "BBMP ward work order 084-18-000082 (Vijayanagar, Ward 84, Bengaluru). The register records the work, the ward and the contractor; it records no completion date and no defect-liability period."
+ },
+ {
+  "id": "bbmp-ward119-civil",
+  "name": "Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar…",
+  "roadNames": [
+   "Ward 119"
+  ],
+  "locality": "Ward 119, Bengaluru",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "agencyId": "bbmp",
+  "categories": [
+   "road_damage",
+   "pothole",
+   "drainage"
+  ],
+  "geometrySource": {
+   "kind": "none",
+   "note": "BBMP's work-order register records a payment for named work in a named ward, not a map location. This project is found by the road or locality named in the work description, never by proximity to a pin.",
+   "url": "https://data.opencity.in/dataset/bbmp-work-orders-and-payments-2025-26"
+  },
+  "identifiedBy": "identifier",
+  "documents": [
+   "opencity-bbmp-work-orders-2025-26-198-wards"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "BBMP's work-order register describes the work as “Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4”.",
+    "value": "Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 6,
+      "quote": "Work: Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "The work carries BBMP job number 119-23-000003 in ward 119.",
+    "value": "119-23-000003",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 6,
+      "quote": "Job number: 119-23-000003; Ward: 119"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The work order is recorded in BBMP's own work-orders and payments register for 2025-26.",
+    "value": "BBMP",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 6,
+      "quote": "BBMP work orders and payments, 2025-26 (198-ward regime). Source: accounts.bbmp.gov.in, compiled by OpenCity."
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "The register names the contractor for this work order as “GOPI REDDY”.",
+    "value": "GOPI REDDY",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 6,
+      "quote": "Contractor: 023653 GOPI REDDY[phone removed]"
+     }
+    ],
+    "notes": "BBMP's register stores the contractor name in a fixed-width field, so a longer name is held truncated. It is reproduced exactly as recorded."
+   },
+   {
+    "field": "scope",
+    "text": "The recorded scope of the work order is “Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4”.",
+    "value": "Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 6,
+      "quote": "Work: Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4"
+     }
+    ]
+   }
+  ],
+  "summary": "BBMP ward work order 119-23-000003 (Ward 119, Bengaluru). The register records the work, the ward and the contractor; it records no completion date and no defect-liability period."
+ },
+ {
+  "id": "bbmp-ward119-dpr",
+  "name": "Consultancy Services for the Preparation of Detailed Project Report (DPR) for the work of Comprehensive Deve…",
+  "roadNames": [
+   "Ward 119"
+  ],
+  "locality": "Ward 119, Bengaluru",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "agencyId": "bbmp",
+  "categories": [
+   "other"
+  ],
+  "geometrySource": {
+   "kind": "none",
+   "note": "BBMP's work-order register records a payment for named work in a named ward, not a map location. This project is found by the road or locality named in the work description, never by proximity to a pin.",
+   "url": "https://data.opencity.in/dataset/bbmp-work-orders-and-payments-2025-26"
+  },
+  "identifiedBy": "identifier",
+  "documents": [
+   "opencity-bbmp-work-orders-2025-26-198-wards"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "BBMP's work-order register describes the work as “Consultancy Services for the Preparation of Detailed Project Report (DPR) for the work of Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4”.",
+    "value": "Consultancy Services for the Preparation of Detailed Project Report (DPR) for the work of Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 195,
+      "quote": "Work: Consultancy Services for the Preparation of Detailed Project Report (DPR) for the work of Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "The work carries BBMP job number 119-23-000003 in ward 119.",
+    "value": "119-23-000003",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 195,
+      "quote": "Job number: 119-23-000003; Ward: 119"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The work order is recorded in BBMP's own work-orders and payments register for 2025-26.",
+    "value": "BBMP",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 195,
+      "quote": "BBMP work orders and payments, 2025-26 (198-ward regime). Source: accounts.bbmp.gov.in, compiled by OpenCity."
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "The register names the contractor for this work order as “NEWZEN CONSULTANTS B”.",
+    "value": "NEWZEN CONSULTANTS B",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 195,
+      "quote": "Contractor: 023639 NEWZEN CONSULTANTS B[phone removed]"
+     }
+    ],
+    "notes": "BBMP's register stores the contractor name in a fixed-width field, so a longer name is held truncated. This name is at that limit and appears incomplete in the source. It is reproduced exactly as recorded."
+   },
+   {
+    "field": "scope",
+    "text": "The recorded scope of the work order is “Consultancy Services for the Preparation of Detailed Project Report (DPR) for the work of Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4”.",
+    "value": "Consultancy Services for the Preparation of Detailed Project Report (DPR) for the work of Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 195,
+      "quote": "Work: Consultancy Services for the Preparation of Detailed Project Report (DPR) for the work of Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4"
+     }
+    ]
+   }
+  ],
+  "summary": "BBMP ward work order 119-23-000003 (Ward 119, Bengaluru). The register records the work, the ward and the contractor; it records no completion date and no defect-liability period."
+ },
+ {
+  "id": "bbmp-ward119-pmc",
+  "name": "Consultancy Services for Project Management Consultancy for the work of Comprehensive Development and improv…",
+  "roadNames": [
+   "Ward 119"
+  ],
+  "locality": "Ward 119, Bengaluru",
+  "city": "Bengaluru",
+  "state": "Karnataka",
+  "agencyId": "bbmp",
+  "categories": [
+   "other"
+  ],
+  "geometrySource": {
+   "kind": "none",
+   "note": "BBMP's work-order register records a payment for named work in a named ward, not a map location. This project is found by the road or locality named in the work description, never by proximity to a pin.",
+   "url": "https://data.opencity.in/dataset/bbmp-work-orders-and-payments-2025-26"
+  },
+  "identifiedBy": "identifier",
+  "documents": [
+   "opencity-bbmp-work-orders-2025-26-198-wards"
+  ],
+  "reference": [
+   {
+    "field": "project_name",
+    "text": "BBMP's work-order register describes the work as “Consultancy Services for Project Management Consultancy for the work of Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4”.",
+    "value": "Consultancy Services for Project Management Consultancy for the work of Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 331,
+      "quote": "Work: Consultancy Services for Project Management Consultancy for the work of Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4"
+     }
+    ]
+   },
+   {
+    "field": "project_id",
+    "text": "The work carries BBMP job number 119-23-000003 in ward 119.",
+    "value": "119-23-000003",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 331,
+      "quote": "Job number: 119-23-000003; Ward: 119"
+     }
+    ]
+   },
+   {
+    "field": "agency",
+    "text": "The work order is recorded in BBMP's own work-orders and payments register for 2025-26.",
+    "value": "BBMP",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 331,
+      "quote": "BBMP work orders and payments, 2025-26 (198-ward regime). Source: accounts.bbmp.gov.in, compiled by OpenCity."
+     }
+    ]
+   },
+   {
+    "field": "contractor",
+    "text": "The register names the contractor for this work order as “AARTNASSOCIATES”.",
+    "value": "AARTNASSOCIATES",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 331,
+      "quote": "Contractor: 022903 AARTNASSOCIATES[phone removed]"
+     }
+    ],
+    "notes": "BBMP's register stores the contractor name in a fixed-width field, so a longer name is held truncated. It is reproduced exactly as recorded."
+   },
+   {
+    "field": "scope",
+    "text": "The recorded scope of the work order is “Consultancy Services for Project Management Consultancy for the work of Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4”.",
+    "value": "Consultancy Services for Project Management Consultancy for the work of Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4",
+    "citations": [
+     {
+      "docId": "opencity-bbmp-work-orders-2025-26-198-wards",
+      "page": 331,
+      "quote": "Work: Consultancy Services for Project Management Consultancy for the work of Comprehensive Development and improvements to Roads, Drains, Footpaths, Parks and buildings in Bamboo Bazaar, Kumbaragundi, Kalasipalyam and surrounding area in Ward No. 119, Chickpet Assembly Constituency - Package 4"
+     }
+    ]
+   }
+  ],
+  "summary": "BBMP ward work order 119-23-000003 (Ward 119, Bengaluru). The register records the work, the ward and the contractor; it records no completion date and no defect-liability period."
  }
 ]

@@ -11,6 +11,34 @@ Where the two overlap, Part I governs the mechanics of this repository (exact co
 
 ---
 
+## THE GOLDEN CONSTRAINT — read this before changing anything
+
+**Whenever you build something here, keep the existing feature, architecture, UI or design wherever it already meets or exceeds the requirement you are working to.** Replace only what is demonstrably worse than the requirement, or demonstrably broken.
+
+This applies to every requirement document, specification, checklist or brief you are given, including ones written after this file. A new spec describes a *target*, not a mandate to rebuild: compare the existing implementation against it first, and keep what already wins.
+
+Before you change any existing component, decide and record which of these applies:
+
+| Verdict | Meaning | Action |
+|---|---|---|
+| **PRESENT AND STRONGER** | The existing code does more, or does it more safely, than the requirement asks | **KEEP.** Do not touch it. Note why it is stronger so it is not lost later. |
+| **PRESENT** | It meets the requirement | **KEEP.** |
+| **PARTIAL** | It meets part of the requirement | **EXTEND** the existing code. Do not write a parallel implementation. |
+| **BROKEN** | It fails its own tests or produces wrong output | **FIX** it, with a regression test for the failure mode. |
+| **MISSING** | Nothing covers it | **ADD**, integrated into the existing flow. |
+
+Rules that follow from this:
+
+- **"I would have written it differently" is not a reason to rewrite.** Neither is unfamiliarity, naming style, file layout, or a preference for a different library or pattern.
+- **Never build a second system beside a working one.** If a determination engine, verifier, identity resolver, evidence ledger, packet builder or policy layer already exists, extend it. Two sources of truth for the same fact is a defect, not a migration path.
+- **Preserve passing tests.** A test that fails after your change is a regression until proven otherwise — prove it by reproducing the failure on the unmodified code before calling it pre-existing.
+- **Preserve working UI.** Existing layout, components and copy stay unless the requirement cannot be met without changing them. When you do change a working surface, say so explicitly in your report so it can be vetoed.
+- **State the trade-off out loud.** If a requirement, read literally, would weaken something the existing code does better — evidence integrity, fail-closed behaviour, privacy, accessibility — say so and recommend against it rather than implementing it silently.
+
+When in doubt, the smaller change that preserves working behaviour is the right one.
+
+---
+
 # PART I — PROJECT REFERENCE & OPERATING RULES
 
 ## Project: CivicProof

@@ -108,6 +108,8 @@ export function buildComplaint(c: Case, project: Project | undefined, authority:
   // it belongs to a project, so it is withheld until that project is established.
   const window = identityEstablished ? claims.find((cl) => cl.field === "maintenance_window" && cl.origin === "computed") : undefined;
   const conflicts = inv?.conflicts ?? [];
+  const observationClaim = claims.find((cl) => cl.field === "photo_observation");
+  const observation = observationClaim ? (observationClaim.value ?? observationClaim.text).replace(/\.$/, "") : undefined;
   const where = c.location.locality ?? c.location.address ?? `${c.location.lat.toFixed(5)}, ${c.location.lng.toFixed(5)}`;
   const addressedTo = project?.officer ?? authority?.officer ?? authority?.name ?? "The officer responsible for this road";
 
@@ -140,6 +142,11 @@ export function buildComplaint(c: Case, project: Project | undefined, authority:
       c.photos.length
         ? `${c.photos.length} photo${c.photos.length === 1 ? "" : "s"} attached (SHA-256 fingerprints listed under Supporting evidence).`
         : "No photo attached.",
+      // What the photograph shows is the reporter's own account of the site, not a public record,
+      // and the sentence says so rather than letting it sit among the cited facts below.
+      observation
+        ? `What the photograph shows, as recorded by the reporter: ${observation}. This is an observation of the site on the day it was taken, not a record held by any authority.`
+        : "",
     ].join("\n\n"),
   });
 
@@ -160,6 +167,32 @@ export function buildComplaint(c: Case, project: Project | undefined, authority:
       id: "records",
       heading: "Details from official records",
       body: lines.join("\n") + "\n\nNumbers in brackets refer to the Supporting evidence list.",
+    });
+  }
+
+  // What CivicProof itself concluded, kept apart from the reported issue (the citizen's account)
+  // and from the details above (the records). Each line is the determination's own deterministic
+  // reason, written in code — no model authored any of it, and none of it asserts responsibility.
+  const det = inv?.determination;
+  if (det) {
+    sections.push({
+      id: "assessment",
+      heading: "CivicProof's assessment of the records",
+      body:
+        [
+          `• Project identity: ${det.identity.reason}`,
+          `• Maintenance period: ${det.contractualStatus.reason}`,
+          `• Condition on the ground: ${det.fieldCondition.reason}`,
+          `• Scope: ${det.scopeRelationship.reason}`,
+          `• Overall: ${det.overall.reason}`,
+        ].join("\n") +
+        (det.contractualStatus.windowEnd
+          ? `\n\nDefect-liability status on ${fmtDate(now.toISOString().slice(0, 10))}: ${det.contractualStatus.value} — the period runs to ${fmtDate(det.contractualStatus.windowEnd)}.`
+          : `\n\nDefect-liability status on ${fmtDate(now.toISOString().slice(0, 10))}: ${det.contractualStatus.value}.`) +
+        "\n\nThis is CivicProof's reading of the records cited above, produced by fixed rules rather than by a person or a language model. It is evidence placed side by side, not an allegation against anyone: it is not a finding of fact, and it does not establish who caused the defect or who is responsible for it." +
+        (det.requiresHumanReview
+          ? "\n\nHuman review required: this case has been flagged for a person to examine before any conclusion is drawn from it."
+          : ""),
     });
   }
 
@@ -210,7 +243,10 @@ export function buildComplaint(c: Case, project: Project | undefined, authority:
     addressedTo,
     subject: `${CATEGORY_LABELS[c.category]} at ${where}${project ? ` — ${project.name}` : ""} (CivicProof ${c.id})`,
     sections,
-    disclaimer: PACKET_DISCLAIMER,
+    // The facts above are quoted from cited pages; the office this is addressed to is not — it comes
+    // from CivicProof's directory of authorities. The reporter is the one who sends it, so the
+    // difference belongs on the page they send.
+    disclaimer: `${PACKET_DISCLAIMER} The office above is taken from CivicProof's directory of authorities, not from this project's documents${authority?.grievance?.sourceUrl ? ` (${authority.grievance.sourceUrl})` : ""}; confirm it is the right office before sending.${authority?.grievance?.note ? ` ${authority.grievance.note}` : ""}`,
   };
 }
 
@@ -272,7 +308,7 @@ export function buildRti(c: Case, project: Project | undefined, authority: Autho
     ],
     // No reasons section: Section 6(2) says an applicant need not give one. The case reference
     // stays in the disclaimer, which is guidance for the reporter, not part of the request.
-    disclaimer: `Draft RTI application prepared with CivicProof for case ${c.id} (${CATEGORY_LABELS[c.category].toLowerCase()} observed on ${fmtDate(c.observedOn)}).${ruleNote}${authority?.rti?.fee ? ` ${authority.rti.fee}` : ""}${authority?.rti?.note ? ` ${authority.rti.note}` : ""} Check the correct Public Information Officer and fee rules for the authority before filing. A reply is due within 30 days of receipt (Section 7(1)); if none is received, a first appeal lies under Section 19(1). CivicProof has not sent this to any authority.`,
+    disclaimer: `Draft RTI application prepared with CivicProof for case ${c.id} (${CATEGORY_LABELS[c.category].toLowerCase()} observed on ${fmtDate(c.observedOn)}).${ruleNote}${authority?.rti?.fee ? ` ${authority.rti.fee}` : ""}${authority?.rti?.note ? ` ${authority.rti.note}` : ""} The Public Information Officer above is taken from CivicProof's directory of authorities, not from this project's documents${authority?.rti?.sourceUrl ? ` (${authority.rti.sourceUrl})` : ""}; check the correct officer and fee rules for the authority before filing. A reply is due within 30 days of receipt (Section 7(1)); if none is received, a first appeal lies under Section 19(1). CivicProof has not sent this to any authority.`,
   };
 }
 

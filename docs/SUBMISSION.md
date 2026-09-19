@@ -86,7 +86,7 @@ Everything is optional in `.env.local`: with no variables set the app runs on a 
 
 ## Safety, privacy and public release
 
-- Contractors' mobile numbers have been removed from the committed BBMP and KPPP sources (4,729 in total); the manifest records the redaction and the hashes are of the redacted files. No reference fact cites the BBMP work-order dataset, so no verified evidence is affected.
+- Contractors' mobile numbers have been removed from the committed BBMP and KPPP sources (4,729 in total); the manifest records the redaction and the hashes are of the redacted files. The redaction removed only digit runs, so the eleven Bengaluru work orders now carried as projects quote text that is unchanged by it.
 - Reporter names, contact details and saved packets are owner-key-only and are stripped from every public projection.
 - Photograph EXIF is stripped from the stored image.
 - No secrets exist in the working tree or in git history.

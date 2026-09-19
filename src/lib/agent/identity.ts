@@ -16,9 +16,16 @@
 import type { Claim, Determination, Evidence } from "@/lib/schemas";
 import type { Corpus, Project } from "@/lib/corpus";
 
-/** The identifier shapes this registry actually uses; validated against all 778 codes it holds. */
+/** The identifier shapes this registry actually uses; validated against every code it holds. */
 export const JOB_CODE_PATTERN = /^[A-Z]{2}-?\d{2}-?\d{2,3}[A-Z]?$/;
 export const WORK_INDENT_PATTERN = /^BBMP\/\d{4}-\d{2}\/[A-Z]{2}\/[A-Z_]+\d+$/;
+/**
+ * BBMP's ward work-order number, the identifier printed on a Bengaluru city work board:
+ * ward-year-serial, e.g. 176-20-000042. A small number of wards carry an "O" prefix (O132-23-…).
+ * Both shapes were measured across the 3,979 distinct job numbers in BBMP's 2025-26 register —
+ * 4,702 rows of the first shape and 27 of the second, and nothing else.
+ */
+export const BBMP_WORK_ORDER_PATTERN = /^O?\d{3}-\d{2}-\d{6}$/;
 
 /** Uppercases and tidies separators. It deliberately does not guess between look-alike characters. */
 export function normalizeJobCode(raw: string): string {
@@ -31,7 +38,7 @@ export function normalizeJobCode(raw: string): string {
 }
 
 export function isValidJobCode(code: string): boolean {
-  return JOB_CODE_PATTERN.test(code) || WORK_INDENT_PATTERN.test(code);
+  return JOB_CODE_PATTERN.test(code) || WORK_INDENT_PATTERN.test(code) || BBMP_WORK_ORDER_PATTERN.test(code);
 }
 
 export interface CodeResolution {
@@ -123,7 +130,7 @@ export function resolveIdentityFromCode(input: {
       ...common,
       value: "CODE_MATCHES_MULTIPLE_PROJECTS",
       candidateProjectIds: candidates.map((p) => p.id),
-      reason: `The identifier ${normalizedCode} matches ${matches.length} projects in the registry — PMGSY package numbers repeat across blocks. Which one this report concerns has to be chosen; the nearest is listed first, but distance alone does not settle it.`,
+      reason: `The identifier ${normalizedCode} matches ${matches.length} records in the registry. Identifiers are reused: a PMGSY package number repeats across blocks, and a BBMP ward job number can cover the civil work, its design report and its supervision contract, each with a different contractor. Which record this report concerns has to be chosen; the nearest is listed first, but distance alone does not settle it.`,
     },
   };
 }
@@ -141,6 +148,19 @@ export function resolveIdentityFromRecord(input: {
   linkedBy?: "location" | "name" | "job_code";
 }): Determination["identity"] {
   const { project, claims, evidence, corpus } = input;
+  // A record that covers an area rather than one identified road cannot be established by a name
+  // or a pin: the ward holds many such works and the corpus may hold only one of them, so a match
+  // on the locality is a coincidence of curation, not evidence about this report.
+  if (project && project.identifiedBy === "identifier" && input.linkedBy !== "job_code") {
+    return {
+      value: "UNVERIFIED",
+      method: input.linkedBy === "name" ? "road_name" : "geographic",
+      reason: `“${project.name}” is a ward-level work order: its record names a ward, not the road in this report, and other works in the same ward are not all held here. Its work number would establish it; a matching locality name does not.`,
+      ...(project.reference.find((r) => r.field === "project_id")?.value
+        ? { normalizedCode: project.reference.find((r) => r.field === "project_id")!.value!.trim().toUpperCase() }
+        : {}),
+    };
+  }
   if (!project) {
     return {
       value: "UNVERIFIED",

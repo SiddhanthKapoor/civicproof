@@ -177,3 +177,79 @@ describe("the location score floor", () => {
     expect(MIN_LOCATION_SCORE).toBeGreaterThan(0.5);
   });
 });
+
+describe("BBMP ward work-order numbers (Bengaluru city)", () => {
+  it("accepts the two shapes BBMP's register actually uses, and nothing looser", () => {
+    // Measured across the 3,979 distinct job numbers in the 2025-26 register: ward-year-serial,
+    // plus a handful carrying an "O" prefix. A bare number is not an identifier.
+    expect(isValidJobCode(normalizeJobCode("176-20-000042"))).toBe(true);
+    expect(isValidJobCode(normalizeJobCode("o132-23-000001"))).toBe(true);
+    expect(isValidJobCode(normalizeJobCode("176-20-42"))).toBe(false);
+    expect(isValidJobCode(normalizeJobCode("2"))).toBe(false);
+    expect(isValidJobCode(normalizeJobCode("1762000042"))).toBe(false);
+  });
+
+  it("resolves a Bengaluru ward work order to exactly one project", () => {
+    const r = resolveIdentityFromCode({ rawText: "176-20-000042", method: "manual_job_code", lookup });
+    expect(r.identity.value).toBe("VERIFIED");
+    expect(r.projectId).toBe("bbmp-ward176-btm-potholes");
+  });
+
+  it("refuses to choose when one ward job number covers several different works", () => {
+    // BBMP files the civil work, the detailed project report and the project-management
+    // consultancy under one number, with three different contractors. None of them is "the"
+    // project, so the case stays unverified until a person picks.
+    const r = resolveIdentityFromCode({ rawText: "119-23-000003", method: "manual_job_code", lookup });
+    expect(r.identity.value).toBe("CODE_MATCHES_MULTIPLE_PROJECTS");
+    expect(r.candidates.length).toBe(3);
+    expect(r.projectId).toBeUndefined();
+  });
+
+  it("does not invent a completion date or a maintenance period BBMP never recorded", () => {
+    // The register records work, ward and contractor. It states no completion date and no
+    // defect-liability term, and neither may appear as a fact about the project.
+    const p = corpus.getProject("bbmp-ward176-btm-potholes")!;
+    const fields = p.reference.map((r) => r.field);
+    expect(fields).toEqual(expect.arrayContaining(["project_id", "agency", "contractor", "scope"]));
+    expect(fields).not.toContain("completion_date");
+    expect(fields).not.toContain("defect_liability");
+    expect(fields).not.toContain("contract_value");
+  });
+});
+
+describe("a ward-level work order may not be established by a locality name", () => {
+  // BBMP's register names a ward, not the road a citizen is standing on. The corpus holds one of
+  // the 28 works recorded in Kengeri, so a report matching "Kengeri" matching that one work is an
+  // accident of curation. Its own work number establishes it; a place name does not.
+  const project = corpus.getProject("bbmp-ward159-kengeri-roads")!;
+  const registryCode = project.reference.find((r) => r.field === "project_id")!.value!;
+  const evidence: Evidence[] = [
+    { id: "ev1", docId: project.documents[0], sourceTitle: "BBMP work orders", sourceType: "open_data", retrievedAt: "2026-09-19", page: 13, excerpt: "x", verification: "verified", strength: "strong", relatedClaimIds: ["c1"] },
+  ];
+  const idClaim: Claim = {
+    id: "c1", field: "project_id", text: "t", value: registryCode, evidenceIds: ["ev1"],
+    verification: "verified", confidence: 0.95, origin: "official_record",
+  };
+
+  it("is marked identifier-only in the corpus", () => {
+    expect(project.identifiedBy).toBe("identifier");
+  });
+
+  it("refuses to establish identity from a road-name match, and says why", () => {
+    const id = resolveIdentityFromRecord({ project, claims: [idClaim], evidence, corpus, linkedBy: "name" });
+    expect(id.value).toBe("UNVERIFIED");
+    expect(id.method).toBe("road_name");
+    expect(id.reason).toMatch(/ward-level work order/);
+    expect(id.reason).toMatch(/work number would establish it/);
+  });
+
+  it("refuses a location match for the same reason", () => {
+    expect(resolveIdentityFromRecord({ project, claims: [idClaim], evidence, corpus, linkedBy: "location" }).value).toBe("UNVERIFIED");
+  });
+
+  it("still establishes a PMGSY road found by name, which its records do identify", () => {
+    // The safeguard must not take away identity where the record names the road itself.
+    const road = corpus.getProject("pmgsy-kn03-70")!;
+    expect(road.identifiedBy).toBeUndefined();
+  });
+});

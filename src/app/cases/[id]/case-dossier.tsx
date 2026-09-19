@@ -15,7 +15,6 @@ import { Findings } from "./findings";
 import { ProvenanceChain } from "./chain";
 import { Candidates } from "./candidates";
 import { RtiClockCard } from "./rti-clock-card";
-import { KeyFacts } from "./key-facts";
 import { DeterminationCard } from "./determination-card";
 import { DocumentsPanel } from "./documents-panel";
 import { NextActions } from "./actions";
@@ -248,7 +247,10 @@ export function CaseDossier({ initial, projects, nearby = [] }: { initial: Publi
             )}
           </div>
           {caseData.demo && caseData.demoNote && <p className="mt-3 max-w-3xl text-[13px] text-ink-3">{caseData.demoNote}</p>}
-          <KeyFacts caseData={caseData} />
+          <section aria-labelledby="reported-heading" className="mt-7 rounded-2xl border border-rule bg-card p-5 shadow-card">
+            <p id="reported-heading" className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3">Reported problem</p>
+            <p className="mt-1.5 max-w-3xl text-[15px] leading-relaxed text-ink-2">{caseData.description}</p>
+          </section>
           <DeterminationCard caseData={caseData} />
           {/* On small screens the sidebar comes last, so show the report itself up front. */}
           <div className="mt-6 flex gap-4 rounded-2xl border border-rule bg-card p-4 shadow-card lg:hidden">
@@ -283,23 +285,11 @@ export function CaseDossier({ initial, projects, nearby = [] }: { initial: Publi
 
       <Container className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-12">
         <div className="min-w-0 space-y-14">
-          <section className="space-y-5">
-            <SectionHeading id="investigation" n="01" title="Investigation" />
-            {runError && <p className="rounded-xl bg-contradicted-soft px-4 py-3 text-[14px] text-contradicted" role="alert">{runError}</p>}
-            <InvestigationPanel caseData={caseData} live={live} onRun={run} canRun={canRun} />
-          </section>
 
-          <section className="space-y-5">
-            <SectionHeading id="chain" n="02" title="From report to responsibility" />
-            <div className="rounded-2xl border border-rule bg-card p-5 shadow-card">
-              <ProvenanceChain caseData={caseData} project={selected} />
-              <Candidates matches={inv?.matches ?? []} selectedId={inv?.selectedProjectId} />
-            </div>
-          </section>
 
           {(shown.claims.length > 0 || shown.missing.length > 0) && (
             <section className="space-y-5">
-              <SectionHeading id="evidence" n="03" title="Evidence">
+              <SectionHeading id="evidence" n="01" title="Evidence">
                 <p className="max-w-sm text-[13px] text-ink-3">Every fact below shows the words it rests on. Open a source to see the page.</p>
               </SectionHeading>
               <Findings claims={shown.claims} evidence={shown.evidence} missing={shown.missing} conflicts={inv?.conflicts ?? []} live={live.running} />
@@ -307,12 +297,12 @@ export function CaseDossier({ initial, projects, nearby = [] }: { initial: Publi
           )}
 
           <section className="space-y-5">
-            <SectionHeading id="actions" n="04" title="What to do next" />
+            <SectionHeading id="actions" n="02" title="What to do next" />
             <NextActions caseData={caseData} />
           </section>
 
           <section className="space-y-5">
-            <SectionHeading id="tracking" n="05" title="Tracking" />
+            <SectionHeading id="tracking" n="03" title="Tracking" />
             <RtiClockCard caseId={caseData.id} timeline={caseData.timeline} />
             <TrackingPanel
               caseData={caseData}
@@ -334,6 +324,20 @@ export function CaseDossier({ initial, projects, nearby = [] }: { initial: Publi
             <div className="pt-2">
               <Timeline events={caseData.timeline} />
             </div>
+          </section>
+
+          <section className="space-y-5">
+            <SectionHeading id="chain" n="04" title="From report to responsibility" />
+            <div className="rounded-2xl border border-rule bg-card p-5 shadow-card">
+              <ProvenanceChain caseData={caseData} project={selected} />
+              <Candidates matches={inv?.matches ?? []} selectedId={inv?.selectedProjectId} />
+            </div>
+          </section>
+
+          <section className="space-y-5">
+            <SectionHeading id="investigation" n="05" title="How this was investigated" />
+            {runError && <p className="rounded-xl bg-contradicted-soft px-4 py-3 text-[14px] text-contradicted" role="alert">{runError}</p>}
+            <InvestigationPanel caseData={caseData} live={live} onRun={run} canRun={canRun} />
           </section>
         </div>
 

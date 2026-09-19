@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getStore } from "@/lib/store";
 import { appealUnavailable, casesCorpus, draftPacket } from "@/lib/cases";
+import { submissionDestination } from "@/lib/submission";
+import type { PacketKind } from "@/lib/schemas";
 import { PacketEditor } from "./packet-editor";
 
 export const dynamic = "force-dynamic";
@@ -26,8 +28,17 @@ export default async function PacketPage(props: PageProps<"/cases/[id]/packet">)
     rti: draftPacket(c, "rti", { corpus }),
     ...(appealNote ? {} : { appeal: draftPacket(c, "appeal", { corpus }) }),
   };
+  // Where each draft is taken. Resolved on the server from the authority directory; a channel the
+  // directory cannot vouch for is reported as unverified rather than guessed at.
+  const project = c.investigation?.selectedProjectId ? corpus.getProject(c.investigation.selectedProjectId) : undefined;
+  const authority = corpus.getAuthority(project?.agencyId);
+  const destinations = Object.fromEntries(
+    (["complaint", "rti", "appeal"] as PacketKind[]).map((k) => [k, submissionDestination(k, authority)]),
+  ) as Record<PacketKind, ReturnType<typeof submissionDestination>>;
+
   return (
     <PacketEditor
+      destinations={destinations}
       caseId={c.id}
       caseTitle={c.title}
       demo={c.demo}

@@ -5,7 +5,8 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import type { Packet } from "@/lib/schemas";
 import { packetToText, wordCount } from "@/lib/packet-text";
-import { Button, Container } from "@/components/ui";
+import { Button, Container, ExternalIcon, buttonClass } from "@/components/ui";
+import { UNVERIFIED_CHANNEL, type SubmissionDestination } from "@/lib/submission";
 import { cn } from "@/lib/utils";
 import { useStoredOwnerKey } from "@/lib/use-owner-key";
 
@@ -45,6 +46,7 @@ export function PacketEditor({
   packets,
   saved: initialSaved,
   notice,
+  destinations,
 }: {
   caseId: string;
   caseTitle: string;
@@ -55,8 +57,11 @@ export function PacketEditor({
   saved: Record<Kind, boolean>;
   /** Shown above the document, e.g. why a first appeal can't be drafted yet. */
   notice?: string;
+  /** Where each draft is taken, resolved from the authority directory on the server. */
+  destinations: Record<Kind, SubmissionDestination>;
 }) {
   const [kind, setKind] = useState<Kind>(initialKind);
+  const destination = destinations[kind] ?? { verified: false };
   const [docs, setDocs] = useState(packets);
   const [dirty, setDirty] = useState<Record<Kind, boolean>>({ complaint: false, rti: false, appeal: false });
   const [saved, setSaved] = useState(initialSaved);
@@ -257,11 +262,63 @@ export function PacketEditor({
           <p className="mt-10 border-t border-rule pt-4 font-sans text-[12px] italic leading-relaxed text-ink-3">{doc.disclaimer}</p>
         </motion.article>
 
+        {/* WHERE TO SUBMIT — immediately after the packet, because this is the moment a citizen
+            needs it. CivicProof names the office and the official channel and stops there: the
+            portal is opened, checked and submitted by the person, never by us. */}
+        <section aria-labelledby="submit-heading" className="no-print mt-6 rounded-2xl border border-rule-strong bg-card p-5 shadow-card lg:col-start-1">
+          <h2 id="submit-heading" className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3">Where to submit</h2>
+          {destination.verified ? (
+            <>
+              <dl className="mt-3 grid gap-x-6 gap-y-1.5 text-[13.5px] sm:grid-cols-[150px_1fr]">
+                <dt className="text-ink-3">Authority</dt>
+                <dd className="text-ink">{destination.authority}</dd>
+                <dt className="text-ink-3">Official channel</dt>
+                <dd className="text-ink">{destination.channel}</dd>
+                <dt className="text-ink-3">Submission method</dt>
+                <dd className="text-ink-2">{destination.method}</dd>
+              </dl>
+              {destination.note && <p className="mt-3 max-w-2xl text-[12.5px] leading-relaxed text-ink-3">{destination.note}</p>}
+              {destination.url && (
+                <a href={destination.url} target="_blank" rel="noreferrer" className={cn(buttonClass("primary", "md"), "mt-4 inline-flex items-center gap-1.5")}>
+                  Open official portal <ExternalIcon />
+                </a>
+              )}
+              {destination.sourceUrl && (
+                <p className="mt-2 text-[12px] text-ink-3">
+                  Channel recorded from{" "}
+                  <a href={destination.sourceUrl} target="_blank" rel="noreferrer" className="underline decoration-rule-strong underline-offset-4 hover:text-accent">
+                    the authority&rsquo;s own page
+                  </a>
+                  . Confirm it is still current before you file.
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="mt-3 max-w-2xl text-[13.5px] leading-relaxed text-ink-2">{UNVERIFIED_CHANNEL}</p>
+          )}
+
+          <ol className="mt-4 list-decimal space-y-1 border-t border-rule pt-3 pl-5 text-[13px] text-ink-2">
+            <li>Open the official portal yourself.</li>
+            <li>Read the draft above and edit anything that is not right.</li>
+            <li>Complete the sign-in, CAPTCHA or other verification the portal asks for.</li>
+            <li>Paste the complaint or upload the packet, attach your photographs, and submit.</li>
+            <li>Come back and record the reference number, so the reply deadline can be tracked.</li>
+          </ol>
+          <p className="mt-3 max-w-2xl text-[12.5px] leading-relaxed text-ink-3">
+            CivicProof prepares the evidence and complaint. Final submission remains under the citizen&rsquo;s control. It does not
+            sign in, answer a CAPTCHA, or send anything on your behalf — that is deliberate, not a missing feature.
+          </p>
+        </section>
+
         <aside className="no-print space-y-4 lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-2xl border border-rule bg-card p-4 shadow-card">
             <div className="grid gap-2">
-              <Button onClick={downloadPdf} disabled={busy === "pdf"}>{busy === "pdf" ? "Preparing PDF…" : "Download PDF"}</Button>
-              <Button variant="secondary" onClick={copy}>Copy as text</Button>
+              {/* Named for the thing in front of the reader, so the two ways of taking it away are
+                  obvious: paste it into an official form, or carry the whole packet as a file. */}
+              <Button onClick={downloadPdf} disabled={busy === "pdf"}>{busy === "pdf" ? "Preparing PDF…" : "Download packet (PDF)"}</Button>
+              <Button variant="secondary" onClick={copy}>
+                {kind === "complaint" ? "Copy complaint" : kind === "rti" ? "Copy application" : "Copy appeal"}
+              </Button>
               <Button variant="ghost" onClick={() => window.print()}>Print</Button>
             </div>
             <div className="mt-3 border-t border-rule pt-3">

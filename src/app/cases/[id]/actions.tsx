@@ -63,6 +63,24 @@ export function NextActions({ caseData }: { caseData: PublicCase }) {
             </dl>
           )}
           {a.channelNote && <p className="mt-2 max-w-3xl text-[12.5px] leading-relaxed text-ink-3">{a.channelNote}</p>}
+          {/* Where the destination came from. Every fact on this case is quoted from a cited page;
+              the office and channel are not — they are read from CivicProof's authority directory.
+              Saying so is the difference between "the records establish this" and "this is where we
+              believe it should go", and the citizen is the one who has to send it. */}
+          {a.origin === "rule" && (a.addressedTo || a.channel) && (
+            <p className="mt-2 max-w-3xl text-[12.5px] leading-relaxed text-ink-3">
+              Destination from CivicProof&rsquo;s directory of authorities, not from this project&rsquo;s documents
+              {a.channelSourceUrl ? (
+                <>
+                  {" ("}
+                  <a href={a.channelSourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline decoration-rule-strong underline-offset-4 hover:text-accent">
+                    source <ExternalIcon />
+                  </a>
+                  {")"}
+                </>
+              ) : null}. Confirm the office before you send it.
+            </p>
+          )}
           <div className="mt-4 flex flex-wrap gap-2">
             {a.type === "rti_request" ? (
               <Link href={`/cases/${id}/packet?kind=rti`} className={buttonClass(i === 0 ? "primary" : "secondary", "sm")}>Draft the RTI application</Link>

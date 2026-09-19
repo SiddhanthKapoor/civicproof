@@ -30,6 +30,15 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   other: "Other public infrastructure",
 };
 
+/**
+ * The life of a case, from a report to an outcome.
+ *
+ * Only the first four can be reached by CivicProof itself, and only from evidence: the agent may
+ * move a case to investigating, evidence_found or case_prepared and no further. Everything from
+ * "submitted" onwards is a fact about the world that only the reporter can attest to — whether
+ * they filed it, whether an office replied, whether anyone came to look. CivicProof never claims
+ * any of those on its own, because it never contacts an authority.
+ */
 export const STATUSES = [
   "reported",
   "investigating",
@@ -37,7 +46,11 @@ export const STATUSES = [
   "case_prepared",
   "submitted",
   "awaiting_response",
+  "response_received",
+  "inspection_reported",
+  "action_reported",
   "resolved",
+  "disputed",
   "closed",
 ] as const;
 export const StatusSchema = z.enum(STATUSES);
@@ -48,9 +61,13 @@ export const STATUS_LABELS: Record<CaseStatus, string> = {
   investigating: "Investigating",
   evidence_found: "Evidence found",
   case_prepared: "Case prepared",
-  submitted: "Submitted",
+  submitted: "Submitted by citizen",
   awaiting_response: "Awaiting response",
+  response_received: "Authority responded",
+  inspection_reported: "Inspection reported",
+  action_reported: "Action reported",
   resolved: "Resolved",
+  disputed: "Disputed",
   closed: "Closed",
 };
 
@@ -273,6 +290,12 @@ export const NextActionSchema = z.object({
   channelUrl: z.string().optional(),
   /** Caveats about the channel (e.g. reachability when checked). */
   channelNote: z.string().optional(),
+  /**
+   * Where the routing itself came from. The addressee and channel are read from CivicProof's
+   * authority directory, not quoted from the project's documents like every other fact on a case,
+   * so the difference is stated rather than left for the reader to assume.
+   */
+  channelSourceUrl: z.string().optional(),
   basedOnClaimIds: z.array(z.string()),
   priority: z.number().int().min(1).max(5),
   /** "rule": derived deterministically from verified facts. "ai": suggested by the model. */
@@ -452,12 +475,13 @@ export type Packet = z.infer<typeof PacketSchema>;
 // Documents the reporter adds (RTI replies, work orders…)
 // ---------------------------------------------------------------------------
 
-export const CASE_DOCUMENT_KINDS = ["rti_reply", "work_order", "completion_certificate", "official_letter", "other"] as const;
+export const CASE_DOCUMENT_KINDS = ["rti_reply", "work_order", "completion_certificate", "official_letter", "follow_up_photo", "other"] as const;
 export const CASE_DOCUMENT_LABELS: Record<(typeof CASE_DOCUMENT_KINDS)[number], string> = {
   rti_reply: "RTI reply",
   work_order: "Work order",
   completion_certificate: "Completion certificate",
   official_letter: "Official letter",
+  follow_up_photo: "Follow-up photograph",
   other: "Other document",
 };
 export const CaseDocumentSchema = z.object({
@@ -515,13 +539,27 @@ export type Case = z.infer<typeof CaseSchema>;
 /**
  * What anyone with the link may see. The reporter's name and contact, and the packets they saved
  * (which they may have filled in with their name and address), stay private to the owner key.
+ *
+ * A photograph's EXIF is narrowed here too. When it was taken is evidence about the report and is
+ * shown on the case; where it was taken and on what device are the reporter's, they are not needed
+ * to establish anything, and a case link is public. The uploaded bytes carry no EXIF — the browser
+ * re-encodes before upload — so this is the projection that decides what leaves the server.
  */
-export type PublicCase = Omit<Case, "ownerKeyHash" | "reporterContact" | "reporterName" | "packets"> & { savedPackets: PacketKind[] };
+export type PublicPhoto = Omit<Photo, "exif"> & { exif?: Pick<NonNullable<Photo["exif"]>, "takenAt"> };
+
+export type PublicCase = Omit<Case, "ownerKeyHash" | "reporterContact" | "reporterName" | "packets" | "photos"> & {
+  savedPackets: PacketKind[];
+  photos: PublicPhoto[];
+};
 
 export function toPublicCase(c: Case): PublicCase {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { ownerKeyHash, reporterContact, reporterName, packets, ...rest } = c;
-  return { ...rest, savedPackets: PACKET_KINDS.filter((k) => packets[k]) };
+  const { ownerKeyHash, reporterContact, reporterName, packets, photos, ...rest } = c;
+  return {
+    ...rest,
+    photos: photos.map(({ exif, ...p }) => (exif?.takenAt ? { ...p, exif: { takenAt: exif.takenAt } } : p)),
+    savedPackets: PACKET_KINDS.filter((k) => packets[k]),
+  };
 }
 
 // ---------------------------------------------------------------------------

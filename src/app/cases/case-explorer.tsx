@@ -17,8 +17,10 @@ const FILTERS: Array<{ id: Filter; label: string; test: (s: CaseStatus) => boole
   { id: "all", label: "All", test: () => true },
   { id: "open", label: "Open", test: (s) => s === "reported" || s === "investigating" },
   { id: "evidence", label: "Evidence found", test: (s) => s === "evidence_found" || s === "case_prepared" },
-  { id: "submitted", label: "Submitted", test: (s) => s === "submitted" || s === "awaiting_response" },
-  { id: "resolved", label: "Closed", test: (s) => s === "resolved" || s === "closed" },
+  { id: "submitted", label: "With the authority", test: (s) => s === "submitted" || s === "awaiting_response" || s === "response_received" || s === "inspection_reported" || s === "action_reported" },
+  // "Disputed" belongs here: the case has reached an end the reporter disagrees with, which is an
+  // outcome, not an open case.
+  { id: "resolved", label: "Concluded", test: (s) => s === "resolved" || s === "disputed" || s === "closed" },
 ];
 
 export function CaseExplorer({

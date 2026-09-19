@@ -7,6 +7,7 @@ import { matchPlacement, STATUS_LABELS } from "@/lib/schemas";
 const upperFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 import { cn } from "@/lib/utils";
 import type { DossierProject } from "./case-dossier";
+import { OVERALL } from "./determination-card";
 
 interface Node {
   label: string;
@@ -15,13 +16,20 @@ interface Node {
   established: boolean;
 }
 
-/** Report → Project → Official records → Responsible authority → Case, with each link's state. */
+/**
+ * Report → Photograph → Project → Official records → Responsible authority → Determination → Case,
+ * with each link's state. Two of these are evidence the case rests on rather than steps in a
+ * workflow: what the photograph establishes, and what the four determinations add up to. A link is
+ * drawn solid only where the next node is established, so an unsupported edge is visibly dashed.
+ */
 export function ProvenanceChain({ caseData, project }: { caseData: PublicCase; project?: DossierProject }) {
   const inv = caseData.investigation;
   const match = inv?.matches.find((m) => m.projectId === inv.selectedProjectId);
   const verifiedDocs = new Set(inv?.evidence.filter((e) => e.verification === "verified").map((e) => e.docId) ?? []);
   const agency = inv?.claims.find((c) => c.field === "agency" && c.verification === "verified");
   const contractor = inv?.claims.find((c) => c.field === "contractor" && c.verification === "verified");
+  const det = inv?.determination;
+  const completion = inv?.claims.find((c) => c.field === "completion_date" && c.verification === "verified");
 
   const nodes: Node[] = [
     {
@@ -29,6 +37,21 @@ export function ProvenanceChain({ caseData, project }: { caseData: PublicCase; p
       title: caseData.id,
       detail: `${caseData.location.lat.toFixed(4)}, ${caseData.location.lng.toFixed(4)}`,
       established: true,
+    },
+    {
+      // The photograph's own edge: what it was found to show, and nothing more than that.
+      label: "Photograph",
+      title: !caseData.photos.length
+        ? "None submitted"
+        : det?.fieldCondition.value === "DEFECT_OBSERVED"
+          ? "Damage visible"
+          : det?.fieldCondition.value === "NO_DEFECT_OBSERVED"
+            ? "No damage visible"
+            : det?.fieldCondition.value === "HUMAN_REVIEW"
+              ? "Needs a person to look"
+              : "Not enough to assess",
+      detail: caseData.photos.length ? `${caseData.photos.length} on file · establishes condition, not cause` : "Condition on the ground not documented",
+      established: caseData.photos.length > 0 && det?.fieldCondition.value === "DEFECT_OBSERVED",
     },
     {
       label: "Project",
@@ -43,7 +66,11 @@ export function ProvenanceChain({ caseData, project }: { caseData: PublicCase; p
     {
       label: "Official records",
       title: verifiedDocs.size ? `${verifiedDocs.size} document${verifiedDocs.size === 1 ? "" : "s"} cited` : "None cited yet",
-      detail: contractor ? `Contractor named: ${contractor.value}` : "Contractor not verified",
+      // Which of the project's own facts these documents actually establish, named one by one.
+      detail:
+        ([contractor && "contractor", completion && "completion date", agency && "agency"].filter(Boolean) as string[]).length > 0
+          ? `Establishes ${([contractor && "contractor", completion && "completion date", agency && "agency"].filter(Boolean) as string[]).join(", ")}`
+          : "Nothing established word for word yet",
       established: verifiedDocs.size > 0,
     },
     {
@@ -51,6 +78,18 @@ export function ProvenanceChain({ caseData, project }: { caseData: PublicCase; p
       title: agency?.value ?? project?.authorityName ?? "Not established",
       detail: agency ? "Verified in the records" : project?.authorityName ? "From the authority directory" : "Ask via RTI",
       established: Boolean(agency),
+    },
+    {
+      // Where identity, the contract, the ground and the scope meet. Derived by code from the four
+      // axes, never by a model, and never a statement about who is responsible.
+      label: "Determination",
+      title: det ? OVERALL[det.overall.value].label : "Not yet determined",
+      detail: det
+        ? det.requiresHumanReview
+          ? "A person must review this"
+          : "Identity, contract, ground and scope combined"
+        : "Run the investigation",
+      established: det?.overall.value === "POTENTIAL_ISSUE" || det?.overall.value === "SUPPORTED",
     },
     {
       label: "Case",
@@ -61,7 +100,7 @@ export function ProvenanceChain({ caseData, project }: { caseData: PublicCase; p
   ];
 
   return (
-    <ol className="relative grid gap-3 md:grid-cols-5 md:gap-0">
+    <ol className="relative grid gap-3 md:grid-cols-7 md:gap-0">
       {nodes.map((n, i) => (
         <li key={n.label} className="relative md:pr-4">
           {i < nodes.length - 1 && (

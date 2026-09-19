@@ -17,7 +17,19 @@ describe("case-actions.cedar", () => {
   });
 
   it("never lets the agent mark a case submitted or resolved", () => {
-    for (const to of ["submitted", "awaiting_response", "resolved", "closed"] as const) {
+    // Everything from "submitted" onwards is a fact about the world outside this system — whether
+    // it was filed, whether anyone replied, whether anyone came to look. CivicProof cannot observe
+    // any of it, so it may not assert any of it.
+    for (const to of [
+      "submitted",
+      "awaiting_response",
+      "response_received",
+      "inspection_reported",
+      "action_reported",
+      "resolved",
+      "disputed",
+      "closed",
+    ] as const) {
       const d = authorize({ type: "Agent", id: "investigator" }, "ChangeStatus", "CP-1", { to_status: to });
       expect(d.allowed).toBe(false);
     }

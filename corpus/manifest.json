@@ -34,6 +34,7 @@
    "url": "https://pmgsy.dord.gov.in/ReferenceDocs/PMGSY_Guidelines.pdf",
    "retrievedAt": "2026-09-18",
    "file": "pmgsy-programme-guidelines.pdf",
+   "licence": "Ministry of Rural Development, Government of India. No licence is stated on the document. Included here only to verify the passages quoted from it, with attribution and a link to the source.",
    "notes": "2014 edition. The PMGSY-III guidelines could not be retrieved (pmgsy.nic.in timed out).",
    "sha256": "e94a8eaba3392497a46ee575b870442da6db9c94f0dea082c7d736e39990d761"
   },
@@ -45,6 +46,7 @@
    "url": "https://kppp.karnataka.gov.in/supplier-registration-service/v1/api/portal-service/59700/works-tender-file/d05b1383-c226-4494-862a-f8d030a7e94a/download-file",
    "retrievedAt": "2026-09-18",
    "file": "kppp-bbmp-whitetopping-pkg2-bid-document.pdf",
+   "licence": "Karnataka Public Procurement Portal (Government of Karnataka). No licence is stated at source; the portal publishes tender records for public inspection. Included here only to verify the passages quoted from it, with attribution and a link to the source.",
    "notes": "65-page technical bid document for tender BBMP/2023-24/RD/WORK_INDENT1733.",
    "sha256": "ed2b9e29e16e1b4f44419a163d3389eaff0fb09f52280376b056223615dc41d2"
   },
@@ -56,6 +58,7 @@
    "url": "https://kppp.karnataka.gov.in/supplier-registration-service/v1/api/portal-service/bids/59700/tender-category/WORKS/get-selected-bid-for-lumpsum",
    "retrievedAt": "2026-09-18",
    "file": "kppp-bbmp-whitetopping-pkg2-selected-bid.json",
+   "licence": "Karnataka Public Procurement Portal (Government of Karnataka). No licence is stated at source; the portal publishes tender records for public inspection. Included here only to verify the passages quoted from it, with attribution and a link to the source.",
    "notes": "Official public API response, rendered as \"field: value\" lines. Encrypted fields are omitted; E-notation amounts are annotated with their plain value.",
    "sha256": "128e142ae3ca9ebd1e071df1f58d99a9281ea22a0d39bf3af2f6dfe324716e5a"
   },
@@ -67,6 +70,7 @@
    "url": "https://kppp.karnataka.gov.in/supplier-registration-service/v1/api/portal-service/59700/works-tender-full-view",
    "retrievedAt": "2026-09-18",
    "file": "kppp-bbmp-whitetopping-pkg2-tender-full-view.json",
+   "licence": "Karnataka Public Procurement Portal (Government of Karnataka). No licence is stated at source; the portal publishes tender records for public inspection. Included here only to verify the passages quoted from it, with attribution and a link to the source.",
    "notes": "Official public API response, rendered as \"field: value\" lines. Epoch-millisecond timestamps are annotated with their UTC date. One officer's mobile number has been removed from this copy before commit (replaced with \"[phone removed]\"); the sha256 above is of the redacted file. No quoted excerpt contained it.",
    "sha256": "0dac19cb69d0088c05c46324eeb161b569a9cbf5cde2eeb6515483c17a209b2b"
   },
@@ -78,6 +82,7 @@
    "url": "https://data.opencity.in/dataset/865313bc-c287-406a-be69-1b23c8392fca/resource/adb616c4-1f8a-4d39-93c7-53f651caf783/download/1d272e9b-4926-4ffc-836f-01c476ac5022.pdf",
    "retrievedAt": "2026-09-18",
    "file": "bscl-tender-sure-status-2021.pdf",
+   "licence": "Bengaluru Smart City Limited. No licence is stated on the document. Included here only to verify the passages quoted from it, with attribution and a link to the source.",
    "notes": "Slides dated 9/2/2021. BSCL's own site (smartcitybengaluru.in) did not resolve on 18 Sep 2026, so this copy comes from OpenCity, a civic data portal.",
    "sha256": "90c43c0f22d4ddad5dc8c36276ac089d99905f9ab5f60542c365578592325f38"
   },
@@ -89,6 +94,7 @@
    "url": "https://cag.gov.in/ag1/karnataka/en/audit-report",
    "retrievedAt": "2026-09-18",
    "file": "cag-karnataka-report-11-2025-smart-cities.pdf",
+   "licence": "Comptroller and Auditor General of India. An audit report laid before the State Legislature and published by the CAG; no licence is stated on the document. Included here only to verify the passages quoted from it, with attribution and a link to the source.",
    "notes": "Performance audit. Linked page is the CAG Karnataka audit-report listing.",
    "sha256": "275e0254bc4276bf1f58ada8c7852e9f629a54bbb5cfd62e12d0944e262ba189"
   },
@@ -305,7 +311,7 @@
    "retrievedAt": "2026-09-19",
    "file": "opencity-bbmp-work-orders-2025-26-198-wards.csv",
    "licence": "Public Domain (OpenCity dataset licence); data from BBMP's accounts portal.",
-   "notes": "4,729 work orders and payments across 198 wards, updated 14 May 2026. A work order records a payment for named work, not its location on a map. Contractors' phone numbers, which the file appends to their names, are removed from the rendered text. Contractors' mobile numbers, which the source file appends to their names, have been removed from this copy before commit (replaced with \"[phone removed]\"); the sha256 above is of the redacted file. No reference fact cites this document \u2014 it is a searchable dataset \u2014 so the redaction changes no verified evidence.",
+   "notes": "4,729 work orders and payments across 198 wards, updated 14 May 2026. A work order records a payment for named work, not its location on a map. Contractors' phone numbers, which the file appends to their names, are removed from the rendered text. Contractors' mobile numbers, which the source file appends to their names, have been removed from this copy before commit (replaced with \"[phone removed]\"); the sha256 above is of the redacted file. Eleven Bengaluru city work orders from this register are carried as projects in corpus/projects.json, each fact quoted verbatim from the rendered page; the rest of the file remains a searchable dataset. The redaction removed only digits, so no quoted fact is affected. The register stores the contractor name in a fixed-width field, so longer names are held truncated and are reproduced exactly as recorded, never completed by inference.",
    "sha256": "f1f1aca585861abced5562172d7ed1436eb79571d8b5dec760c120dd6fcf3504"
   }
  ]

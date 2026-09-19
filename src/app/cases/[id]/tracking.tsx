@@ -15,7 +15,12 @@ function daysUntil(iso: string) {
 }
 
 export function Timeline({ events }: { events: TimelineEvent[] }) {
-  const sorted = [...events].sort((a, b) => b.at.localeCompare(a.at));
+  // Oldest first: this is the record of what happened to the case, and it reads as one.
+  // Ordered by the date each thing happened on — a submission dated the 19th belongs on the 19th
+  // even if the reporter came back and recorded it on the 25th — with the row-write time breaking
+  // ties so two events on the same day keep the order they were entered in.
+  const when = (e: TimelineEvent) => e.date ?? e.at.slice(0, 10);
+  const sorted = [...events].sort((a, b) => when(a).localeCompare(when(b)) || a.at.localeCompare(b.at));
   return (
     <ol className="relative space-y-0 border-l border-rule pl-6">
       {sorted.map((e) => {

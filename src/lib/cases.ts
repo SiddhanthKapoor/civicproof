@@ -58,6 +58,68 @@ export function sniffImage(bytes: Uint8Array) {
   return SIGNATURES.find((s) => s.test(bytes));
 }
 
+/**
+ * Reads an image's real pixel dimensions out of its own header.
+ *
+ * The browser sends width and height alongside the upload, but that is the client talking about
+ * itself: a 64x64 file can claim to be 1024x768 and clear the photo-sufficiency gate's resolution
+ * floor on nothing but its own say-so. The floor is a deterministic safeguard, so it has to measure
+ * the bytes. Returns undefined when the header cannot be read, and the caller then records no
+ * dimensions at all — the gate treats that as unreadable and fails closed.
+ */
+export function measureImage(bytes: Uint8Array): { width: number; height: number } | undefined {
+  const be16 = (i: number) => (bytes[i] << 8) | bytes[i + 1];
+  const be32 = (i: number) => ((bytes[i] << 24) | (bytes[i + 1] << 16) | (bytes[i + 2] << 8) | bytes[i + 3]) >>> 0;
+  const le16 = (i: number) => bytes[i] | (bytes[i + 1] << 8);
+  const ok = (w: number, h: number) => (w > 0 && h > 0 && w <= 100000 && h <= 100000 ? { width: w, height: h } : undefined);
+  const kind = sniffImage(bytes)?.ext;
+
+  if (kind === "png") {
+    // 8-byte signature, then a length and "IHDR"; the width and height follow it.
+    if (bytes.length < 24 || String.fromCharCode(bytes[12], bytes[13], bytes[14], bytes[15]) !== "IHDR") return undefined;
+    return ok(be32(16), be32(20));
+  }
+
+  if (kind === "jpg") {
+    // Walk the segment chain to the frame header, which is the only place the size is stated.
+    let i = 2;
+    while (i + 9 < bytes.length) {
+      if (bytes[i] !== 0xff) { i++; continue; }
+      const marker = bytes[i + 1];
+      if (marker === 0xd8 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) { i += 2; continue; }
+      const len = be16(i + 2);
+      if (len < 2) return undefined;
+      // SOF0-SOF15, excluding the huffman/arithmetic/restart markers that share the range.
+      if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+        return ok(be16(i + 7), be16(i + 5));
+      }
+      i += 2 + len;
+    }
+    return undefined;
+  }
+
+  if (kind === "webp") {
+    const fourcc = String.fromCharCode(bytes[12], bytes[13], bytes[14], bytes[15]);
+    if (fourcc === "VP8 " && bytes.length > 29) {
+      // Lossy: a 3-byte frame tag, the 3-byte start code, then 14-bit width and height.
+      if (!(bytes[23] === 0x9d && bytes[24] === 0x01 && bytes[25] === 0x2a)) return undefined;
+      return ok(le16(26) & 0x3fff, le16(28) & 0x3fff);
+    }
+    if (fourcc === "VP8L" && bytes.length > 24 && bytes[20] === 0x2f) {
+      // Lossless: 14 bits of width-1 then 14 bits of height-1, packed little-endian.
+      const b = bytes[21] | (bytes[22] << 8) | (bytes[23] << 16) | (bytes[24] << 24);
+      return ok((b & 0x3fff) + 1, ((b >>> 14) & 0x3fff) + 1);
+    }
+    if (fourcc === "VP8X" && bytes.length > 29) {
+      // Extended: 24-bit canvas width-1 and height-1.
+      const w = (bytes[24] | (bytes[25] << 8) | (bytes[26] << 16)) + 1;
+      const h = (bytes[27] | (bytes[28] << 8) | (bytes[29] << 16)) + 1;
+      return ok(w, h);
+    }
+  }
+  return undefined;
+}
+
 export const PhotoMetaSchema = z.object({
   originalSha256: z.string().regex(/^[a-f0-9]{64}$/).optional(),
   width: z.number().int().positive().max(20000).optional(),
@@ -79,7 +141,12 @@ export async function storePhoto(caseId: string, bytes: Uint8Array, meta: z.infe
   const sha256 = sha256Hex(bytes);
   const key = `photos/${caseId.toLowerCase()}/${sha256.slice(0, 20)}.${kind.ext}`;
   await getBlobs().put(key, bytes, kind.mime);
-  return { key, mime: kind.mime, bytes: bytes.byteLength, sha256, ...meta, credit };
+  // The client's own width and height are dropped: a deterministic gate must not take the size of
+  // an image on the word of whoever uploaded it. What the header says is what is recorded, and an
+  // unreadable header records nothing, which the gate treats as unreadable.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { width: _clientWidth, height: _clientHeight, ...rest } = meta;
+  return { key, mime: kind.mime, bytes: bytes.byteLength, sha256, ...rest, ...measureImage(bytes), credit };
 }
 
 // ---------------------------------------------------------------------------
@@ -194,7 +261,10 @@ export async function recordTimeline(caseId: string, ownerKey: string | null, in
 
   let toStatus: CaseStatus | undefined;
   if (input.type === "complaint_submitted") toStatus = "submitted";
-  // A recorded response leaves the status for the reporter to decide (resolved, closed, or still open).
+  // A recorded response moves a case that was still waiting to "authority responded" — the fact the
+  // reporter just attested to, and nothing beyond it. What the response *means* (resolved, disputed,
+  // still open) stays theirs to say, and a case that has already moved past waiting is left alone.
+  if (input.type === "response_received" && (current.status === "submitted" || current.status === "awaiting_response")) toStatus = "response_received";
   if (input.type === "follow_up_scheduled") toStatus = current.status === "submitted" ? "awaiting_response" : undefined;
   if (input.type === "status_changed") toStatus = input.toStatus;
 

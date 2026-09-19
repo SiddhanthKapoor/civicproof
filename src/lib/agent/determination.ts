@@ -7,6 +7,7 @@
  * into "the contractor is at fault", which this product must never assert (spec items A, F).
  */
 import type { Case, Claim, Determination, Evidence } from "@/lib/schemas";
+import { CLAIM_FIELD_LABELS } from "@/lib/schemas";
 import type { Corpus, Project } from "@/lib/corpus";
 
 /** What the photo call reported, when a vision model ran. */
@@ -234,7 +235,7 @@ const OVERALL_RULES: Array<{ when: (a: Axes) => boolean; value: Determination["o
   {
     when: (a) => a.contractual === "ACTIVE" && a.field === "DEFECT_OBSERVED" && a.scope === "POTENTIALLY_RELATED",
     value: "POTENTIAL_ISSUE",
-    reason: "A defect is visible at a location the records place inside a project whose defect-liability period is still open. This is a potential contractual issue and requires human review. It does not establish who is responsible for the defect.",
+    reason: "A defect is visible at a location the records place inside a project whose defect-liability period is still open. The available evidence supports treating this as a potential project/maintenance issue requiring human/authority review. The evidence does not establish who is responsible for the defect.",
   },
 ];
 
@@ -281,7 +282,52 @@ export function determine(input: {
     fieldCondition: field,
     scopeRelationship: scope,
     overall,
-    requiresHumanReview: overall.value === "POTENTIAL_ISSUE" || field.value === "HUMAN_REVIEW",
+    // A person is asked to look only where a person is what actually settles it: an identifier that
+    // several projects share, records that disagree, a photograph too unclear to read, or a defect
+    // inside an open maintenance period. A record that is simply absent is deliberately NOT here —
+    // that is answered by requesting the record, which is already a next action, and routing it to
+    // "human review" would make the flag the generic escape hatch it is meant not to be.
+    requiresHumanReview:
+      overall.value === "POTENTIAL_ISSUE" ||
+      field.value === "HUMAN_REVIEW" ||
+      input.identity.value === "CODE_MATCHES_MULTIPLE_PROJECTS" ||
+      input.claims.some((c) => c.verification === "contradicted"),
     completeness: input.completeness,
   };
+}
+
+/**
+ * Why a person is being asked to look, and what would settle it — one entry per live trigger, in
+ * the same order `requiresHumanReview` tests them. Every string is written here, in code: none of
+ * this is model output, and none of it asserts cause, fault or liability.
+ */
+export function humanReviewReasons(d: Determination, claims: Claim[]): Array<{ why: string; resolvedBy: string }> {
+  const out: Array<{ why: string; resolvedBy: string }> = [];
+  if (d.identity.value === "CODE_MATCHES_MULTIPLE_PROJECTS") {
+    const n = d.identity.candidateProjectIds?.length ?? 0;
+    out.push({
+      why: `The work number on this report is carried by ${n} project${n === 1 ? "" : "s"} in the records, so which contract covers this spot is not settled.`,
+      resolvedBy: "Someone who knows the site chooses the right project from the candidates listed on this page.",
+    });
+  }
+  const fields = [...new Set(claims.filter((c) => c.verification === "contradicted").map((c) => c.field))];
+  if (fields.length) {
+    out.push({
+      why: `Official records disagree on ${fields.map((f) => CLAIM_FIELD_LABELS[f].toLowerCase()).join(", ")}. Both values are shown; neither has been chosen.`,
+      resolvedBy: "A reviewer reads the cited pages and records which source is right.",
+    });
+  }
+  if (d.fieldCondition.value === "HUMAN_REVIEW") {
+    out.push({
+      why: d.fieldCondition.reason,
+      resolvedBy: d.fieldCondition.recapture ?? "A person looks at the photograph and judges what it shows.",
+    });
+  }
+  if (d.overall.value === "POTENTIAL_ISSUE") {
+    out.push({
+      why: "A visible defect sits inside a maintenance period that is still open, on a project whose documented scope covers this kind of work.",
+      resolvedBy: "An engineer inspects the site and decides whether this defect falls under the contract's terms.",
+    });
+  }
+  return out;
 }

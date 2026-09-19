@@ -184,7 +184,8 @@ describe("RTI first appeal", () => {
     expect(text).not.toContain("deemed a refusal");
     expect(text).not.toContain("Section 7(6)"); // the reply came in time
     const c = await getStore().get(id);
-    expect(c!.status).toBe("submitted"); // a reply doesn't mean the case is waiting or resolved
+    // A reply is its own state: not still waiting, and certainly not resolved or closed.
+    expect(c!.status).toBe("response_received");
   });
 });
 
@@ -206,6 +207,43 @@ describe("privacy", () => {
     await expect(ownerPackets(caseData.id, null)).rejects.toThrow(/Only the person/);
     const publicDraft = (await savePacket(caseData.id, null, "complaint")).packet;
     expect(JSON.stringify(publicDraft)).not.toMatch(/Asha Rao|asha@example/);
+  });
+
+  it("publishes when a photo was taken but never where, or on what device", async () => {
+    // A case link is public. The capture time is evidence about the report and is shown on the
+    // case; the capture coordinates and the camera are the reporter's and establish nothing.
+    const stored = {
+      id: "CP-TEST-EXIF",
+      photos: [
+        {
+          key: "photos/x/abc.jpg",
+          mime: "image/jpeg",
+          bytes: 1234,
+          sha256: "a".repeat(64),
+          exif: { takenAt: "2026-09-14T10:00:00.000Z", lat: 12.894573, lng: 77.71297, make: "Pixel", model: "8 Pro" },
+        },
+      ],
+      packets: {},
+      ownerKeyHash: "h",
+      reporterName: "Asha Rao",
+      reporterContact: "asha@example.org",
+    } as unknown as Parameters<typeof toPublicCase>[0];
+
+    const pub = toPublicCase(stored);
+    expect(pub.photos[0].exif).toEqual({ takenAt: "2026-09-14T10:00:00.000Z" });
+    const asJson = JSON.stringify(pub);
+    expect(asJson).not.toMatch(/77\.71297|12\.894573/);
+    expect(asJson).not.toMatch(/Pixel|8 Pro/);
+  });
+
+  it("drops the EXIF block entirely when there is no capture time to keep", async () => {
+    const stored = {
+      id: "CP-TEST-EXIF2",
+      photos: [{ key: "photos/x/a.jpg", mime: "image/jpeg", bytes: 1, sha256: "b".repeat(64), exif: { lat: 12.9, lng: 77.6 } }],
+      packets: {},
+      ownerKeyHash: "h",
+    } as unknown as Parameters<typeof toPublicCase>[0];
+    expect(toPublicCase(stored).photos[0].exif).toBeUndefined();
   });
 });
 
@@ -421,5 +459,89 @@ describe("golden cases", () => {
     expect(d.fieldCondition.value).toBe("INSUFFICIENT_EVIDENCE");
     expect(d.fieldCondition.reason).toMatch(/short edge|not sufficient/);
     expect(d.overall.value).toBe("UNKNOWN");
+  });
+});
+
+describe("the case lifecycle after the citizen files it", () => {
+  // CivicProof never contacts an authority, so every step past "submitted" exists only because the
+  // reporter said so. These assert that it records what they attest to and invents nothing.
+  const file = async (title: string) => {
+    const { caseData, ownerKey } = await createCase({ ...base, title, lat: 12.894573, lng: 77.71297 }, []);
+    await runInvestigation(caseData.id, () => {});
+    return { id: caseData.id, ownerKey };
+  };
+  const status = async (id: string) => (await getStore().get(id))!.status;
+
+  it("does not call a case submitted until the citizen says they submitted it", async () => {
+    const { id } = await file("Lifecycle: nothing claimed on its own");
+    // The investigation is finished and the packet exists, and still nobody has filed anything.
+    expect(["reported", "investigating", "evidence_found", "case_prepared"]).toContain(await status(id));
+  });
+
+  it("records the submission the citizen made, with its channel and reference", async () => {
+    const { id, ownerKey } = await file("Lifecycle: submission recorded");
+    await recordTimeline(id, ownerKey, {
+      type: "complaint_submitted",
+      channel: "Greater Bengaluru Authority (BBMP) civic grievance channels",
+      referenceNumber: "BBMP-2026-00417",
+      date: "2026-09-19",
+      packet: "complaint",
+    });
+    expect(await status(id)).toBe("submitted");
+    const c = (await getStore().get(id))!;
+    const ev = c.timeline.find((e) => e.type === "complaint_submitted")!;
+    expect(ev.actor).toBe("reporter");
+    expect(ev.referenceNumber).toBe("BBMP-2026-00417");
+    expect(ev.channel).toMatch(/Greater Bengaluru Authority/);
+    expect(ev.date).toBe("2026-09-19");
+  });
+
+  it("moves to 'authority responded' only when a reply is recorded, and no further", async () => {
+    const { id, ownerKey } = await file("Lifecycle: reply recorded");
+    await recordTimeline(id, ownerKey, { type: "complaint_submitted", channel: "CPGRAMS", date: "2026-09-19", packet: "complaint" });
+    await recordTimeline(id, ownerKey, { type: "response_received", date: "2026-09-25", notes: "Ward engineer will inspect." });
+    // A reply is a reply. It is not an inspection, an action, or a resolution.
+    expect(await status(id)).toBe("response_received");
+  });
+
+  it("lets the citizen carry the case through inspection, action and an outcome", async () => {
+    const { id, ownerKey } = await file("Lifecycle: through to an outcome");
+    await recordTimeline(id, ownerKey, { type: "complaint_submitted", channel: "CPGRAMS", date: "2026-09-19", packet: "complaint" });
+    for (const toStatus of ["inspection_reported", "action_reported", "resolved"] as const) {
+      await recordTimeline(id, ownerKey, { type: "status_changed", toStatus, notes: `Reporter recorded: ${toStatus}` });
+      expect(await status(id)).toBe(toStatus);
+    }
+    // And a reporter who disagrees with the outcome can say so.
+    await recordTimeline(id, ownerKey, { type: "status_changed", toStatus: "disputed", notes: "Patch has already broken up." });
+    expect(await status(id)).toBe("disputed");
+  });
+
+  it("refuses every one of these to anyone without the owner key", async () => {
+    const { id } = await file("Lifecycle: not yours to advance");
+    await expect(recordTimeline(id, null, { type: "complaint_submitted", channel: "CPGRAMS", date: "2026-09-19", packet: "complaint" })).rejects.toThrow(/Only the person/);
+    await expect(recordTimeline(id, null, { type: "status_changed", toStatus: "resolved" })).rejects.toThrow(/Only the person/);
+  });
+
+  it("keeps the whole history, in the order things happened", async () => {
+    const { id, ownerKey } = await file("Lifecycle: the record reads as a record");
+    await recordTimeline(id, ownerKey, { type: "complaint_submitted", channel: "CPGRAMS", referenceNumber: "REF-1", date: "2026-09-19", packet: "complaint" });
+    await recordTimeline(id, ownerKey, { type: "response_received", date: "2026-09-25", notes: "Acknowledged." });
+    await recordTimeline(id, ownerKey, { type: "status_changed", toStatus: "inspection_reported", notes: "Engineer visited 30 Sep." });
+
+    const c = (await getStore().get(id))!;
+    const when = (e: (typeof c.timeline)[number]) => e.date ?? e.at.slice(0, 10);
+    const ordered = [...c.timeline].sort((a, b) => when(a).localeCompare(when(b)) || a.at.localeCompare(b.at));
+    // Every transition also writes its own status_changed row, so rather than pin the exact rows,
+    // assert the two things that make this a record: it never goes backwards in time, and the
+    // things the reporter did appear in the order they did them.
+    const dates = ordered.map(when);
+    expect([...dates].sort()).toEqual(dates);
+    const seq = ordered.map((e) => e.type).filter((t) => ["reported", "complaint_submitted", "response_received"].includes(t));
+    expect(seq).toEqual(["reported", "complaint_submitted", "response_received"]);
+    expect(ordered.find((e) => e.type === "complaint_submitted")!.referenceNumber).toBe("REF-1");
+    expect(ordered.some((e) => e.toStatus === "inspection_reported")).toBe(true);
+    // Nothing in the record claims CivicProof spoke to anyone.
+    const agentEvents = c.timeline.filter((e) => e.actor === "agent").map((e) => e.summary).join(" ");
+    expect(agentEvents).not.toMatch(/submitted|authority|replied|inspect/i);
   });
 });

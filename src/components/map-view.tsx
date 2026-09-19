@@ -33,7 +33,11 @@ export const STATUS_COLOR: Record<string, string> = {
   case_prepared: "#2542c8",
   submitted: "#16181d",
   awaiting_response: "#16181d",
+  response_received: "#16181d",
+  inspection_reported: "#2542c8",
+  action_reported: "#2542c8",
   resolved: "#17744a",
+  disputed: "#b42318",
   closed: "#9aa0ab",
 };
 

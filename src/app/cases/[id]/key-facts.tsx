@@ -35,7 +35,14 @@ export function KeyFacts({ caseData }: { caseData: PublicCase }) {
   const inv = caseData.investigation;
   if (!inv || inv.status !== "complete") return null;
   const match = inv.matches.find((m) => m.projectId === inv.selectedProjectId);
-  const contractor = inv.claims.find((c) => c.field === "contractor" && c.origin !== "ai_inference");
+  // What the work was meant to be. The contractor is not repeated here: it sits in the
+  // determination card immediately below, where it carries its verification state and the note
+  // that a contracted party is not a responsible party.
+  const scope = inv.claims.find((c) => (c.field === "scope" || c.field === "roads_covered") && c.origin === "official_record");
+  // Only a code the registry accepted is shown beside the project. A rejected one would read here
+  // as the identifier this project was matched by, which is not what happened.
+  const identity = inv.determination?.identity;
+  const code = identity?.patternValid === false ? undefined : identity?.normalizedCode;
   // Only a window computed by code may be shown as computed; anything else is not a window at all.
   const window = inv.claims.find((c) => c.field === "maintenance_window" && c.origin === "computed");
   const dlp = inv.claims.find((c) => c.field === "defect_liability");
@@ -43,11 +50,11 @@ export function KeyFacts({ caseData }: { caseData: PublicCase }) {
 
   const tiles: Tile[] = [
     match
-      ? { label: "Project", value: match.projectName.length > 48 ? match.projectName.slice(0, 46) + "…" : match.projectName, note: `${upperFirst(matchPlacement(match))}${ambiguous ? " · another project equally close" : ""}`, tone: ambiguous ? "partial" : "accent" }
+      ? { label: "Project", value: match.projectName.length > 48 ? match.projectName.slice(0, 46) + "…" : match.projectName, note: `${code ? code + " · " : ""}${upperFirst(matchPlacement(match))}${ambiguous ? " · another project equally close" : ""}`, tone: ambiguous ? "partial" : "accent" }
       : { label: "Project", value: "Not identified", note: "No project in the corpus at this spot", tone: "missing" },
-    contractor
-      ? { label: "Contractor", value: contractor.value ?? contractor.text, note: contractor.verification === "verified" ? "Verified in the official record" : "Not confirmed verbatim", tone: toneFor(contractor.verification) }
-      : { label: "Contractor", value: "Not established", note: "Ask for the work order via RTI", tone: "missing" },
+    scope
+      ? { label: "What the work covers", value: scope.value ?? scope.text, note: scope.verification === "verified" ? "Verified in the official record" : "Not confirmed verbatim", tone: toneFor(scope.verification) }
+      : { label: "What the work covers", value: "Not established", note: "Ask for the detailed estimate via RTI", tone: "missing" },
     window
       ? window.value?.startsWith("inside:")
         ? { label: "Maintenance window", value: `Open until ${fmt(window.value.slice(7))}`, note: "Computed from cited dates", tone: "verified" }

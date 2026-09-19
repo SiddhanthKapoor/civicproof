@@ -98,6 +98,13 @@ export function Findings({
                 <span className="text-[13px] font-medium text-ink-3">{m.label}</span>
                 <div>
                   <p className="text-[14.5px] text-ink-2">{m.reason}</p>
+                  {/* Why the gap matters is written by code, never by a model: it states what this
+                      missing record blocks, so a reader can judge the gap rather than take it on trust. */}
+                  {m.whyItMatters && (
+                    <p className="mt-1 text-[13px] text-ink-3">
+                      Why it matters: <span className="text-ink-2">{m.whyItMatters}</span>
+                    </p>
+                  )}
                   {m.requestableRecord && (
                     <p className={cn("mt-1 text-[13px] text-ink-3")}>
                       Record to request: <span className="text-ink-2">{m.requestableRecord}</span>

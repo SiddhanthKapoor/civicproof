@@ -41,9 +41,11 @@ when { context.is_owner };
 permit (principal == Agent::"investigator", action == Action::"ChangeStatus", resource)
 when { ["investigating", "evidence_found", "case_prepared"].contains(context.to_status) };
 
-// Nobody except the reporter can declare a case submitted, answered, resolved or closed.
+// Nobody except the reporter can say a case was filed, answered, inspected, acted on,
+// resolved, disputed or closed. Each of those is a fact about the world outside this system,
+// and CivicProof has no way to observe any of them.
 // This holds even if a future policy above is written too broadly.
 @id("only-reporter-closes-the-loop")
 forbid (principal, action == Action::"ChangeStatus", resource)
-when { ["submitted", "awaiting_response", "resolved", "closed"].contains(context.to_status) }
+when { ["submitted", "awaiting_response", "response_received", "inspection_reported", "action_reported", "resolved", "disputed", "closed"].contains(context.to_status) }
 unless { principal is Reporter && context.is_owner };

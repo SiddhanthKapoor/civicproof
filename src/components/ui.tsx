@@ -76,7 +76,11 @@ const STATUS_STYLE: Record<CaseStatus, string> = {
   case_prepared: "bg-accent-soft text-accent-ink",
   submitted: "bg-ink text-paper",
   awaiting_response: "bg-ink text-paper",
+  response_received: "bg-ink text-paper",
+  inspection_reported: "bg-accent-soft text-accent-ink",
+  action_reported: "bg-accent-soft text-accent-ink",
   resolved: "bg-verified-soft text-verified",
+  disputed: "bg-contradicted-soft text-contradicted",
   closed: "bg-paper-3 text-ink-3",
 };
 
