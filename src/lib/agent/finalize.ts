@@ -5,12 +5,29 @@
  *  - missing-information checklist for the fields a complaint needs
  *  - next actions, addressed from the authority directory (never from model output)
  */
-import type { Claim, ClaimField, MissingItem, NextAction, Verification } from "@/lib/schemas";
+import type { Claim, ClaimField, Determination, MissingItem, NextAction, Verification } from "@/lib/schemas";
 import { CLAIM_FIELD_LABELS } from "@/lib/schemas";
 import type { Authority } from "@/lib/corpus";
 import { detectConflicts } from "./verifier";
-import { parseDates, parseDurationsMonths } from "./text";
+import { labelledDates, parseDates, parseDurationsMonths } from "./text";
+import { determine } from "./determination";
+import { resolveIdentityFromRecord } from "./identity";
 import type { RunContext } from "./context";
+
+/**
+ * What not knowing each field blocks. Stated here, deterministically, so the explanation a citizen
+ * reads is never model prose (spec item J: every gap says why it matters).
+ */
+const WHY_IT_MATTERS: Partial<Record<ClaimField, string>> = {
+  project_name: "Without the project, none of the contract's obligations can be looked up at all.",
+  agency: "Without the executing department, there is no office to send the complaint or the RTI request to.",
+  contractor: "Without the contractor named in the work order, there is no party who owes the maintenance obligation.",
+  contract_value: "Without the contract value, the scale of the work — and so what was promised — cannot be checked.",
+  completion_date: "Without a verified completion date the defect-liability period cannot be computed, so whether the obligation is still open stays UNKNOWN.",
+  defect_liability: "Without the defect-liability clause there is no maintenance duration to apply to the completion date.",
+  scope: "Without the scope of work it cannot be established that this stretch of road was part of this contract.",
+  location_match: "Until one project is established for this spot, any obligation found belongs to a contract that may not cover it.",
+};
 
 const KEY_FIELDS: Array<{ field: ClaimField; record: string }> = [
   { field: "project_name", record: "Name of work as per the sanction / work order" },
@@ -50,12 +67,51 @@ export function fmtDate(iso: string): string {
   return new Date(iso + "T00:00:00Z").toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 }
 
+/**
+ * A completion date is only usable when the source says it is the *physical* completion of the
+ * works. OMMAS prints both kinds in one cell ("Financial: 27-05-2024 / Physical: 05-03-2022"), and
+ * a financial or payment date is a different fact (spec item 18). Returns undefined — i.e. UNKNOWN
+ * — rather than guessing when the labels are missing or ambiguous.
+ */
+const PHYSICAL_WORDS = /\b(physical|actual|completed on|work completion|works completion)\b/g;
+const OTHER_COMPLETION_WORDS = /\b(financial|payment|paid|final bill|administrative|closure|sanction|award)\b/g;
+
+/** Which kind of completion a date is labelled as, judged by the *nearest* label on either side. */
+function labelKind(before: string, after: string): "physical" | "other" | undefined {
+  const nearest = (re: RegExp) => {
+    let best = Number.POSITIVE_INFINITY;
+    for (const m of before.matchAll(new RegExp(re.source, "gi"))) best = Math.min(best, before.length - (m.index + m[0].length));
+    for (const m of after.matchAll(new RegExp(re.source, "gi"))) best = Math.min(best, m.index);
+    return best;
+  };
+  const physical = nearest(PHYSICAL_WORDS);
+  const other = nearest(OTHER_COMPLETION_WORDS);
+  if (physical === other) return undefined;
+  return physical < other ? "physical" : "other";
+}
+
+export function physicalCompletionDate(c: Claim): string | undefined {
+  const stated = parseDates(c.value ?? "");
+  if (!stated.length) return undefined;
+  const labelled = labelledDates(`${c.value ?? ""} ${c.text}`).map((x) => ({ ...x, kind: labelKind(x.before, x.after) }));
+  const physical = new Set(labelled.filter((x) => x.kind === "physical").map((x) => x.date));
+  const other = new Set(labelled.filter((x) => x.kind === "other").map((x) => x.date));
+  if (stated.length === 1) {
+    // One date: usable unless the source labels that very date as something other than the works.
+    const d = stated[0];
+    return other.has(d) && !physical.has(d) ? undefined : d;
+  }
+  // Several dates: only an unambiguous physical label resolves which one is meant.
+  const resolved = stated.filter((d) => physical.has(d) && !other.has(d));
+  return resolved.length === 1 ? resolved[0] : undefined;
+}
+
 /** Computes whether the observation date falls inside the defect-liability period. */
 export function maintenanceWindow(claims: Claim[], observedOn: string): Claim | undefined {
-  const completion = claims.find((c) => c.field === "completion_date" && usable(c) && c.value && parseDates(c.value).length);
+  const completion = claims.find((c) => c.field === "completion_date" && usable(c) && physicalCompletionDate(c));
   const dlp = claims.find((c) => c.field === "defect_liability" && usable(c) && c.value && parseDurationsMonths(c.value).length);
   if (!completion || !dlp) return undefined;
-  const done = parseDates(completion.value!)[0];
+  const done = physicalCompletionDate(completion)!;
   const months = parseDurationsMonths(dlp.value!)[0];
   const end = addMonths(done, months);
   const after = monthsBetween(done, observedOn);
@@ -88,9 +144,10 @@ export function missingChecklist(claims: Claim[], alreadyFlagged: MissingItem[],
         field: "project_name",
         label: CLAIM_FIELD_LABELS.project_name,
         reason: "No public-works project in the records CivicProof holds matches this location.",
+        whyItMatters: WHY_IT_MATTERS.project_name,
         requestableRecord: "List of road works sanctioned or executed on this stretch in the last five years, with work orders",
       });
-    return out;
+    return out.map((m) => ({ ...m, whyItMatters: m.whyItMatters ?? WHY_IT_MATTERS[m.field] }));
   }
   for (const k of KEY_FIELDS) {
     const hasVerified = claims.some((c) => c.field === k.field && c.verification === "verified");
@@ -103,10 +160,12 @@ export function missingChecklist(claims: Claim[], alreadyFlagged: MissingItem[],
       reason: partial
         ? "A source mentions this, but the value could not be confirmed verbatim in an official document."
         : "Not stated in the documents available to CivicProof.",
+      whyItMatters: WHY_IT_MATTERS[k.field],
       requestableRecord: k.record,
     });
   }
-  return out;
+  // Items the agent flagged carry the same deterministic explanation, keyed by field.
+  return out.map((m) => ({ ...m, whyItMatters: m.whyItMatters ?? WHY_IT_MATTERS[m.field] }));
 }
 
 export function deriveNextActions(
@@ -115,6 +174,7 @@ export function deriveNextActions(
   authority: Authority | undefined,
   aiProposals: RunContext["proposedActions"],
   projectOfficer?: string,
+  identityEstablished = true,
 ): NextAction[] {
   const officer = projectOfficer ?? authority?.officer;
   const actions: NextAction[] = [];
@@ -122,7 +182,8 @@ export function deriveNextActions(
   const contractor = claims.find((c) => c.field === "contractor" && c.verification === "verified");
   const agencyName = authority?.name;
 
-  if (window?.value?.startsWith("inside:") && (window.verification === "verified" || window.verification === "partially_verified")) {
+  // This action names a contractor and an office: it must not be raised on an unestablished project.
+  if (identityEstablished && window?.value?.startsWith("inside:") && (window.verification === "verified" || window.verification === "partially_verified")) {
     actions.push({
       type: "defect_liability_repair_request",
       title: "Request repair under the defect liability period",
@@ -187,21 +248,50 @@ export function deriveNextActions(
 export function normaliseProposals(claims: Claim[]): Claim[] {
   return claims
     .filter((c) => !(c.field === "reported_condition" && c.origin !== "official_record"))
-    .map((c) => {
-      const financial = /financial/i.test(c.value ?? "") || (/financial/i.test(c.text) && !/physical/i.test(c.text));
-      return c.field === "completion_date" && financial ? { ...c, field: "other" as const } : c;
-    });
+    // The defect-liability window is arithmetic, never an opinion: a model-authored one is dropped
+    // outright, so the only window that can exist is the one this file computes (spec item 19).
+    .filter((c) => !(c.field === "maintenance_window" && c.origin !== "computed"))
+    .map((c) =>
+      // A completion date we cannot tie to physical completion is not a completion date. Demoting it
+      // to "other" leaves completion UNKNOWN and lets the gap checklist ask for the real record.
+      c.field === "completion_date" && !physicalCompletionDate(c) ? { ...c, field: "other" as const } : c,
+    );
 }
 
 export function finalizeClaims(ctx: RunContext) {
   const { claims: checked, conflicts } = detectConflicts(normaliseProposals(ctx.claims));
+  // normaliseProposals has already dropped any model-authored window, so this is the only one.
   const window = maintenanceWindow(checked, ctx.caseData.observedOn);
-  // The window is computed from cited dates; a model's own version of it is superseded.
-  const claims = window ? checked.filter((c) => c.field !== "maintenance_window") : checked;
-  const all = window ? [...claims, window] : claims;
+  const all = window ? [...checked, window] : checked;
   const missing = missingChecklist(all, ctx.missing, Boolean(ctx.selectedProjectId));
   const project = ctx.selectedProjectId ? ctx.corpus.getProject(ctx.selectedProjectId) : undefined;
   const authority = ctx.corpus.getAuthority(project?.agencyId);
-  const nextActions = deriveNextActions(all, missing, authority, ctx.proposedActions, project?.officer);
-  return { claims: all, conflicts, missing, nextActions };
+  // Identity first: an identifier resolved up front wins; otherwise the project the location
+  // suggested is only established once its work identifier is confirmed verbatim in its own records.
+  // Everything downstream — the actions, the packet, the case status — depends on the answer.
+  const selected = ctx.matches.find((m) => m.projectId === ctx.selectedProjectId);
+  const identity: Determination["identity"] =
+    ctx.identity ??
+    resolveIdentityFromRecord({ project, claims: all, evidence: ctx.evidence, corpus: ctx.corpus, linkedBy: selected?.linkedBy });
+
+  const nextActions = deriveNextActions(all, missing, authority, ctx.proposedActions, project?.officer, identity.value === "VERIFIED");
+
+  const determination = determine({
+    identity,
+    window,
+    claims: all,
+    evidence: ctx.evidence,
+    project,
+    category: ctx.caseData.category,
+    corpus: ctx.corpus,
+    photoCount: ctx.caseData.photos.length,
+    observation: ctx.photoObservation,
+    sufficiency: ctx.photoSufficiency,
+    today: new Date().toISOString().slice(0, 10),
+    completeness: {
+      have: KEY_FIELDS.filter((k) => all.some((c) => c.field === k.field && usable(c))).length,
+      of: KEY_FIELDS.length,
+    },
+  });
+  return { claims: all, conflicts, missing, nextActions, determination };
 }

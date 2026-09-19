@@ -38,6 +38,12 @@ export interface Corpus extends CorpusReader {
   getAuthority(id: string | undefined): Authority | undefined;
   search(query: string, opts?: { docIds?: string[]; limit?: number }): Array<{ docId: string; page: number; score: number; snippet: string }>;
   projectsNear(p: LatLng, radiusM: number): Array<{ project: Project; distanceM: number }>;
+  /**
+   * Projects whose work/package identifier equals this code. The identifier is what *establishes*
+   * identity, so this is an exact lookup against the registry, never a fuzzy search. A code may
+   * legitimately match several projects: PMGSY package ids repeat per block.
+   */
+  findProjectsByCode(code: string): Project[];
 }
 
 function readJson(file: string): unknown {
@@ -73,6 +79,23 @@ export function loadCorpus(root = path.join(process.cwd(), "corpus")): Corpus {
 
   const docs = new Map(manifest.documents.map((d) => [d.id, { ...d, pageCount: pagesFile[d.id]?.pages.length ?? 0 }]));
   const projectMap = new Map(projects.map((p) => [p.id, p]));
+
+  // Registry index: work/package identifier -> projects. Built from the curated project_id fact,
+  // which ingest has already verified verbatim against its source page, and from the slug as a
+  // fallback. 778 of 779 projects carry a code; 53 codes match more than one project.
+  const codeIndex = new Map<string, Project[]>();
+  const addCode = (raw: string | undefined, p: Project) => {
+    const code = (raw ?? "").trim().toUpperCase();
+    if (!code) return;
+    const at = codeIndex.get(code);
+    if (at) {
+      if (!at.includes(p)) at.push(p);
+    } else codeIndex.set(code, [p]);
+  };
+  for (const p of projects) {
+    addCode(p.reference.find((r) => r.field === "project_id")?.value, p);
+    addCode(p.id.split("-").pop(), p);
+  }
   const authorityMap = new Map(authorities.map((a) => [a.id, a]));
 
   // Page-level chunks, split further if a page is very long so snippets stay relevant.
@@ -116,6 +139,7 @@ export function loadCorpus(root = path.join(process.cwd(), "corpus")): Corpus {
       }
       return out;
     },
+    findProjectsByCode: (code) => codeIndex.get(code.trim().toUpperCase()) ?? [],
     projectsNear(p, radiusM) {
       return projects
         .filter((project) => project.geometry)

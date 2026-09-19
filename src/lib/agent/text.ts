@@ -150,6 +150,36 @@ export function parseDates(text: string): string[] {
   return [...out];
 }
 
+/**
+ * Dates in a string, each paired with the text that immediately precedes it, so a caller can tell
+ * a labelled date from an unlabelled one. OMMAS prints both kinds of completion in one cell
+ * ("Financial: 27-05-2024 / Physical: 05-03-2022"), and which one is meant changes the answer.
+ */
+export function labelledDates(text: string): Array<{ before: string; after: string; date: string }> {
+  const t = normalizeText(text);
+  const out: Array<{ before: string; after: string; date: string }> = [];
+  // Labels sit on either side in real records: "Physical: 05-03-2022" and "05-03-2022 (Physical)".
+  // The slices are returned raw so the caller can pick the *nearest* label rather than any nearby word.
+  const add = (value: string | null | undefined, at: number, len: number) => {
+    if (value) out.push({ before: t.slice(Math.max(0, at - 40), at), after: t.slice(at + len, at + len + 20), date: value });
+  };
+  for (const m of t.matchAll(/\b(\d{4})-(\d{1,2})-(\d{1,2})\b/g)) add(iso(+m[1], +m[2], +m[3]), m.index, m[0].length);
+  for (const m of t.matchAll(/\b(\d{1,2})[./-](\d{1,2})[./-](\d{2,4})\b/g)) {
+    let y = +m[3];
+    if (y < 100) y += 2000;
+    add(iso(y, +m[2], +m[1]), m.index, m[0].length);
+  }
+  for (const m of t.matchAll(/\b(\d{1,2})(?:st|nd|rd|th)?[\s-]+([a-z]{3,9})\.?,?[\s-]+(\d{4})\b/g)) {
+    const mo = MONTHS[m[2]];
+    if (mo) add(iso(+m[3], mo, +m[1]), m.index, m[0].length);
+  }
+  for (const m of t.matchAll(/\b([a-z]{3,9})\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})\b/g)) {
+    const mo = MONTHS[m[1]];
+    if (mo) add(iso(+m[3], mo, +m[2]), m.index, m[0].length);
+  }
+  return out;
+}
+
 /** Durations such as "5 years", "24 months", "two years" → months. */
 export function parseDurationsMonths(text: string): number[] {
   const words: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, ten: 10, twelve: 12 };
@@ -195,46 +225,85 @@ export function valueSupported(value: string, quote: string): boolean {
   return false;
 }
 
+/**
+ * A value normalised into a typed quantity: a kind, plus a magnitude in one canonical unit.
+ * Conflict detection compares these rather than the strings, so "12 months" and "1 year" are the
+ * same fact while "364.29 lakh" and "364.29 crore" are not. A figure with no unit is its own kind
+ * ("count") and is never equal to a money, length or duration: if the unit cannot be established
+ * we fail closed and let the conflict surface (spec items 16 and 17).
+ */
+export type Quantity =
+  | { kind: "date"; value: string }
+  | { kind: "money"; value: number }
+  | { kind: "length"; value: number }
+  | { kind: "duration"; value: number }
+  | { kind: "ratio"; value: number }
+  | { kind: "count"; value: number }
+  | { kind: "text"; value: string };
+
+const MONEY_MULTIPLIER: Record<string, number> = {
+  thousand: 1e3, lakh: 1e5, lakhs: 1e5, lac: 1e5, lacs: 1e5, million: 1e6, mn: 1e6,
+  crore: 1e7, crores: 1e7, cr: 1e7, billion: 1e9,
+};
+const LENGTH_METRES: Record<string, number> = {
+  m: 1, metre: 1, metres: 1, meter: 1, meters: 1,
+  km: 1e3, kms: 1e3, kilometre: 1e3, kilometres: 1e3, kilometer: 1e3, kilometers: 1e3,
+};
+const DURATION_WORD = /\b(months?|years?|days?|weeks?)\b/;
+const MONEY_MARKER = /\b(rs|rupees|inr)\b/;
+const RATIO_MARKER = /%|\bper ?cent\b|\bpercent\b/;
+
+function figures(s: string): number[] {
+  return (normalizeText(s).match(/\d+(?:[.,]\d+)*/g) ?? [])
+    .map((n) => Number(n.replace(/,/g, "")))
+    .filter((n) => Number.isFinite(n));
+}
+
+export function typedQuantity(value: string): Quantity {
+  const t = normalizeText(value);
+  const words = t.match(/[a-z]+/g) ?? [];
+  const nums = figures(value);
+
+  const dates = parseDates(value);
+  if (dates.length === 1) return { kind: "date", value: dates[0] };
+
+  if (nums.length === 1) {
+    if (RATIO_MARKER.test(t)) return { kind: "ratio", value: nums[0] };
+    if (DURATION_WORD.test(t)) {
+      const months = parseDurationsMonths(value);
+      if (months.length === 1) return { kind: "duration", value: months[0] };
+    }
+    const money = words.find((w) => w in MONEY_MULTIPLIER);
+    const length = words.find((w) => w in LENGTH_METRES);
+    if (money && !length) return { kind: "money", value: nums[0] * MONEY_MULTIPLIER[money] };
+    if (length && !money) return { kind: "length", value: nums[0] * LENGTH_METRES[length] };
+    if (MONEY_MARKER.test(t)) return { kind: "money", value: nums[0] };
+    if (!DURATION_WORD.test(t)) return { kind: "count", value: nums[0] };
+  }
+
+  return { kind: "text", value: tokens(value).filter((x) => !["m/s", "pvt", "ltd", "private", "limited", "the"].includes(x)).join(" ") };
+}
+
 /** Canonical value used for conflict detection between claims on the same field. */
 export function canonicalValue(value: string): string {
-  const d = parseDates(value);
-  if (d.length === 1) return `date:${d[0]}`;
-  const a = parseAmounts(value).filter((n) => n >= 1000);
-  if (a.length === 1) return `amount:${a[0]}`;
-  const m = parseDurationsMonths(value);
-  if (m.length === 1) return `months:${m[0]}`;
-  return `text:${tokens(value)
-    .filter((x) => !["m/s", "pvt", "ltd", "private", "limited", "the"].includes(x))
-    .join(" ")}`;
-}
-
-const UNIT_WORDS: Record<string, string> = { lakh: "lakh", lakhs: "lakh", lac: "lakh", lacs: "lakh", crore: "crore", crores: "crore", cr: "crore", km: "km", kms: "km", month: "month", months: "month", year: "year", years: "year", day: "day", days: "day" };
-
-function unitsOf(v: string): string {
-  return [...new Set((v.toLowerCase().match(/[a-z]+/g) ?? []).map((w) => UNIT_WORDS[w]).filter(Boolean))].sort().join("|");
-}
-
-function numbersAsWritten(v: string): string {
-  return (v.match(/\d+(?:[.,]\d+)*/g) ?? []).map((n) => n.replace(/,/g, "")).sort().join("|");
+  const q = typedQuantity(value);
+  return `${q.kind}:${q.value}`;
 }
 
 /**
- * Whether two recorded values state the same fact: equal dates, amounts or durations; the same
- * figures as written with or without their unit ("364.29" and "364.29 Lakhs"); or one name
- * contained in the other ("DPIU Of Bangalore u" and "DPIU Of Bangalore u (Bangalore Urban)").
+ * Whether two recorded values state the same fact. Quantities must be the same kind and the same
+ * canonical magnitude. Names are compared by token containment, so "DPIU Of Bangalore u" and
+ * "DPIU Of Bangalore u (Bangalore Urban)" are one fact rather than a manufactured conflict.
  */
 export function sameFact(a: string, b: string): boolean {
-  if (canonicalValue(a) === canonicalValue(b)) return true;
-  const na = numbersAsWritten(a);
-  const nb = numbersAsWritten(b);
-  if (na || nb) {
-    if (na !== nb) return false;
-    const ua = unitsOf(a);
-    const ub = unitsOf(b);
-    return !(ua && ub && ua !== ub);
+  const qa = typedQuantity(a);
+  const qb = typedQuantity(b);
+  if (qa.kind !== qb.kind) return false;
+  if (qa.kind === "text") {
+    const ta = new Set(tokens(a));
+    const tb = new Set(tokens(b));
+    const [small, big] = ta.size <= tb.size ? [ta, tb] : [tb, ta];
+    return small.size >= 2 && [...small].every((x) => big.has(x));
   }
-  const ta = new Set(tokens(a));
-  const tb = new Set(tokens(b));
-  const [small, big] = ta.size <= tb.size ? [ta, tb] : [tb, ta];
-  return small.size >= 2 && [...small].every((t) => big.has(t));
+  return qa.value === qb.value;
 }

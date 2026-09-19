@@ -9,6 +9,7 @@ import { z } from "zod";
 import { CATEGORY_LABELS, ClaimFieldSchema, CLAIM_FIELD_LABELS, NEXT_ACTION_TYPES, type ProjectMatch } from "@/lib/schemas";
 import { distanceToGeometry, formatDistance, geometryLengthM } from "@/lib/geo";
 import { normalizeText } from "./text";
+import { MIN_LOCATION_SCORE } from "./identity";
 import { verifyClaim } from "./verifier";
 import type { RunContext } from "./context";
 import { fetchOrReuse, recordSources, sourceFor, withLiveRecords } from "@/lib/records";
@@ -182,6 +183,12 @@ export function buildTools(ctx: RunContext) {
     callback: ({ project_id, reasons }) => {
       const p = ctx.corpus.getProject(project_id);
       if (!p) return "Error: unknown project_id.";
+      // Location may suggest; it may not establish. A candidate merely in the neighbourhood is
+      // refused outright rather than linked and then explained away (spec item A).
+      const located = ctx.matches.find((m) => m.projectId === p.id);
+      if (located && located.linkedBy === "location" && located.score < MIN_LOCATION_SCORE) {
+        return `Error: ${p.name} scores ${located.score} on location alone, below the ${MIN_LOCATION_SCORE} floor for linking by location${located.distanceM !== undefined ? ` (it is ${Math.round(located.distanceM)} m away)` : ""}. Find the work identifier or the road name in a record, or flag the project as not established.`;
+      }
       if (!ctx.matches.some((m) => m.projectId === p.id)) {
         // Found by name (or fetched live): the link rests on the name, and says so.
         const distanceM = p.geometry ? Math.round(distanceToGeometry(ctx.caseData.location, p.geometry)) : undefined;

@@ -238,6 +238,8 @@ export const MissingItemSchema = z.object({
   field: ClaimFieldSchema,
   label: z.string(),
   reason: z.string(),
+  /** What not knowing this blocks — stated deterministically, never authored by a model. */
+  whyItMatters: z.string().optional(),
   /** The record that would settle it, e.g. "Contract agreement, clause on defect liability". */
   requestableRecord: z.string().optional(),
 });
@@ -280,8 +282,8 @@ export const ProjectMatchSchema = z.object({
   distanceM: z.number().optional(),
   score: z.number(),
   reasons: z.array(z.string()),
-  /** "location": the pin is on or near the project's geometry. "name": a fetched record names the road at the pin. */
-  linkedBy: z.enum(["location", "name"]).optional(),
+  /** "job_code": a work identifier matched the registry. "location": the pin is on or near the project's geometry. "name": a record names the road at the pin. */
+  linkedBy: z.enum(["job_code", "location", "name"]).optional(),
 });
 export type ProjectMatch = z.infer<typeof ProjectMatchSchema>;
 
@@ -301,6 +303,62 @@ export const TraceStepSchema = z.object({
 });
 export type TraceStep = z.infer<typeof TraceStepSchema>;
 
+export const CONTRACTUAL_STATUS = ["ACTIVE", "EXPIRED", "UNKNOWN"] as const;
+export const FIELD_CONDITION = ["DEFECT_OBSERVED", "NO_DEFECT_OBSERVED", "INSUFFICIENT_EVIDENCE", "HUMAN_REVIEW"] as const;
+export const SCOPE_RELATIONSHIP = ["POTENTIALLY_RELATED", "NOT_ESTABLISHED", "UNKNOWN"] as const;
+export const OVERALL_STATE = ["SUPPORTED", "POTENTIAL_ISSUE", "UNKNOWN", "UNVERIFIED"] as const;
+/** CODE_MATCHES_MULTIPLE_PROJECTS is an unverified state: the identifier narrowed, but not to one. */
+export const IDENTITY_STATE = ["VERIFIED", "UNVERIFIED", "CODE_MATCHES_MULTIPLE_PROJECTS"] as const;
+export const IDENTITY_METHOD = ["job_code", "manual_job_code", "verified_record", "road_name", "geographic", "none"] as const;
+
+/**
+ * The four determinations, each derived by deterministic code and each standing on its own. They
+ * are deliberately not collapsed into a single verdict: "the defect-liability period is open" is a
+ * fact about a contract and must never be presented as "the contractor is at fault".
+ */
+export const DeterminationSchema = z.object({
+  identity: z.object({
+    value: z.enum(IDENTITY_STATE),
+    method: z.enum(IDENTITY_METHOD),
+    reason: z.string(),
+    /** What the identifier came from, before normalisation — OCR text or what the reporter typed. */
+    rawText: z.string().optional(),
+    normalizedCode: z.string().optional(),
+    patternValid: z.boolean().optional(),
+    /** How many registry entries the identifier matched: 0 = no match, >1 = ambiguous. */
+    registryMatches: z.number().int().optional(),
+    candidateProjectIds: z.array(z.string()).optional(),
+  }),
+  contractualStatus: z.object({
+    value: z.enum(CONTRACTUAL_STATUS),
+    /** The end of the computed defect-liability period, when one could be computed. */
+    windowEnd: z.string().optional(),
+    /** Whether the reported observation fell inside that period — a separate fact from ACTIVE/EXPIRED. */
+    observationInsideWindow: z.boolean().optional(),
+    reason: z.string(),
+    basedOnClaimIds: z.array(z.string()),
+  }),
+  fieldCondition: z.object({
+    value: z.enum(FIELD_CONDITION),
+    reason: z.string(),
+    /** What to photograph again, when the evidence was not sufficient to assess the condition. */
+    recapture: z.string().optional(),
+  }),
+  scopeRelationship: z.object({
+    value: z.enum(SCOPE_RELATIONSHIP),
+    reason: z.string(),
+    basedOnClaimIds: z.array(z.string()),
+  }),
+  overall: z.object({ value: z.enum(OVERALL_STATE), reason: z.string() }),
+  requiresHumanReview: z.boolean(),
+  /**
+   * How many of the records we check for are available. NOT a truth or probability score: a high
+   * number means the checklist is answered, not that the conclusion is more likely to be right.
+   */
+  completeness: z.object({ have: z.number().int(), of: z.number().int() }),
+});
+export type Determination = z.infer<typeof DeterminationSchema>;
+
 export const InvestigationSchema = z.object({
   runId: z.string(),
   engine: z.enum(["bedrock", "gemini", "rules"]),
@@ -315,6 +373,8 @@ export const InvestigationSchema = z.object({
   missing: z.array(MissingItemSchema),
   conflicts: z.array(ConflictSchema),
   nextActions: z.array(NextActionSchema),
+  /** The four determinations, derived by code from the claims above. */
+  determination: DeterminationSchema.optional(),
   summary: z.string().optional(),
   analysis: z.string().optional(),
   trace: z.array(TraceStepSchema),
@@ -428,6 +488,8 @@ export const CaseSchema = z.object({
   updatedAt: z.string(),
   photos: z.array(PhotoSchema),
   status: StatusSchema,
+  /** The work/package identifier the reporter read off the project board, as they typed it. */
+  jobCode: z.string().optional(),
   /** Seeded demo report. The report is illustrative; linked official records are real. */
   demo: z.boolean().default(false),
   demoNote: z.string().optional(),
@@ -479,5 +541,10 @@ export const NewReportSchema = z.object({
     .refine((d) => new Date(d + "T00:00:00Z").getTime() <= Date.now() + 36 * 3600 * 1000, "The observed date can't be in the future."),
   reporterName: z.string().trim().max(80).optional(),
   reporterContact: z.string().trim().max(120).optional(),
+  /**
+   * The work or package identifier printed on the project board, if the reporter can read one.
+   * This is what *establishes* which project a report concerns; everything else only suggests.
+   */
+  jobCode: z.string().trim().max(60).optional(),
 });
 export type NewReport = z.infer<typeof NewReportSchema>;

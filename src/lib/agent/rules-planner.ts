@@ -7,6 +7,7 @@
  * credentials. The UI labels runs made with it as "Rules planner — no language model".
  */
 import { Model, type StreamOptions, type Message, type ModelStreamEvent } from "@strands-agents/sdk";
+import { MIN_LOCATION_SCORE } from "./identity";
 import { formatDistance } from "@/lib/geo";
 import { CLAIM_FIELD_LABELS } from "@/lib/schemas";
 import type { RunContext } from "./context";
@@ -21,6 +22,29 @@ function roadNameFrom(ctx: RunContext): string | undefined {
 }
 
 function* plan(ctx: RunContext): Generator<Step> {
+  // An identifier that narrowed to several projects is settled by a person, not by searching further:
+  // stop here, before any location search can overwrite the candidates the identifier produced.
+  if (ctx.identity?.value === "CODE_MATCHES_MULTIPLE_PROJECTS") {
+    yield { tool: "get_case_report", input: {} };
+    const offered = ctx.matches.slice(0, 5).map((m) => `${m.projectName}${m.distanceM !== undefined ? ` (${formatDistance(m.distanceM)})` : ""}`);
+    yield {
+      tool: "flag_missing",
+      input: {
+        field: "location_match",
+        // flag_missing caps the reason at 300 characters; the candidate list goes in the summary.
+        reason: `The work identifier ${ctx.identity.normalizedCode} matches ${ctx.matches.length} projects in the registry, so which one this report concerns is not established. One of the candidates shown has to be chosen.`,
+        requestable_record: "Key map or reach details showing which of these works covers this location",
+      },
+    };
+    yield {
+      tool: "finish",
+      input: {
+        summary: `The work identifier ${ctx.identity.normalizedCode} narrowed this report to ${ctx.matches.length} projects but does not single one out: ${offered.join("; ")}. The field evidence is kept on the case; choosing which project this is would let the contractual checks run.`,
+      },
+    };
+    return;
+  }
+
   // Taking over a run a language model started (its quota ran out): keep the project it linked.
   const continued = ctx.selectedProjectId ? ctx.matches.find((m) => m.projectId === ctx.selectedProjectId) : undefined;
   if (!continued) {
@@ -75,17 +99,41 @@ function* plan(ctx: RunContext): Generator<Step> {
   const top = continued ?? byName ?? ctx.matches[0];
   const runnerUp = continued || byName ? undefined : ctx.matches[1];
   const ambiguous = runnerUp && top.score - runnerUp.score < 0.05 && Math.abs((top.distanceM ?? 0) - (runnerUp.distanceM ?? 0)) < 30;
-  if (!continued && !byName) yield { tool: "select_project", input: { project_id: top.projectId, reasons: top.reasons } };
-  if (ambiguous) {
+  // A location-only candidate must clear the floor; below it, nothing is linked and the gap is
+  // reported instead of being papered over with the nearest guess.
+  if (!continued && !byName && top.score < MIN_LOCATION_SCORE) {
     yield {
       tool: "flag_missing",
       input: {
         field: "location_match",
-        reason: `Two projects are equally close: ${top.projectName} (${formatDistance(top.distanceM ?? 0)}) and ${runnerUp.projectName} (${formatDistance(runnerUp.distanceM ?? 0)}). Which contract covers this exact spot is not established.`,
+        reason: `The nearest project in the records (${top.projectName}${top.distanceM !== undefined ? `, ${formatDistance(top.distanceM)} away` : ""}) is too far from this report for its location alone to establish which contract covers this spot.`,
         requestable_record: "Key map or reach details showing which contract covers this location",
       },
     };
+    yield { tool: "finish", input: { summary: `A report at this location could not be tied to a public-works project: the nearest in the records is ${top.projectName}${top.distanceM !== undefined ? `, ${formatDistance(top.distanceM)} away` : ""}, which its location alone does not establish.` } };
+    return;
   }
+  // An identifier that narrowed to several projects, or two candidates the location cannot separate,
+  // both mean the same thing: a person has to choose. Nothing is selected on their behalf.
+  if (!continued && !byName && ambiguous) {
+    const offered = ctx.matches.slice(0, 5).map((m) => `${m.projectName}${m.distanceM !== undefined ? ` (${formatDistance(m.distanceM)})` : ""}`);
+    yield {
+      tool: "flag_missing",
+      input: {
+        field: "location_match",
+        reason: `Two projects are equally close: ${top.projectName.slice(0, 60)} (${formatDistance(top.distanceM ?? 0)}) and ${runnerUp!.projectName.slice(0, 60)} (${formatDistance(runnerUp!.distanceM ?? 0)}). Which contract covers this exact spot is not established.`,
+        requestable_record: "Key map or reach details showing which contract covers this location",
+      },
+    };
+    yield {
+      tool: "finish",
+      input: {
+        summary: `${ctx.matches.length} projects could cover this location and the evidence does not single one out: ${offered.join("; ")}. The field evidence is kept on the case; choosing the project is what would let the contractual checks run.`,
+      },
+    };
+    return;
+  }
+  if (!continued && !byName) yield { tool: "select_project", input: { project_id: top.projectId, reasons: top.reasons } };
   yield { tool: "list_project_documents", input: { project_id: top.projectId } };
 
   const project = ctx.corpus.getProject(top.projectId)!;

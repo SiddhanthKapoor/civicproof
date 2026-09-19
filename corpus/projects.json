@@ -1277,6 +1277,7 @@
    {
     "field": "scope",
     "text": "The Contract Data lists the work as including milling of the existing bituminous surface, filling of potholes and cracks with bituminous macadam, white topping, footpaths, drains and street lighting.",
+    "value": "Milling, bituminous macadam and white topping",
     "citations": [
      {
       "docId": "kppp-bbmp-wt-pkg2-bid",
@@ -1346,6 +1347,7 @@
    {
     "field": "roads_covered",
     "text": "Package 7 covers Raja Ram Mohan Roy Road (Richmond Circle to Hudson Circle, 1.00 km), Lavelle Road (M.G. Road to Richmond Circle, 1.38 km) and Brigade Road (M.G. Road to War Memorial Junction, 0.32 km).",
+    "value": "Raja Ram Mohan Roy Road, Lavelle Road, Brigade Road",
     "citations": [
      {
       "docId": "bscl-tender-sure-status-2021",
@@ -1433,6 +1435,7 @@
    {
     "field": "audit_finding",
     "text": "CAG Report No. 11 of 2025 notes that the Tender SURE guidelines aimed to stop repeated civil works by utility agencies, and records that BBMP's construction of a foot bridge on a Bengaluru smart road without informing BenSCL violated those guidelines. The finding is not specific to Package 7.",
+    "value": "Foot bridge construction without informing BenSCL violated Tender SURE guidelines",
     "citations": [
      {
       "docId": "cag-karnataka-2025-11",

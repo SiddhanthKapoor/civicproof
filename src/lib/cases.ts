@@ -105,6 +105,7 @@ export async function createCase(
     title: input.title,
     description: input.description,
     category: input.category,
+    ...(input.jobCode ? { jobCode: input.jobCode } : {}),
     location: {
       lat: input.lat,
       lng: input.lng,

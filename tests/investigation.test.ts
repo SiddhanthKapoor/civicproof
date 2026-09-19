@@ -228,3 +228,72 @@ describe("reporter documents", () => {
     expect(done.investigation!.trace.some((t) => t.tool === "read_document_page" && t.summary.includes("uploaded by the reporter"))).toBe(true);
   });
 });
+
+describe("identity: identifier-first, never identifier-required", () => {
+  const run = async (over: Record<string, unknown>) => {
+    const { caseData } = await createCase({ ...base, lat: 12.894573, lng: 77.71297, ...over } as never, []);
+    await runInvestigation(caseData.id, () => {});
+    const done = (await getStore().get(caseData.id))!;
+    return { done, d: done.investigation!.determination! };
+  };
+
+  it("case 1: an unambiguous identifier establishes the project outright", async () => {
+    const { done, d } = await run({ title: "Potholes on the Kodathi road, board says KN03-70", jobCode: "KN03-70" });
+    expect(d.identity.value).toBe("VERIFIED");
+    expect(d.identity.method).toBe("manual_job_code");
+    expect(d.identity.normalizedCode).toBe("KN03-70");
+    expect(d.identity.registryMatches).toBe(1);
+    expect(done.investigation!.selectedProjectId).toBe("pmgsy-kn03-70");
+    expect(done.investigation!.matches[0].linkedBy).toBe("job_code");
+  });
+
+  it("case 1b: an identifier that matches many projects narrows, shows them, and picks none", async () => {
+    // KN0204 is carried by 13 PMGSY projects across different blocks.
+    const { done, d } = await run({ title: "Road broken near Koira, board reads KN0204", jobCode: "KN0204" });
+    expect(d.identity.value).toBe("CODE_MATCHES_MULTIPLE_PROJECTS");
+    expect(d.identity.registryMatches).toBeGreaterThan(1);
+    expect(d.identity.candidateProjectIds!.length).toBeGreaterThan(1);
+    // Nothing was chosen on the reporter's behalf, and the overall state says so.
+    expect(done.investigation!.selectedProjectId).toBeUndefined();
+    expect(d.overall.value).toBe("UNVERIFIED");
+    // The candidates are still offered, so a person can settle it.
+    expect(done.investigation!.matches.length).toBeGreaterThan(1);
+    // And the gap explains itself rather than failing silently.
+    expect(done.investigation!.missing.some((m) => m.field === "location_match")).toBe(true);
+    const gap = done.investigation!.missing.find((m) => m.field === "location_match")!;
+    expect(gap.whyItMatters).toBeTruthy();
+    expect(gap.requestableRecord).toBeTruthy();
+  });
+
+  it("case 1c: a malformed identifier does not stop the case, it just does not establish anything", async () => {
+    const { done, d } = await run({ title: "Pothole here, the board was unreadable", jobCode: "??unreadable??" });
+    expect(d.identity.patternValid).toBe(false);
+    expect(d.identity.value).toBe("UNVERIFIED");
+    // The report itself survives: a case was created and the field evidence is preserved.
+    expect(done.id).toMatch(/^CP-/);
+    expect(done.description).toBe(base.description);
+  });
+
+  it("case 2: with no identifier at all, the case still runs and identity rests on the record", async () => {
+    const { done, d } = await run({ title: "Broken surface on the Kodathi road" });
+    expect(done.jobCode).toBeUndefined();
+    expect(d.identity.value).toBe("VERIFIED");
+    // Not the location: the project's own record is what established it.
+    expect(d.identity.method).toBe("verified_record");
+    expect(d.identity.reason).toMatch(/only narrowed the candidates/);
+  });
+
+  it("preserves field evidence and refuses contractual conclusions when identity is not established", async () => {
+    const { done, d } = await run({ title: "Waterlogged pothole on an internal road", lat: 12.93, lng: 77.55 });
+    expect(d.identity.value).toBe("UNVERIFIED");
+    expect(d.overall.value).toBe("UNVERIFIED");
+    expect(d.contractualStatus.value).toBe("UNKNOWN");
+    expect(d.scopeRelationship.value).toBe("UNKNOWN");
+    // The case is kept and is still actionable as an information request.
+    expect(done.status).toBe("investigating");
+    expect(done.investigation!.missing.length).toBeGreaterThan(0);
+    expect(done.investigation!.nextActions.some((a) => a.type === "rti_request")).toBe(true);
+    // But no repair request, which would name a contractor.
+    expect(done.investigation!.nextActions.some((a) => a.type === "defect_liability_repair_request")).toBe(false);
+  });
+});

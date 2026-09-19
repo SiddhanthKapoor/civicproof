@@ -1,0 +1,128 @@
+import { describe, expect, it } from "vitest";
+import { verifyClaim, type CorpusReader } from "@/lib/agent/verifier";
+import { normaliseProposals } from "@/lib/agent/finalize";
+import { buildComplaint } from "@/lib/packet";
+import type { Case, Claim, SourceDocument } from "@/lib/schemas";
+
+/**
+ * The product's central promise is that a model interprets and code verifies. These tests come at
+ * it from the model's side: whatever a model proposes, nothing it authored may reach a Verified
+ * badge or a document sent to an authority without passing the deterministic verifier.
+ */
+const doc: SourceDocument = {
+  id: "doc-a", title: "Work order for resurfacing", publisher: "Test Municipal Corporation",
+  sourceType: "official_pdf", url: "https://example.gov.in/wo.pdf", retrievedAt: "2026-09-18",
+};
+const page = "WORK ORDER\nName of work: Improvements to 5th Main Road, Ward 12\nSanctioned cost 364.29\nDate of completion: 31.03.2025";
+const corpus: CorpusReader = {
+  getDocument: (id) => (id === doc.id ? doc : undefined),
+  getPage: (id) => (id === doc.id ? page : undefined),
+  pageCount: () => 1,
+};
+const cite = (quote: string) => [{ docId: "doc-a", page: 1, quote }];
+
+describe("nothing a model authored reaches Verified without the verifier", () => {
+  it("refuses a claim that states no value, however genuine its quote", () => {
+    const r = verifyClaim(
+      { field: "contractor", text: "The work order names M/s Ghost Builders Pvt Ltd as the contractor.",
+        origin: "official_record", citations: cite("Name of work: Improvements to 5th Main Road, Ward 12") },
+      corpus, "2026-09-18",
+    );
+    expect(r.claim.verification).not.toBe("verified");
+    expect(r.evidence[0].checkNote).toMatch(/no value to check/);
+  });
+
+  it("refuses a fabricated citation and demotes the claim off official_record", () => {
+    const r = verifyClaim(
+      { field: "contractor", text: "The contractor is M/s Invented Infra.", value: "M/s Invented Infra",
+        origin: "official_record", citations: cite("Name of the Contractor: M/s Invented Infra Pvt Ltd") },
+      corpus, "2026-09-18",
+    );
+    expect(r.claim.verification).toBe("unverified");
+    expect(r.claim.origin).toBe("ai_inference");
+    expect(r.rejections.length).toBeGreaterThan(0);
+  });
+
+  it("refuses a quantity whose unit cannot be established, even when the figure is on the page", () => {
+    const r = verifyClaim(
+      { field: "sanctioned_cost", text: "The sanctioned cost is 364.29.", value: "364.29",
+        origin: "official_record", citations: cite("Sanctioned cost 364.29") },
+      corpus, "2026-09-18",
+    );
+    expect(r.claim.verification).toBe("partially_verified");
+    expect(r.rejections.join(" ")).toMatch(/no unit/);
+  });
+
+  it("drops a model-authored defect-liability window outright", () => {
+    const authored: Claim = {
+      id: "m1", field: "maintenance_window", value: "inside:2031-01-01",
+      text: "The defect liability period runs until 1 Jan 2031.",
+      evidenceIds: [], verification: "verified", confidence: 0.9, origin: "ai_inference",
+    };
+    expect(normaliseProposals([authored])).toHaveLength(0);
+    // Even labelled official_record with a citation, it is still not computed, so it is still dropped.
+    expect(normaliseProposals([{ ...authored, origin: "official_record", evidenceIds: ["e1"] }])).toHaveLength(0);
+  });
+});
+
+describe("nothing a model authored reaches the complaint packet", () => {
+  const claim = (over: Partial<Claim>): Claim => ({
+    id: "c", field: "contractor", text: "text", value: "value", evidenceIds: [],
+    verification: "verified", confidence: 0.9, origin: "official_record", ...over,
+  });
+  const determination = (identity: "VERIFIED" | "UNVERIFIED") => ({
+    identity: { value: identity, method: identity === "VERIFIED" ? "verified_record" : "geographic", reason: "test" },
+    contractualStatus: { value: "UNKNOWN", reason: "test", basedOnClaimIds: [] },
+    fieldCondition: { value: "INSUFFICIENT_EVIDENCE", reason: "test" },
+    scopeRelationship: { value: "UNKNOWN", reason: "test", basedOnClaimIds: [] },
+    overall: { value: identity === "VERIFIED" ? "UNKNOWN" : "UNVERIFIED", reason: "test" },
+    requiresHumanReview: false,
+    completeness: { have: 1, of: 7 },
+  });
+  const caseWith = (claims: Claim[], identity: "VERIFIED" | "UNVERIFIED" = "VERIFIED"): Case => ({
+    id: "CP-TEST-0001", title: "Potholes on a test road", description: "Surface is breaking up.",
+    category: "pothole", location: { lat: 12.9, lng: 77.6, source: "map_pin" },
+    observedOn: "2026-09-15", reportedAt: "2026-09-16T00:00:00.000Z", updatedAt: "2026-09-16T00:00:00.000Z",
+    photos: [], status: "evidence_found", demo: false, ownerKeyHash: "x".repeat(64),
+    packets: {}, documents: [], timeline: [],
+    investigation: {
+      runId: "run_test", engine: "rules", status: "complete", startedAt: "2026-09-16T00:00:00.000Z",
+      matches: [], claims, evidence: [], missing: [], conflicts: [], nextActions: [], trace: [],
+      determination: determination(identity),
+    },
+  } as Case);
+
+  it("prints only facts the verifier accepted from an official record", () => {
+    const body = buildComplaint(
+      caseWith([
+        claim({ id: "ok", field: "contractor", value: "M/s Example Infra", text: "The contractor is M/s Example Infra." }),
+        claim({ id: "ai", field: "contractor", value: "M/s Ghost Builders", text: "The contractor is M/s Ghost Builders.", origin: "ai_inference" }),
+        claim({ id: "weak", field: "agency", value: "Some Division", text: "The agency is Some Division.", verification: "partially_verified" }),
+      ]),
+      undefined, undefined, new Date("2026-09-20T00:00:00Z"),
+    ).sections.map((s) => s.body).join("\n");
+    expect(body).toContain("M/s Example Infra");
+    expect(body).not.toContain("Ghost Builders");
+    expect(body).not.toContain("Some Division");
+  });
+
+  it("withholds the project's facts entirely until its identity is established", () => {
+    // The facts are real and verified, but they describe a project this report has not been tied to.
+    // Naming the wrong contract is the harm the product exists to avoid.
+    const body = buildComplaint(
+      caseWith([claim({ id: "ok", field: "contractor", value: "M/s Example Infra", text: "The contractor is M/s Example Infra." })], "UNVERIFIED"),
+      undefined, undefined, new Date("2026-09-20T00:00:00Z"),
+    ).sections.map((s) => s.body).join("\n");
+    expect(body).not.toContain("M/s Example Infra");
+    expect(body).toMatch(/could not (confirm its work identifier|identify the public-works project)/);
+  });
+
+  it("never prints a model-authored window as computed from the cited dates", () => {
+    const authored = claim({ id: "w", field: "maintenance_window", value: "inside:2031-01-01",
+      text: "The defect liability period runs until 1 Jan 2031.", origin: "ai_inference" });
+    const body = buildComplaint(caseWith([authored]), undefined, undefined, new Date("2026-09-20T00:00:00Z"))
+      .sections.map((s) => s.body).join("\n");
+    expect(body).not.toContain("computed from the cited dates");
+    expect(body).not.toContain("2031");
+  });
+});

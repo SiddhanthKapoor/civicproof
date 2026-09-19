@@ -36,7 +36,8 @@ export function KeyFacts({ caseData }: { caseData: PublicCase }) {
   if (!inv || inv.status !== "complete") return null;
   const match = inv.matches.find((m) => m.projectId === inv.selectedProjectId);
   const contractor = inv.claims.find((c) => c.field === "contractor" && c.origin !== "ai_inference");
-  const window = inv.claims.find((c) => c.field === "maintenance_window");
+  // Only a window computed by code may be shown as computed; anything else is not a window at all.
+  const window = inv.claims.find((c) => c.field === "maintenance_window" && c.origin === "computed");
   const dlp = inv.claims.find((c) => c.field === "defect_liability");
   const ambiguous = inv.matches.length > 1 && Math.abs(inv.matches[0].score - inv.matches[1].score) < 0.05;
 

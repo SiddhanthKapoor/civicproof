@@ -35,10 +35,14 @@ export function rtiClock(timeline: TimelineEvent[], today: string): RtiClock | u
     .filter((e) => e.type === "complaint_submitted" && e.packet === "rti" && e.date)
     .sort((a, b) => b.at.localeCompare(a.at))[0];
   if (!submission?.date) return undefined;
+  // Ordered by the dates the reporter recorded, not by when the rows were written: two events
+  // recorded in the same millisecond must not make the reply invisible.
   const reply = timeline
-    .filter((e) => e.type === "response_received" && e.at > submission.at)
-    .sort((a, b) => a.at.localeCompare(b.at))[0];
-  const repliedOn = reply ? (reply.date ?? reply.at.slice(0, 10)) : undefined;
+    .filter((e) => e.type === "response_received")
+    .map((e) => ({ at: e.at, on: e.date ?? e.at.slice(0, 10) }))
+    .filter((r) => r.on >= submission.date! && r.at >= submission.at)
+    .sort((a, b) => a.on.localeCompare(b.on) || a.at.localeCompare(b.at))[0];
+  const repliedOn = reply?.on;
   const replyDue = addDaysIso(submission.date, 30);
   const appealBy = addDaysIso(repliedOn ?? replyDue, 30);
   const state = repliedOn ? "replied" : today <= replyDue ? "waiting" : today <= appealBy ? "overdue" : "appeal_window_closed";

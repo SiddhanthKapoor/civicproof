@@ -1,3 +1,5 @@
+import type { PhotoObservation, PhotoSufficiency } from "./determination";
+import type { Determination } from "@/lib/schemas";
 import type {
   Case,
   Claim,
@@ -40,6 +42,12 @@ export interface RunContext {
   foundRecordIds: Set<string>;
   liveSearches: number;
   liveFetches: number;
+  /** How the project was established, set by the identity resolver; absent means not yet resolved. */
+  identity?: Determination["identity"];
+  /** What the vision call reported about the reporter's photo, when a model ran. */
+  photoObservation?: PhotoObservation;
+  /** The deterministic image checks; a model flag never overrides a failed one. */
+  photoSufficiency?: PhotoSufficiency;
   /** The road and locality at the pin, from the geocoder (records name roads, not coordinates). */
   place?: { road?: string; locality?: string; district?: string; label: string; provider: string };
   summary?: string;

@@ -13,7 +13,7 @@
  * cannot reach a complaint packet as a verified fact.
  */
 import type { Claim, ClaimField, Conflict, Evidence, Origin, SourceDocument, Verification } from "@/lib/schemas";
-import { findQuote, normalizeText, sameFact, valueSupported } from "./text";
+import { findQuote, normalizeText, sameFact, typedQuantity, valueSupported } from "./text";
 
 export interface CorpusReader {
   getDocument(docId: string): SourceDocument | undefined;
@@ -74,7 +74,9 @@ export function verifyClaim(proposed: ProposedClaim, corpus: CorpusReader, retri
       );
       continue;
     }
-    const hasValue = proposed.value ? valueSupported(proposed.value, cite.quote) : true;
+    // An official-record claim must state a value we can check. A claim with no value is prose:
+    // a real quote must never be enough to mark it verified (spec item A, item H).
+    const hasValue = proposed.value?.trim() ? valueSupported(proposed.value, cite.quote) : false;
     if (match.kind === "exact") bestQuote = "exact";
     else if (bestQuote === "none") bestQuote = "fuzzy";
     if (hasValue && match.kind === "exact") valueFound = true;
@@ -97,9 +99,11 @@ export function verifyClaim(proposed: ProposedClaim, corpus: CorpusReader, retri
       checkNote:
         match.kind === "fuzzy"
           ? `Excerpt closely matches page ${cite.page} (${Math.round(match.coverage * 100)}% of words, in order) but not verbatim.`
-          : !hasValue
-            ? `Excerpt found verbatim, but the stated value "${proposed.value}" does not appear in it.`
-            : `Excerpt found verbatim on page ${cite.page}.`,
+          : !proposed.value?.trim()
+            ? `Excerpt found verbatim on page ${cite.page}, but the claim states no value to check against it.`
+            : !hasValue
+              ? `Excerpt found verbatim, but the stated value "${proposed.value}" does not appear in it.`
+              : `Excerpt found verbatim on page ${cite.page}.`,
     });
   }
 
@@ -143,6 +147,19 @@ export function verifyClaim(proposed: ProposedClaim, corpus: CorpusReader, retri
     verification = "partially_verified";
     for (const e of evidence) {
       if (e.sourceType === "user_upload") e.checkNote = `${e.checkNote ?? ""} Found in a document uploaded by the reporter; its authenticity is not checked.`.trim();
+    }
+  }
+
+  // Fail closed when a quantity's unit cannot be established from what was quoted.
+  if (verification === "verified" && UNIT_REQUIRED.includes(proposed.field) && typedQuantity(proposed.value ?? "").kind === "count") {
+    verification = "partially_verified";
+    rejections.push(
+      `"${proposed.value}" is a figure with no unit, so the amount cannot be established from the quoted text. Record the value with its unit as the document states it.`,
+    );
+    for (const e of evidence) {
+      e.verification = "partially_verified";
+      e.strength = "weak";
+      e.checkNote = `${e.checkNote ?? ""} The value carries no unit, so the amount is not established.`.trim();
     }
   }
 
@@ -207,6 +224,19 @@ export function pageUnitNote(value: string, excerpt: string, pageText: string): 
 }
 
 /** Fields where two different values cannot both be right. */
+/**
+ * Fields whose value is meaningless without its unit. A bare figure cannot be verified on these:
+ * "364.29" is not a cost, and accepting it is how a unit gets silently dropped (spec item 17).
+ */
+const UNIT_REQUIRED: ClaimField[] = [
+  "sanctioned_cost",
+  "contract_value",
+  "estimated_cost",
+  "maintenance_cost",
+  "defect_liability",
+  "completion_period",
+];
+
 const SINGLE_VALUED: ClaimField[] = [
   "project_id",
   "contractor",
@@ -244,15 +274,27 @@ export function detectConflicts(claims: Claim[]): { claims: Claim[]; conflicts: 
   const contradicted = new Set<string>();
   const merged = new Map<string, Claim>();
   const dropped = new Set<string>();
-  const rank = (c: Claim) => (c.verification === "verified" ? 2 : 1) * 1000 + c.evidenceIds.length * 10 + Math.min(c.value!.length, 9);
+  // A value that carries its unit outranks a bare figure, whatever the citation count: the merged
+  // claim is what gets displayed and printed, and a unit must never be lost (spec item 17).
+  const rank = (c: Claim) =>
+    (c.verification === "verified" ? 2 : 1) * 100_000 +
+    (typedQuantity(c.value!).kind === "count" ? 0 : 10_000) +
+    c.evidenceIds.length * 10 +
+    Math.min(c.value!.length, 9);
 
   for (const [field, group] of byField) {
-    const clusters: Claim[][] = [];
-    for (const c of group) {
-      const home = clusters.find((cl) => cl.some((x) => sameFact(x.value!, c.value!)));
-      if (home) home.push(c);
-      else clusters.push([c]);
+    // Union-find over a symmetric predicate, so the clustering is the transitive closure and the
+    // outcome cannot depend on the order the claims happen to arrive in.
+    const parent = group.map((_, i) => i);
+    const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i])));
+    for (let i = 0; i < group.length; i++) {
+      for (let j = i + 1; j < group.length; j++) {
+        if (sameFact(group[i].value!, group[j].value!)) parent[find(i)] = find(j);
+      }
     }
+    const byRoot = new Map<number, Claim[]>();
+    group.forEach((c, i) => byRoot.set(find(i), [...(byRoot.get(find(i)) ?? []), c]));
+    const clusters: Claim[][] = [...byRoot.values()];
     if (clusters.length > 1) {
       group.forEach((c) => contradicted.add(c.id));
       conflicts.push({
@@ -264,7 +306,11 @@ export function detectConflicts(claims: Claim[]): { claims: Claim[]; conflicts: 
     }
     const cluster = clusters[0];
     if (cluster.length < 2) continue;
-    const keep = [...cluster].sort((a, b) => rank(b) - rank(a))[0];
+    // Ties are broken on the value and then the id, so the representative is a function of the
+    // cluster's contents and never of the order the claims arrived in.
+    const keep = [...cluster].sort(
+      (a, b) => rank(b) - rank(a) || a.value!.localeCompare(b.value!) || a.id.localeCompare(b.id),
+    )[0];
     merged.set(keep.id, { ...keep, evidenceIds: [...new Set(cluster.flatMap((c) => c.evidenceIds))] });
     cluster.filter((c) => c.id !== keep.id).forEach((c) => dropped.add(c.id));
   }

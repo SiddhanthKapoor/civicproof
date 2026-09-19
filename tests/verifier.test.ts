@@ -135,7 +135,8 @@ describe("verifyClaim", () => {
     ).claim;
     const pairs: Array<[Claim["field"], string, string]> = [
       ["agency", "DPIU Of Bangalore u", "DPIU Of Bangalore u (Bangalore Urban)"],
-      ["sanctioned_cost", "364.29 Lakhs", "364.29"],
+      // Same amount, two notations, both carrying their unit.
+      ["sanctioned_cost", "Rs. 1,25,00,000", "1.25 crore"],
       ["completion_date", "05-03-2022", "5 Mar 2022"],
       ["contractor", "Venkatarama Reddy .M", "M. Venkatarama Reddy"],
     ];
@@ -148,8 +149,10 @@ describe("verifyClaim", () => {
       expect(claims[0].verification).toBe("verified");
       expect(claims[0].evidenceIds.sort()).toEqual(["e1", "e2"]);
     }
-    // Different figures, or the same figure in different units, still conflict.
-    for (const [x, y] of [["364.29 lakh", "364.29 crore"], ["KN03-70", "KN03-72"]]) {
+    // Different figures, the same figure in different units, or a figure whose unit cannot be
+    // established, all conflict. A bare "364.29" is not the same fact as "364.29 Lakhs": dropping a
+    // unit is exactly the failure this guards against (spec item 17).
+    for (const [x, y] of [["364.29 lakh", "364.29 crore"], ["KN03-70", "KN03-72"], ["364.29 Lakhs", "364.29"]]) {
       const { conflicts } = detectConflicts([
         { ...base, id: "one", field: "sanctioned_cost", value: x },
         { ...base, id: "two", field: "sanctioned_cost", value: y },
@@ -266,5 +269,53 @@ describe("normalising model proposals", () => {
       { ...claim("reported_condition", "Several potholes"), origin: "user_report", verification: "unverified" },
     ]);
     expect(out.map((c) => c.field)).toEqual(["completion_date", "other"]);
+  });
+});
+
+describe("completion date: physical vs financial (defect D3)", () => {
+  // The real OMMAS cell for pmgsy-kn03-70 prints both kinds of completion in one string.
+  const CELL =
+    'The completion date column reads "Financial: 27-05-2024 / Physical: 05-03-2022"; the physical completion date is 05-03-2022.';
+  const completion = (value: string, text = CELL): Claim => ({
+    id: "c-completion", field: "completion_date", value, text,
+    evidenceIds: ["e1"], verification: "verified", confidence: 0.95, origin: "official_record",
+  });
+  const dlp: Claim = {
+    id: "c-dlp", field: "defect_liability", value: "5 years", text: "The defect liability period is 5 years.",
+    evidenceIds: ["e2"], verification: "verified", confidence: 0.95, origin: "official_record",
+  };
+
+  it("resolves the physical date from the cell that prints both", async () => {
+    const { physicalCompletionDate } = await import("@/lib/agent/finalize");
+    expect(physicalCompletionDate(completion("05-03-2022"))).toBe("2022-03-05");
+    // Whole cell pasted into the value: the label still decides which date is meant.
+    expect(physicalCompletionDate(completion("Financial: 27-05-2024 / Physical: 05-03-2022"))).toBe("2022-03-05");
+  });
+
+  it("never lets a financial date become the works' completion date", async () => {
+    const { physicalCompletionDate, normaliseProposals } = await import("@/lib/agent/finalize");
+    expect(physicalCompletionDate(completion("27-05-2024"))).toBeUndefined();
+    expect(physicalCompletionDate(completion("27-05-2024 (Financial)", "27-05-2024 (Financial)"))).toBeUndefined();
+    // Demoted to "other", so the gap checklist asks for the real completion record.
+    expect(normaliseProposals([completion("27-05-2024")]).map((c) => c.field)).toEqual(["other"]);
+  });
+
+  it("says UNKNOWN rather than guessing when two dates carry no label", async () => {
+    const { physicalCompletionDate, maintenanceWindow } = await import("@/lib/agent/finalize");
+    const unlabelled = completion("27-05-2024 / 05-03-2022", "Completion: 27-05-2024 / 05-03-2022");
+    expect(physicalCompletionDate(unlabelled)).toBeUndefined();
+    expect(maintenanceWindow([unlabelled, dlp], "2026-09-15")).toBeUndefined();
+  });
+
+  it("computes the defect-liability window from the physical date, not the financial one", async () => {
+    const { maintenanceWindow } = await import("@/lib/agent/finalize");
+    // 05-03-2022 + 5 years = 05-03-2027. The financial date would have given 27-05-2029.
+    expect(maintenanceWindow([completion("05-03-2022"), dlp], "2026-09-15")?.value).toBe("inside:2027-03-05");
+    expect(maintenanceWindow([completion("27-05-2024"), dlp], "2026-09-15")).toBeUndefined();
+  });
+
+  it("still accepts a single date the source does not label", async () => {
+    const { physicalCompletionDate } = await import("@/lib/agent/finalize");
+    expect(physicalCompletionDate(completion("05-03-2022", "The work was completed on 05-03-2022."))).toBe("2022-03-05");
   });
 });

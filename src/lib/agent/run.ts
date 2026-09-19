@@ -34,6 +34,8 @@ import { buildTools } from "./tools";
 import { RulesPlanner } from "./rules-planner";
 import { NeutralLanguageGuard } from "./guards";
 import { finalizeClaims } from "./finalize";
+import { resolveIdentityFromCode } from "./identity";
+import { distanceToGeometry } from "@/lib/geo";
 import { PHOTO_PROMPT, SYSTEM_PROMPT } from "./prompt";
 import { describeModelError, RateLimitRetry } from "./rate-limit";
 import { geminiApiKey } from "@/lib/secrets";
@@ -114,7 +116,12 @@ async function analyzePhoto(ctx: RunContext) {
   const agent = new Agent({ model: languageModel(4000), printer: false, structuredOutputSchema: PhotoObservation, retryStrategy: rateLimitRetry(ctx) });
   const res = await agent.invoke([new ImageBlock({ format, source: { bytes: blob.body } }), new TextBlock(PHOTO_PROMPT)]);
   const obs = res.structuredOutput as z.infer<typeof PhotoObservation> | undefined;
-  if (!obs) return;
+  if (!obs) {
+    ctx.trace({ kind: "error", tool: "analyze_photo", stage: "intake", summary: "The photo analysis returned nothing usable, so the field condition stays unassessed." });
+    return;
+  }
+  // Kept on the run context: the field-condition determination is derived from it deterministically.
+  ctx.photoObservation = obs;
   const claim = {
     id: newId("cl"),
     field: "photo_observation" as const,
@@ -265,6 +272,53 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
       resolvedGeminiKey = await geminiApiKey();
       if (!resolvedGeminiKey) throw new Error("No Gemini API key is configured (GEMINI_API_KEY or GEMINI_SECRET_ARN).");
     }
+    // An identifier the reporter supplied is the strongest signal there is, so it is resolved first.
+    // It is never required: without one, candidates come from the location and road name instead.
+    if (initial.jobCode) {
+      const resolved = resolveIdentityFromCode({
+        rawText: initial.jobCode,
+        method: "manual_job_code",
+        lookup: (code) => ctx.corpus.findProjectsByCode(code),
+        // Distance only orders what the identifier already narrowed; it never chooses.
+        order: (candidates) =>
+          [...candidates].sort(
+            (a, b) =>
+              (a.geometry ? distanceToGeometry(initial.location, a.geometry) : Number.POSITIVE_INFINITY) -
+              (b.geometry ? distanceToGeometry(initial.location, b.geometry) : Number.POSITIVE_INFINITY),
+          ),
+      });
+      ctx.identity = resolved.identity;
+      ctx.setStage("locate");
+      ctx.trace({
+        kind: "decision",
+        tool: "resolve_identity",
+        stage: "locate",
+        summary: resolved.identity.reason,
+        detail: { normalizedCode: resolved.identity.normalizedCode, registryMatches: resolved.identity.registryMatches ?? 0 },
+      });
+      const asMatch = (p: { id: string; name: string; geometry?: unknown }) => ({
+        projectId: p.id,
+        projectName: p.name,
+        score: 1,
+        reasons: [`Work identifier ${resolved.identity.normalizedCode} matches this project in the registry`],
+        linkedBy: "job_code" as const,
+        ...(p.geometry ? { distanceM: Math.round(distanceToGeometry(initial.location, p.geometry as never)) } : {}),
+      });
+      if (resolved.projectId) {
+        const project = ctx.corpus.getProject(resolved.projectId)!;
+        ctx.matches = [asMatch(project), ...ctx.matches];
+        ctx.candidateIds.push(project.id);
+        ctx.selectedProjectId = project.id;
+        ctx.emit({ type: "matches", matches: ctx.matches });
+        ctx.emit({ type: "selected", projectId: project.id });
+      } else if (resolved.candidates.length) {
+        // Shown so a person can choose, but deliberately NOT added to candidateIds: the Cedar policy
+        // only permits select_project for a candidate id, so nothing can pick one of these for them.
+        ctx.matches = [...resolved.candidates.map(asMatch), ...ctx.matches];
+        ctx.emit({ type: "matches", matches: ctx.matches });
+      }
+    }
+
     // Which road is at the pin: records name roads, so the model searches by name as well as distance.
     if (usesModel) {
       const place = await reverseGeocode(initial.location.lat, initial.location.lng).catch(() => undefined);
@@ -363,7 +417,10 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
 
     clearInterval(timer);
     const finalCase = await store.update(caseId, (c) => {
-      const target: CaseStatus = verifiedOfficial > 0 ? "evidence_found" : "investigating";
+      // Verified facts about a project whose identity is not established say nothing about this
+      // report, so they must not advance the case (spec item D).
+      const identityVerified = fin.determination.identity.value === "VERIFIED";
+      const target: CaseStatus = identityVerified && verifiedOfficial > 0 ? "evidence_found" : "investigating";
       const canMove = ["reported", "investigating"].includes(c.status) && agentMayMove(target);
       return {
         ...c,
@@ -382,6 +439,7 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
           missing: fin.missing,
           conflicts: fin.conflicts,
           nextActions: fin.nextActions,
+          determination: fin.determination,
           summary: ctx.summary,
           analysis: ctx.analysis,
           trace,

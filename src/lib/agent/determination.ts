@@ -1,0 +1,245 @@
+/**
+ * The four determinations, derived by plain code from verified claims — never by a model.
+ *
+ * They are kept independent on purpose. A defect-liability period that is still open is a fact
+ * about a contract; a defect visible in a photograph is a fact about a road; whether the two are
+ * related is a third question. Collapsing them into one verdict is how "the period is open" turns
+ * into "the contractor is at fault", which this product must never assert (spec items A, F).
+ */
+import type { Case, Claim, Determination, Evidence } from "@/lib/schemas";
+import type { Corpus, Project } from "@/lib/corpus";
+
+/** What the photo call reported, when a vision model ran. */
+export interface PhotoObservation {
+  infrastructure_damage_visible: boolean;
+  visible_issues: string[];
+  description: string;
+  severity: "minor" | "moderate" | "severe" | "unclear";
+}
+
+/** The deterministic part of the sufficiency gate; a model flag never overrides a failed check. */
+export interface PhotoSufficiency {
+  sufficient: boolean;
+  reasons: string[];
+  recapture?: string;
+}
+
+const usable = (c: Claim) => c.verification === "verified" || c.verification === "partially_verified";
+
+// ---------------------------------------------------------------------------
+// Contractual status — wraps the computed window; the arithmetic lives in finalize.ts
+// ---------------------------------------------------------------------------
+
+/**
+ * ACTIVE or EXPIRED is judged against today, because that is what decides whether the obligation
+ * can still be relied on. Whether the *observation* fell inside the window is a separate fact and
+ * is carried alongside, because that is what a complaint argues.
+ */
+export function contractualStatus(window: Claim | undefined, claims: Claim[], today: string): Determination["contractualStatus"] {
+  const completion = claims.find((c) => c.field === "completion_date" && usable(c));
+  const dlp = claims.find((c) => c.field === "defect_liability" && usable(c));
+
+  if (!window) {
+    const reason = !completion && !dlp
+      ? "Neither a completion date nor a defect-liability period is established by the records, so the obligation cannot be placed in time."
+      : !completion
+        ? "The records state a defect-liability period but not a verified completion date, so the period cannot be placed in time."
+        : "The records state a completion date but no defect-liability period, so there is no duration to apply.";
+    return { value: "UNKNOWN", reason, basedOnClaimIds: [completion?.id, dlp?.id].filter((x): x is string => Boolean(x)) };
+  }
+  const basedOnClaimIds = window.derivedFrom ?? [];
+  if (window.verification === "contradicted") {
+    return { value: "UNKNOWN", reason: "The records disagree about the dates this period is computed from, so its status is not established.", basedOnClaimIds };
+  }
+  if (window.value === "before_completion") {
+    return { value: "UNKNOWN", reason: "The issue was observed before the recorded completion date, so the defect-liability period had not begun.", basedOnClaimIds };
+  }
+  const end = window.value?.startsWith("inside:") ? window.value.slice(7) : window.value?.startsWith("outside:") ? window.value.slice(8) : undefined;
+  if (!end) {
+    return { value: "UNKNOWN", reason: "The defect-liability period could not be computed from the records.", basedOnClaimIds };
+  }
+  const observationInsideWindow = window.value!.startsWith("inside:");
+  return end >= today
+    ? { value: "ACTIVE", windowEnd: end, observationInsideWindow, reason: `The defect-liability period computed from the cited dates runs until ${end}, which is not yet past.`, basedOnClaimIds }
+    : { value: "EXPIRED", windowEnd: end, observationInsideWindow, reason: `The defect-liability period computed from the cited dates ended on ${end}.`, basedOnClaimIds };
+}
+
+// ---------------------------------------------------------------------------
+// Field condition — what the photograph shows, and nothing about why
+// ---------------------------------------------------------------------------
+
+export function fieldCondition(
+  photoCount: number,
+  observation: PhotoObservation | undefined,
+  sufficiency: PhotoSufficiency | undefined,
+): Determination["fieldCondition"] {
+  if (photoCount === 0) {
+    return { value: "INSUFFICIENT_EVIDENCE", reason: "No photograph was submitted with this report, so the condition on the ground has not been assessed." };
+  }
+  // A deterministic check that failed is final: a model's opinion cannot overrule it.
+  if (sufficiency && !sufficiency.sufficient) {
+    return {
+      value: "INSUFFICIENT_EVIDENCE",
+      reason: `The photograph is not sufficient to assess the condition: ${sufficiency.reasons.join("; ")}.`,
+      ...(sufficiency.recapture ? { recapture: sufficiency.recapture } : {}),
+    };
+  }
+  if (!observation) {
+    return { value: "INSUFFICIENT_EVIDENCE", reason: "The photograph was not analysed on this run, so the condition on the ground has not been assessed." };
+  }
+  if (observation.severity === "unclear") {
+    return { value: "HUMAN_REVIEW", reason: "The photograph was analysed but what it shows is unclear, so a person should look at it." };
+  }
+  return observation.infrastructure_damage_visible
+    ? { value: "DEFECT_OBSERVED", reason: `Damage is visible in the photograph: ${observation.visible_issues.join(", ") || observation.description}.` }
+    : { value: "NO_DEFECT_OBSERVED", reason: "The photograph was analysed and does not show damage to public infrastructure." };
+}
+
+// ---------------------------------------------------------------------------
+// Scope relationship — only from scope evidence that exists in the project's bundle
+// ---------------------------------------------------------------------------
+
+const SCOPE_FIELDS: Array<Claim["field"]> = ["scope", "roads_covered"];
+
+/**
+ * POTENTIALLY_RELATED requires a verified scope claim whose citation resolves inside *this
+ * project's* evidence bundle — the document id must belong to the project and the page must exist.
+ * That is checked here, in code, rather than taken from what a model said it cited.
+ */
+export function scopeRelationship(
+  identity: Determination["identity"]["value"],
+  project: Project | undefined,
+  category: Case["category"],
+  claims: Claim[],
+  evidence: Evidence[],
+  corpus: Pick<Corpus, "getPage">,
+): Determination["scopeRelationship"] {
+  if (identity !== "VERIFIED" || !project) {
+    return { value: "UNKNOWN", reason: "No project is established for this location, so nothing can be said about scope.", basedOnClaimIds: [] };
+  }
+  const bundle = new Set(project.documents);
+  const grounded = claims.filter(
+    (c) =>
+      SCOPE_FIELDS.includes(c.field) &&
+      c.verification === "verified" &&
+      c.evidenceIds.some((id) => {
+        const e = evidence.find((x) => x.id === id);
+        return Boolean(e && bundle.has(e.docId) && e.page !== undefined && corpus.getPage(e.docId, e.page) !== undefined);
+      }),
+  );
+  if (!grounded.length) {
+    return {
+      value: "UNKNOWN",
+      reason: "The project's records on file do not describe the scope of work, so whether this location falls within it is not established.",
+      basedOnClaimIds: [],
+    };
+  }
+  const basedOnClaimIds = grounded.map((c) => c.id);
+  if (!project.categories.includes(category)) {
+    return {
+      value: "NOT_ESTABLISHED",
+      reason: `The project's recorded scope does not cover work of this kind, so the reported issue is not connected to it by the records.`,
+      basedOnClaimIds,
+    };
+  }
+  return {
+    value: "POTENTIALLY_RELATED",
+    reason: "The project's recorded scope covers work of this kind on this road. Whether this particular defect arises from that work is not established by the records.",
+    basedOnClaimIds,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Overall — a total, ordered table over the three determinations
+// ---------------------------------------------------------------------------
+
+type Axes = {
+  identity: Determination["identity"]["value"];
+  contractual: Determination["contractualStatus"]["value"];
+  field: Determination["fieldCondition"]["value"];
+  scope: Determination["scopeRelationship"]["value"];
+};
+
+/**
+ * Ordered rules, applied first-match. Total over every combination of the axes: see
+ * tests/determination.test.ts, which enumerates all of them.
+ */
+const OVERALL_RULES: Array<{ when: (a: Axes) => boolean; value: Determination["overall"]["value"]; reason: string }> = [
+  {
+    when: (a) => a.identity !== "VERIFIED",
+    value: "UNVERIFIED",
+    reason: "The project this report concerns is not established, so nothing further has been assessed.",
+  },
+  {
+    when: (a) => a.field === "HUMAN_REVIEW",
+    value: "UNKNOWN",
+    reason: "What the photograph shows is unclear, so the condition on the ground is not established.",
+  },
+  {
+    when: (a) => a.field === "INSUFFICIENT_EVIDENCE",
+    value: "UNKNOWN",
+    reason: "The condition on the ground has not been established from the evidence submitted.",
+  },
+  {
+    when: (a) => a.contractual === "UNKNOWN",
+    value: "UNKNOWN",
+    reason: "The defect-liability period is not established by the records, so no contractual question can be raised.",
+  },
+  {
+    when: (a) => a.scope !== "POTENTIALLY_RELATED",
+    value: "UNKNOWN",
+    reason: "The relationship between the reported issue and the project's recorded scope is not established.",
+  },
+  {
+    when: (a) => a.field === "NO_DEFECT_OBSERVED",
+    value: "SUPPORTED",
+    reason: "The records establish the project and its obligations, and the photograph does not show damage.",
+  },
+  {
+    when: (a) => a.contractual === "EXPIRED",
+    value: "SUPPORTED",
+    reason: "The records establish the project, the defect observed, and that the defect-liability period has ended.",
+  },
+  {
+    when: (a) => a.contractual === "ACTIVE" && a.field === "DEFECT_OBSERVED" && a.scope === "POTENTIALLY_RELATED",
+    value: "POTENTIAL_ISSUE",
+    reason: "A defect is visible at a location the records place inside a project whose defect-liability period is still open. This is a potential contractual issue and requires human review. It does not establish who is responsible for the defect.",
+  },
+];
+
+export function overallState(axes: Axes): Determination["overall"] {
+  const hit = OVERALL_RULES.find((r) => r.when(axes));
+  // Unreachable: the rules above are exhaustive over the axes (proved by the test).
+  return hit ? { value: hit.value, reason: hit.reason } : { value: "UNKNOWN", reason: "The evidence does not establish an outcome." };
+}
+
+// ---------------------------------------------------------------------------
+
+export function determine(input: {
+  identity: Determination["identity"];
+  window: Claim | undefined;
+  claims: Claim[];
+  evidence: Evidence[];
+  project: Project | undefined;
+  category: Case["category"];
+  corpus: Pick<Corpus, "getPage">;
+  photoCount: number;
+  observation?: PhotoObservation;
+  sufficiency?: PhotoSufficiency;
+  today: string;
+  completeness: Determination["completeness"];
+}): Determination {
+  const contractual = contractualStatus(input.window, input.claims, input.today);
+  const field = fieldCondition(input.photoCount, input.observation, input.sufficiency);
+  const scope = scopeRelationship(input.identity.value, input.project, input.category, input.claims, input.evidence, input.corpus);
+  const overall = overallState({ identity: input.identity.value, contractual: contractual.value, field: field.value, scope: scope.value });
+  return {
+    identity: input.identity,
+    contractualStatus: contractual,
+    fieldCondition: field,
+    scopeRelationship: scope,
+    overall,
+    requiresHumanReview: overall.value === "POTENTIAL_ISSUE" || field.value === "HUMAN_REVIEW",
+    completeness: input.completeness,
+  };
+}

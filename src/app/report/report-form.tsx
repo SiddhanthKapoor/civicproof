@@ -107,6 +107,7 @@ export function ReportForm() {
   const [photoBusy, setPhotoBusy] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [jobCode, setJobCode] = useState("");
   const [category, setCategory] = useState<Category>("pothole");
   const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
   const [locSource, setLocSource] = useState<LocationSource>("map_pin");
@@ -247,6 +248,7 @@ export function ReportForm() {
       fd.set("observedOn", observedOn);
       if (name.trim()) fd.set("reporterName", name.trim());
       if (contact.trim()) fd.set("reporterContact", contact.trim());
+      if (jobCode.trim()) fd.set("jobCode", jobCode.trim());
       photos.forEach((p) => fd.append("photos", p.blob, p.name.replace(/\.\w+$/, "") + ".jpg"));
       fd.set("photoMeta", JSON.stringify(photos.map((p) => ({ originalSha256: p.originalSha256, width: p.width, height: p.height, exif: p.exif }))));
       const r = await fetch("/api/cases", { method: "POST", body: fd });
@@ -347,6 +349,23 @@ export function ReportForm() {
         <Field label="Description" htmlFor="description" error={errors.description} hint="What is damaged, how large, and any hazard. Stick to what you observed.">
           <textarea id="description" rows={4} className={cn(input, "resize-y")} value={description} maxLength={2000} onChange={(e) => setDescription(e.target.value)} aria-invalid={Boolean(errors.description)} />
           <p className="mt-1 text-right font-mono text-[11px] text-ink-3">{description.length}/2000</p>
+        </Field>
+        <Field
+          label="Work or package number"
+          htmlFor="jobCode"
+          optional
+          hint="If a project board is up, the work or package number on it identifies the contract exactly, e.g. KN03-70. Without it CivicProof works from the location instead and will say so."
+        >
+          <input
+            id="jobCode"
+            className={cn(input, "font-mono")}
+            value={jobCode}
+            maxLength={60}
+            autoCapitalize="characters"
+            spellCheck={false}
+            placeholder="KN03-70"
+            onChange={(e) => setJobCode(e.target.value)}
+          />
         </Field>
       </Section>
 

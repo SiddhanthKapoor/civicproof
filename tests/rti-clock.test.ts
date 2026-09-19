@@ -31,3 +31,28 @@ describe("rtiClock", () => {
     expect(rtiClock([{ ...submitted, packet: "complaint" }], "2026-09-10")).toBeUndefined();
   });
 });
+
+describe("the clock runs on recorded dates, not on when the rows were written", () => {
+  const at = "2026-09-01T10:00:00.000Z";
+  const submitted = { id: "e1", at, type: "complaint_submitted" as const, actor: "reporter" as const, summary: "Filed", packet: "rti" as const, date: "2026-08-30" };
+
+  it("sees a reply recorded in the same millisecond as the application", () => {
+    // Two rows written by the same request share `at` to the millisecond. Ordering on `at` alone
+    // made the reply invisible and refused the appeal.
+    const replied = { id: "e2", at, type: "response_received" as const, actor: "reporter" as const, summary: "Reply", date: "2026-09-14" };
+    const clock = rtiClock([submitted, replied], "2026-09-19");
+    expect(clock?.state).toBe("replied");
+    expect(clock?.repliedOn).toBe("2026-09-14");
+  });
+
+  it("ignores a response dated before the application it is supposed to answer", () => {
+    const earlier = { id: "e3", at, type: "response_received" as const, actor: "reporter" as const, summary: "Unrelated", date: "2026-08-01" };
+    expect(rtiClock([submitted, earlier], "2026-09-19")?.state).toBe("waiting");
+  });
+
+  it("takes the earliest reply on or after the application", () => {
+    const late = { id: "e4", at: "2026-09-03T10:00:00.000Z", type: "response_received" as const, actor: "reporter" as const, summary: "Second", date: "2026-09-16" };
+    const first = { id: "e5", at: "2026-09-02T10:00:00.000Z", type: "response_received" as const, actor: "reporter" as const, summary: "First", date: "2026-09-10" };
+    expect(rtiClock([submitted, late, first], "2026-09-19")?.repliedOn).toBe("2026-09-10");
+  });
+});

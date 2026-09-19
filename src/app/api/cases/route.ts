@@ -37,6 +37,7 @@ export const POST = handle("cases.create", async (req: Request) => {
     observedOn: field("observedOn"),
     reporterName: field("reporterName"),
     reporterContact: field("reporterContact"),
+    jobCode: field("jobCode"),
   });
 
   const files = form.getAll("photos").filter((f): f is File => typeof f !== "string");

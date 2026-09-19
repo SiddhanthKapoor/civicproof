@@ -98,10 +98,15 @@ function locationLine(c: Case) {
 
 export function buildComplaint(c: Case, project: Project | undefined, authority: Authority | undefined, now = new Date(), reporter?: ReporterDetails): Packet {
   const inv = c.investigation;
+  // Until the project's identity is established, a complaint must not name it and must not present
+  // its records as facts about this location: naming the wrong contract is the harm to avoid.
+  const identityEstablished = inv?.determination?.identity.value === "VERIFIED";
   const claims = inv?.claims ?? [];
   const { order, list } = citeMap(inv?.evidence ?? []);
-  const verified = claims.filter((cl) => cl.verification === "verified" && cl.origin === "official_record");
-  const window = claims.find((cl) => cl.field === "maintenance_window");
+  const verified = identityEstablished ? claims.filter((cl) => cl.verification === "verified" && cl.origin === "official_record") : [];
+  // "(computed from the cited dates)" is printed beside this, so it must actually be computed — and
+  // it belongs to a project, so it is withheld until that project is established.
+  const window = identityEstablished ? claims.find((cl) => cl.field === "maintenance_window" && cl.origin === "computed") : undefined;
   const conflicts = inv?.conflicts ?? [];
   const where = c.location.locality ?? c.location.address ?? `${c.location.lat.toFixed(5)}, ${c.location.lng.toFixed(5)}`;
   const addressedTo = project?.officer ?? authority?.officer ?? authority?.name ?? "The officer responsible for this road";
@@ -113,9 +118,11 @@ export function buildComplaint(c: Case, project: Project | undefined, authority:
     heading: "Summary",
     body: [
       `I am reporting ${ISSUE_PHRASE[c.category]} observed on ${fmtDate(c.observedOn)} at ${where}.`,
-      project
-        ? `Based on its location, the site appears to fall within "${project.name}"${verified.length ? `, for which ${verified.length} detail${verified.length === 1 ? " is" : "s are"} set out below with their sources` : ""}.`
-        : "I could not identify the public-works project for this location from available records.",
+      project && identityEstablished
+        ? `The site falls within "${project.name}", identified by its work identifier in the records cited below${verified.length ? `, from which ${verified.length} detail${verified.length === 1 ? " is" : "s are"} set out below with their sources` : ""}.`
+        : project
+          ? `A public-works project ("${project.name}") lies at this location in the records available to me, but I could not confirm its work identifier, so I am not attributing this stretch to it. I am asking you to confirm which work covers this spot.`
+          : "I could not identify the public-works project for this location from available records.",
       window?.value?.startsWith("inside:") ? window.text : "",
       "I request an inspection and repair, and a written update on the action taken.",
     ]
