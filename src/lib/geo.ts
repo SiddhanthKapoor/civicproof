@@ -61,3 +61,86 @@ export function formatDistance(m: number): string {
   if (m < 1000) return `${Math.max(1, Math.round(m))} m`;
   return `${(m / 1000).toFixed(m < 10_000 ? 1 : 0)} km`;
 }
+
+// ---------------------------------------------------------------------------
+// Device location
+// ---------------------------------------------------------------------------
+
+/**
+ * A fix this coarse cannot tell one road from the next, so it is shown as a warning and recorded
+ * on the case rather than being presented as if it were a precise reading. The default search
+ * radius for nearby projects is 750 m; a fix worse than 100 m is already a large share of that.
+ */
+export const COARSE_FIX_M = 100;
+
+/** How precise the device said the fix was, in the product's own plain register. */
+export function describeAccuracy(accuracyM: number | undefined): string | undefined {
+  if (accuracyM === undefined || !Number.isFinite(accuracyM) || accuracyM <= 0) return undefined;
+  return accuracyM < 1000 ? `±${Math.round(accuracyM)} m` : `±${(accuracyM / 1000).toFixed(1)} km`;
+}
+
+/**
+ * What actually went wrong, rather than assuming the reporter refused. The browser distinguishes
+ * a refusal from a device that has no fix and from one that ran out of time, and each needs a
+ * different thing from the user.
+ */
+export function geolocationErrorMessage(code: number | undefined): string {
+  switch (code) {
+    case 1: // PERMISSION_DENIED
+      return "Location permission was declined. Allow it in your browser's site settings, or place the pin on the map instead.";
+    case 2: // POSITION_UNAVAILABLE
+      return "Your device could not get a location fix. Check that location services are on, or place the pin on the map instead.";
+    case 3: // TIMEOUT
+      return "Getting a location took too long — this is common indoors. Try again outdoors, or place the pin on the map instead.";
+    default:
+      return "Your device did not return a location. Place the pin on the map instead.";
+  }
+}
+
+/** GeolocationPositionError.PERMISSION_DENIED. A refusal is final; the other codes are worth a retry. */
+export const PERMISSION_DENIED = 1;
+
+export interface DeviceFix {
+  lat: number;
+  lng: number;
+  /** The device's own accuracy estimate in metres, when it gave one. */
+  accuracyM?: number;
+}
+
+export class GeolocationFailure extends Error {
+  constructor(readonly code: number | undefined) {
+    super(geolocationErrorMessage(code));
+    this.name = "GeolocationFailure";
+  }
+}
+
+/**
+ * Asks the device for a precise fix, and falls back to the quicker network fix when that times out
+ * or the device has none — a cold satellite fix routinely needs longer than ten seconds, and
+ * indoors it may never arrive. A refusal is final and is never retried, because retrying only
+ * re-prompts someone who has already said no.
+ *
+ * Split out from the form so the staged behaviour can be tested without a browser.
+ */
+export function getDeviceLocation(geo: Pick<Geolocation, "getCurrentPosition">): Promise<DeviceFix> {
+  const round = (n: number) => Math.round(n * 1e6) / 1e6;
+  const toFix = (pos: GeolocationPosition): DeviceFix => ({
+    lat: round(pos.coords.latitude),
+    lng: round(pos.coords.longitude),
+    ...(Number.isFinite(pos.coords.accuracy) && pos.coords.accuracy > 0 ? { accuracyM: pos.coords.accuracy } : {}),
+  });
+  return new Promise((resolve, reject) => {
+    geo.getCurrentPosition(
+      (pos) => resolve(toFix(pos)),
+      (precise) => {
+        if (precise.code === PERMISSION_DENIED) return reject(new GeolocationFailure(precise.code));
+        geo.getCurrentPosition(
+          (pos) => resolve(toFix(pos)),
+          (coarse) => reject(new GeolocationFailure(coarse.code)),
+          { enableHighAccuracy: false, timeout: 10_000, maximumAge: 60_000 },
+        );
+      },
+      { enableHighAccuracy: true, timeout: 20_000, maximumAge: 0 },
+    );
+  });
+}

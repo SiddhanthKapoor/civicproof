@@ -34,6 +34,7 @@ import { buildTools } from "./tools";
 import { RulesPlanner } from "./rules-planner";
 import { NeutralLanguageGuard } from "./guards";
 import { finalizeClaims } from "./finalize";
+import { photoSufficiency, type PhotoObservation as PhotoObservationValue } from "./determination";
 import { resolveIdentityFromCode } from "./identity";
 import { distanceToGeometry } from "@/lib/geo";
 import { PHOTO_PROMPT, SYSTEM_PROMPT } from "./prompt";
@@ -175,7 +176,17 @@ function agentPolicy(): string {
   return readFileSync(path.join(process.cwd(), "policies", "agent-tools.cedar"), "utf8");
 }
 
-export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent) => void): Promise<Case> {
+/**
+ * `demoObservation` exists for seeded demo fixtures only, and is never reachable from the HTTP API:
+ * it lets `npm run seed` build a case that exercises the DEFECT_OBSERVED path on a machine with no
+ * vision model. The resulting claim is still `ai_inference` / `unverified` and is labelled a demo
+ * fixture, so it can never become a verified fact or enter an official complaint.
+ */
+export async function runInvestigation(
+  caseId: string,
+  onEvent: (e: StreamEvent) => void,
+  opts: { demoObservation?: PhotoObservationValue } = {},
+): Promise<Case> {
   const store = getStore();
   const corpus = getCorpus();
   const engine = config.planner;
@@ -272,6 +283,17 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
       resolvedGeminiKey = await geminiApiKey();
       if (!resolvedGeminiKey) throw new Error("No Gemini API key is configured (GEMINI_API_KEY or GEMINI_SECRET_ARN).");
     }
+    // The photograph's technical usability is decided in code, before any model looks at it, so a
+    // model can never talk an unusable image into sufficiency.
+    ctx.photoSufficiency = photoSufficiency(initial.photos[0]);
+    if (!ctx.photoSufficiency.sufficient) {
+      ctx.trace({
+        kind: "note",
+        stage: "intake",
+        summary: `Photograph not sufficient to assess the condition: ${ctx.photoSufficiency.reasons.join("; ")}.`,
+      });
+    }
+
     // An identifier the reporter supplied is the strongest signal there is, so it is resolved first.
     // It is never required: without one, candidates come from the location and road name instead.
     if (initial.jobCode) {
@@ -287,7 +309,11 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
               (b.geometry ? distanceToGeometry(initial.location, b.geometry) : Number.POSITIVE_INFINITY),
           ),
       });
-      ctx.identity = resolved.identity;
+      // Only a code that resolved settles identity. One that was malformed or matched nothing is
+      // recorded as an attempt so the record can still establish the project (and the reporter is
+      // told their code was rejected).
+      if (resolved.identity.value === "UNVERIFIED") ctx.identityAttempt = resolved.identity;
+      else ctx.identity = resolved.identity;
       ctx.setStage("locate");
       ctx.trace({
         kind: "decision",
@@ -330,6 +356,27 @@ export async function runInvestigation(caseId: string, onEvent: (e: StreamEvent)
       } catch (e) {
         ctx.trace({ kind: "error", tool: "analyze_photo", summary: `Photo analysis failed: ${errorMessage(e)}` });
       }
+    }
+
+    // Seeded demo fixture only (see the note on this function): a recorded observation so the
+    // DEFECT_OBSERVED path is demonstrable without a vision model. It is still an AI-origin,
+    // unverified claim, and it is only honoured when the deterministic image gate passed.
+    if (!ctx.photoObservation && opts.demoObservation && initial.photos.length && ctx.photoSufficiency?.sufficient) {
+      ctx.photoObservation = opts.demoObservation;
+      const claim = {
+        id: newId("cl"),
+        field: "photo_observation" as const,
+        text: opts.demoObservation.description,
+        value: opts.demoObservation.visible_issues.join(", "),
+        evidenceIds: [],
+        verification: "unverified" as const,
+        confidence: 0.5,
+        origin: "ai_inference" as const,
+        notes: `Demo fixture: a recorded observation supplied by the seed script so this path can be shown without a vision model (severity: ${opts.demoObservation.severity}). Not verified against any record, and not a real-world observation.`,
+      };
+      ctx.claims.push(claim);
+      ctx.emit({ type: "claim", claim, evidence: [] });
+      ctx.trace({ kind: "note", stage: "intake", summary: "Demo fixture: recorded photo observation used in place of a vision model." });
     }
 
     // One agent per model. Cedar and the guard are per agent; the run context is shared.

@@ -67,8 +67,8 @@
    "url": "https://kppp.karnataka.gov.in/supplier-registration-service/v1/api/portal-service/59700/works-tender-full-view",
    "retrievedAt": "2026-09-18",
    "file": "kppp-bbmp-whitetopping-pkg2-tender-full-view.json",
-   "notes": "Official public API response, rendered as \"field: value\" lines. Epoch-millisecond timestamps are annotated with their UTC date.",
-   "sha256": "4f0b23afbab59bd06cb34e814cc8e1e353102f4e22a1a63957b75dd3b37f8df9"
+   "notes": "Official public API response, rendered as \"field: value\" lines. Epoch-millisecond timestamps are annotated with their UTC date. One officer's mobile number has been removed from this copy before commit (replaced with \"[phone removed]\"); the sha256 above is of the redacted file. No quoted excerpt contained it.",
+   "sha256": "0dac19cb69d0088c05c46324eeb161b569a9cbf5cde2eeb6515483c17a209b2b"
   },
   {
    "id": "bscl-tender-sure-status-2021",
@@ -305,8 +305,8 @@
    "retrievedAt": "2026-09-19",
    "file": "opencity-bbmp-work-orders-2025-26-198-wards.csv",
    "licence": "Public Domain (OpenCity dataset licence); data from BBMP's accounts portal.",
-   "notes": "4,729 work orders and payments across 198 wards, updated 14 May 2026. A work order records a payment for named work, not its location on a map. Contractors' phone numbers, which the file appends to their names, are removed from the rendered text.",
-   "sha256": "0173a9b1af4771151a8e0db873eebd311f09599d7c5652e683606fa0590be45b"
+   "notes": "4,729 work orders and payments across 198 wards, updated 14 May 2026. A work order records a payment for named work, not its location on a map. Contractors' phone numbers, which the file appends to their names, are removed from the rendered text. Contractors' mobile numbers, which the source file appends to their names, have been removed from this copy before commit (replaced with \"[phone removed]\"); the sha256 above is of the redacted file. No reference fact cites this document \u2014 it is a searchable dataset \u2014 so the redaction changes no verified evidence.",
+   "sha256": "f1f1aca585861abced5562172d7ed1436eb79571d8b5dec760c120dd6fcf3504"
   }
  ]
 }

@@ -5,7 +5,7 @@
 1. An AWS account (the event provides credits for the Ship It track).
 2. AWS CLI v2 and AWS SAM CLI: `brew install awscli aws-sam-cli` (both are installed on the build machine).
 3. Credentials: `aws configure` (access key) or `aws configure sso` then `aws sso login`.
-4. **A Gemini key** in `.env.local` (`GEMINI_API_KEY=...`); `deploy.sh` passes it to the function. Enable billing on the key's Google project for a public URL: the free tier allows about 20 requests per model per day. Or, to use Bedrock instead, deploy with `Planner=bedrock` and set up **Amazon Bedrock model access**: in the Bedrock console for your region (default `ap-south-1`, Mumbai), make sure the Anthropic Claude model you want is available to your account. First-time Anthropic use may ask for a short use-case form. The default model ID is the global cross-region inference profile `global.anthropic.claude-opus-5`; any Claude model or inference profile you have access to works (`BedrockModelId` parameter).
+4. **A Gemini key** in `.env.local` (`GEMINI_API_KEY=...`); `deploy.sh` passes it to the function. Enable billing on the key's Google project for a public URL: the free tier allows about 20 requests per model per day. Or, to use Bedrock instead, deploy with `Planner=bedrock` and set up **Amazon Bedrock model access**: in the Bedrock console for your region (default `ap-south-1`, Mumbai), enable the model you intend to use. The default model ID is the Asia-Pacific cross-region inference profile `apac.amazon.nova-pro-v1:0` (Amazon Nova Pro); any Bedrock model or inference profile you have access to works (`BedrockModelId` parameter).
 
 ## One command
 
@@ -28,7 +28,7 @@ Stack name and region: `STACK=civicproof AWS_REGION=ap-south-1 ./scripts/deploy.
 | Parameter | Default | Meaning |
 |---|---|---|
 | `Planner` | `bedrock` | `rules` runs without model calls (no Bedrock cost). |
-| `BedrockModelId` | `global.anthropic.claude-opus-5` | Model or inference profile for the investigator and photo description. |
+| `BedrockModelId` | `apac.amazon.nova-pro-v1:0` | Model or inference profile for the investigator and photo description. |
 | `MaxRunsPerDay` | 150 | Deployment-wide daily cap on investigations. |
 | `MaxRunsPerCase` | 5 | Cap per case. |
 | `NominatimContact` | `civicproof-hackathon` | Put an email here, per Nominatim's usage policy. |

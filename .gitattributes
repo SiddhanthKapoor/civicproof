@@ -1,0 +1,5 @@
+# Source data is committed byte-for-byte as it was retrieved, trailing whitespace included, so its
+# SHA-256 in corpus/manifest.json stays meaningful. Exempt it from git's whitespace checks rather
+# than "cleaning" evidence.
+corpus/documents/** -whitespace
+corpus/geometry/** -whitespace

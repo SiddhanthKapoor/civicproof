@@ -139,7 +139,9 @@ export function loadCorpus(root = path.join(process.cwd(), "corpus")): Corpus {
       }
       return out;
     },
-    findProjectsByCode: (code) => codeIndex.get(code.trim().toUpperCase()) ?? [],
+    // A copy: the index is shared for the process lifetime, and a caller that sorted or spliced
+    // the result in place would silently reorder the registry for everyone after it.
+    findProjectsByCode: (code) => [...(codeIndex.get(code.trim().toUpperCase()) ?? [])],
     projectsNear(p, radiusM) {
       return projects
         .filter((project) => project.geometry)

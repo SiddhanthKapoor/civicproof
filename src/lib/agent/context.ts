@@ -44,6 +44,8 @@ export interface RunContext {
   liveFetches: number;
   /** How the project was established, set by the identity resolver; absent means not yet resolved. */
   identity?: Determination["identity"];
+  /** A supplied job code that matched nothing or was malformed. Recorded, but it does not settle identity. */
+  identityAttempt?: Determination["identity"];
   /** What the vision call reported about the reporter's photo, when a model ran. */
   photoObservation?: PhotoObservation;
   /** The deterministic image checks; a model flag never overrides a failed one. */

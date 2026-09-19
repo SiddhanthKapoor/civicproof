@@ -45,11 +45,6 @@ const VERIFICATION_STYLE: Record<Verification, { label: string; cls: string; gly
       </svg>
     ),
   },
-  unknown: {
-    label: "Unknown",
-    cls: "bg-missing-soft text-ink-3",
-    glyph: <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />,
-  },
 };
 
 export function VerificationBadge({ v, className }: { v: Verification; className?: string }) {

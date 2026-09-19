@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { CATEGORIES, CATEGORY_LABELS, type Category } from "@/lib/schemas";
 import { Button, Card, Eyebrow } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { COARSE_FIX_M, GeolocationFailure, describeAccuracy, geolocationErrorMessage, getDeviceLocation } from "@/lib/geo";
 import { saveOwnerKey } from "@/lib/use-owner-key";
 
 const MapView = dynamic(() => import("@/components/map-view").then((m) => m.MapView), { ssr: false });
@@ -122,6 +123,8 @@ export function ReportForm() {
   const [results, setResults] = useState<Array<{ label: string; full: string; lat: number; lng: number }>>([]);
   const [searching, setSearching] = useState(false);
   const [locating, setLocating] = useState(false);
+  /** The device's own estimate of how precise its fix was, in metres. Only set for a device fix. */
+  const [accuracyM, setAccuracyM] = useState<number | undefined>(undefined);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const exifPhoto = photos.find((p) => p.exif.lat !== undefined);
@@ -181,25 +184,31 @@ export function ReportForm() {
     }
   }
 
-  function useDevice() {
-    if (!navigator.geolocation) {
-      setErrors((e) => ({ ...e, location: "Your browser doesn't share location. Place the pin on the map instead." }));
+  async function useDevice() {
+    // navigator.geolocation exists on an insecure origin but always fails there, which otherwise
+    // surfaces as a misleading "permission declined".
+    if (!navigator.geolocation || !window.isSecureContext) {
+      setErrors((e) => ({
+        ...e,
+        location: window.isSecureContext
+          ? "Your browser doesn't share location. Place the pin on the map instead."
+          : "Your browser only shares location over a secure (https) connection. Place the pin on the map instead.",
+      }));
       return;
     }
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setPin({ lat: Math.round(pos.coords.latitude * 1e6) / 1e6, lng: Math.round(pos.coords.longitude * 1e6) / 1e6 });
-        setLocSource("device");
-        setLocating(false);
-        setErrors((e) => ({ ...e, location: "" }));
-      },
-      () => {
-        setLocating(false);
-        setErrors((e) => ({ ...e, location: "Location permission was declined. Place the pin on the map instead." }));
-      },
-      { enableHighAccuracy: true, timeout: 10000 },
-    );
+    setErrors((e) => ({ ...e, location: "" }));
+    try {
+      const fix = await getDeviceLocation(navigator.geolocation);
+      setPin({ lat: fix.lat, lng: fix.lng });
+      setAccuracyM(fix.accuracyM);
+      setLocSource("device");
+      setErrors((e) => ({ ...e, location: "" }));
+    } catch (err) {
+      setErrors((e) => ({ ...e, location: err instanceof GeolocationFailure ? err.message : geolocationErrorMessage(undefined) }));
+    } finally {
+      setLocating(false);
+    }
   }
 
   async function search(e?: React.FormEvent) {
@@ -249,6 +258,7 @@ export function ReportForm() {
       if (name.trim()) fd.set("reporterName", name.trim());
       if (contact.trim()) fd.set("reporterContact", contact.trim());
       if (jobCode.trim()) fd.set("jobCode", jobCode.trim());
+      if (locSource === "device" && accuracyM) fd.set("locationAccuracyM", String(Math.round(accuracyM)));
       photos.forEach((p) => fd.append("photos", p.blob, p.name.replace(/\.\w+$/, "") + ".jpg"));
       fd.set("photoMeta", JSON.stringify(photos.map((p) => ({ originalSha256: p.originalSha256, width: p.width, height: p.height, exif: p.exif }))));
       const r = await fetch("/api/cases", { method: "POST", body: fd });
@@ -270,8 +280,13 @@ export function ReportForm() {
   const pinLabel = useMemo(() => {
     if (!pin) return null;
     const src = { photo_exif: "from photo GPS", device: "from your device", map_pin: "placed on map", geocoded: "from address search" }[locSource];
-    return `${pin.lat.toFixed(5)}, ${pin.lng.toFixed(5)} · ${src}`;
-  }, [pin, locSource]);
+    // Five decimals is about a metre; saying so without the device's own margin would imply a
+    // precision the fix may not have.
+    const precision = locSource === "device" ? describeAccuracy(accuracyM) : undefined;
+    return `${pin.lat.toFixed(5)}, ${pin.lng.toFixed(5)} · ${src}${precision ? ` · ${precision}` : ""}`;
+  }, [pin, locSource, accuracyM]);
+
+  const coarseFix = locSource === "device" && accuracyM !== undefined && accuracyM > COARSE_FIX_M;
 
   return (
     <form onSubmit={submit} noValidate className="pb-10">
@@ -375,7 +390,7 @@ export function ReportForm() {
             {locating ? "Locating…" : "Use my current location"}
           </Button>
           {exifPhoto && (
-            <Button type="button" variant="secondary" size="sm" onClick={() => { setPin({ lat: exifPhoto.exif.lat!, lng: exifPhoto.exif.lng! }); setLocSource("photo_exif"); }}>
+            <Button type="button" variant="secondary" size="sm" onClick={() => { setPin({ lat: exifPhoto.exif.lat!, lng: exifPhoto.exif.lng! }); setAccuracyM(undefined); setLocSource("photo_exif"); }}>
               Use photo GPS
             </Button>
           )}
@@ -408,6 +423,7 @@ export function ReportForm() {
                     className="block w-full px-4 py-2.5 text-left text-[14px] hover:bg-paper-2"
                     onClick={() => {
                       setPin({ lat: r.lat, lng: r.lng });
+                      setAccuracyM(undefined);
                       setLocSource("geocoded");
                       setAddress(r.label);
                       setResults([]);
@@ -429,6 +445,7 @@ export function ReportForm() {
           fitToData={false}
           onPick={(p) => {
             setPin({ lat: Math.round(p.lat * 1e6) / 1e6, lng: Math.round(p.lng * 1e6) / 1e6 });
+            setAccuracyM(undefined);
             setLocSource("map_pin");
             setErrors((e) => ({ ...e, location: "" }));
           }}
@@ -438,6 +455,12 @@ export function ReportForm() {
           <span className={cn("font-mono", pin ? "text-ink-2" : "text-ink-3")}>{pinLabel ?? "Tap the map to place a pin"}</span>
         </div>
         {errors.location && <p className="text-[13px] text-contradicted" role="alert">{errors.location}</p>}
+        {coarseFix && (
+          <p className="text-[13px] text-partial" role="status">
+            Your device placed this to within {describeAccuracy(accuracyM)}, which may not be precise enough to tell one road from
+            the next. Drag the pin onto the damaged stretch if you can — CivicProof records how precise the fix was either way.
+          </p>
+        )}
         <Field label="Address or landmark" htmlFor="address" optional hint="Filled from the map; edit it if it's wrong.">
           <input id="address" className={input} value={address} maxLength={300} onChange={(e) => setAddress(e.target.value)} />
         </Field>

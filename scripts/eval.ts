@@ -87,12 +87,34 @@ async function main() {
 
   const totalRef = rows.reduce((s, r) => s + r.reference, 0);
   const totalRec = rows.reduce((s, r) => s + r.recovered, 0);
+  const linked = rows.filter((r) => r.linked).length;
+  const rejected = rows.reduce((s, r) => s + r.rejected, 0);
+  const denied = rows.reduce((s, r) => s + r.denied, 0);
+  const errored = rows.filter((r) => r.error).length;
+
+  // What this harness does NOT cover, stated with the numbers so the headline cannot be read as
+  // whole-corpus accuracy: only projects with a mapped alignment can be probed with a synthetic pin.
+  const corpusProjects = corpus.projects.length;
+  const corpusFacts = corpus.projects.reduce((n, p) => n + p.reference.length, 0);
+  const scope =
+    `Scope: **${rows.length} of ${corpusProjects} projects** (${Math.round((rows.length / corpusProjects) * 100)}%) and ` +
+    `**${totalRef} of ${corpusFacts} reference facts** (${Math.round((totalRef / corpusFacts) * 100)}%). ` +
+    `Only projects with a mapped alignment can be probed with a synthetic pin, so the rest are out of scope here.`;
+  const nature =
+    config.planner === "rules"
+      ? "This is a **deterministic replay** of curated extractions through the real agent loop, Cedar policies and verifier — a corpus-integrity and pipeline check, **not a measure of model accuracy**."
+      : `This run used a language model (**${config.planner}**), so it measures that model's behaviour on this subset.`;
+
   const lines = [
     `# CivicProof evaluation — ${new Date().toISOString()}`,
     "",
     `Planner: **${config.planner}**${config.planner === "gemini" ? ` (${config.geminiModelId})` : config.planner === "bedrock" ? ` (${config.bedrockModelId})` : " (curated extractions; a baseline, not a model result)"}`,
     "",
-    `Linked correctly: **${rows.filter((r) => r.linked).length}/${rows.length}** · Reference facts recovered as verified: **${totalRec}/${totalRef} (${totalRef ? Math.round((totalRec / totalRef) * 100) : 0}%)** · Claims not accepted by the verifier: **${rows.reduce((s, r) => s + r.rejected, 0)}** · Cedar/guard denials: **${rows.reduce((s, r) => s + r.denied, 0)}**`,
+    `Linked correctly: **${linked}/${rows.length}** · Reference facts recovered as verified: **${totalRec}/${totalRef} (${totalRef ? Math.round((totalRec / totalRef) * 100) : 0}%)** · Claims not accepted by the verifier: **${rejected}** · Cedar/guard denials: **${denied}** · Runs that errored: **${errored}**`,
+    "",
+    scope,
+    "",
+    nature,
     "",
     "| Project | Linked | Recovered | Verified claims | Not accepted | Denied | Tool calls | Time (s) | Tokens in/out |",
     "|---|---|---|---|---|---|---|---|---|",
@@ -103,7 +125,23 @@ async function main() {
   mkdirSync("eval-results", { recursive: true });
   const file = path.join("eval-results", `${new Date().toISOString().replace(/[:.]/g, "-")}-${config.planner}.md`);
   writeFileSync(file, lines.join("\n") + "\n");
-  console.log(`\n${lines[4]}\n\nReport: ${file}`);
+  console.log(`\n${lines[4]}\n\n${scope}\n${nature}\n\nReport: ${file}`);
+
+  // Thresholds, so a catastrophic run cannot pass silently. Overridable for exploratory runs.
+  const minLinked = Number(process.env.EVAL_MIN_LINKED ?? 100);
+  const minRecall = Number(process.env.EVAL_MIN_RECALL ?? 100);
+  const linkedPct = rows.length ? (linked / rows.length) * 100 : 0;
+  const recallPct = totalRef ? (totalRec / totalRef) * 100 : 0;
+  const failures: string[] = [];
+  if (!rows.length) failures.push("no projects were evaluated");
+  if (linkedPct < minLinked) failures.push(`linked ${linkedPct.toFixed(1)}% < required ${minLinked}%`);
+  if (recallPct < minRecall) failures.push(`fact recall ${recallPct.toFixed(1)}% < required ${minRecall}%`);
+  if (errored) failures.push(`${errored} run(s) errored`);
+  if (failures.length) {
+    console.error(`\nEvaluation FAILED: ${failures.join("; ")}`);
+    process.exit(1);
+  }
+  console.log("Evaluation passed its thresholds.");
 }
 
 main().catch((e) => {

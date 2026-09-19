@@ -44,7 +44,7 @@ function usable(c: Claim) {
 }
 
 function weakest(a: Verification, b: Verification): Verification {
-  const order: Verification[] = ["verified", "partially_verified", "unverified", "contradicted", "unknown"];
+  const order: Verification[] = ["verified", "partially_verified", "unverified", "contradicted"];
   return order[Math.max(order.indexOf(a), order.indexOf(b))];
 }
 
@@ -136,6 +136,16 @@ export function maintenanceWindow(claims: Claim[], observedOn: string): Claim | 
   };
 }
 
+/**
+ * Whether one of the seven records a complaint needs is actually on file. A sanctioned cost answers
+ * the contract-value question — the sanction is what the work was funded at — so both the missing
+ * checklist and the completeness count apply that substitution, and cannot disagree about it.
+ */
+export function keyFieldSatisfied(field: ClaimField, claims: Claim[]): boolean {
+  const verified = (f: ClaimField) => claims.some((c) => c.field === f && c.verification === "verified");
+  return field === "contract_value" ? verified("contract_value") || verified("sanctioned_cost") : verified(field);
+}
+
 export function missingChecklist(claims: Claim[], alreadyFlagged: MissingItem[], hasProject: boolean): MissingItem[] {
   const out = [...alreadyFlagged];
   if (!hasProject) {
@@ -150,9 +160,7 @@ export function missingChecklist(claims: Claim[], alreadyFlagged: MissingItem[],
     return out.map((m) => ({ ...m, whyItMatters: m.whyItMatters ?? WHY_IT_MATTERS[m.field] }));
   }
   for (const k of KEY_FIELDS) {
-    const hasVerified = claims.some((c) => c.field === k.field && c.verification === "verified");
-    const hasFields = k.field === "contract_value" ? claims.some((c) => (c.field === "contract_value" || c.field === "sanctioned_cost") && c.verification === "verified") : hasVerified;
-    if (hasFields || out.some((m) => m.field === k.field)) continue;
+    if (keyFieldSatisfied(k.field, claims) || out.some((m) => m.field === k.field)) continue;
     const partial = claims.find((c) => c.field === k.field && usable(c));
     out.push({
       field: k.field,
@@ -258,6 +266,23 @@ export function normaliseProposals(claims: Claim[]): Claim[] {
     );
 }
 
+/** Folds a rejected job code into whatever the record established, so the reporter learns both. */
+function withFailedCode(identity: Determination["identity"], attempt: Determination["identity"] | undefined): Determination["identity"] {
+  if (!attempt) return identity;
+  const why =
+    attempt.patternValid === false
+      ? `The work number supplied ("${attempt.rawText}") is not in the form of an identifier this registry uses, so it could not be looked up.`
+      : `The work number supplied ("${attempt.rawText}") matches no project in the registry.`;
+  return {
+    ...identity,
+    rawText: attempt.rawText,
+    normalizedCode: attempt.normalizedCode ?? identity.normalizedCode,
+    patternValid: attempt.patternValid,
+    registryMatches: attempt.registryMatches,
+    reason: `${why} ${identity.value === "VERIFIED" ? "Identity was established from the verified project record instead." : identity.reason}`,
+  };
+}
+
 export function finalizeClaims(ctx: RunContext) {
   const { claims: checked, conflicts } = detectConflicts(normaliseProposals(ctx.claims));
   // normaliseProposals has already dropped any model-authored window, so this is the only one.
@@ -270,9 +295,13 @@ export function finalizeClaims(ctx: RunContext) {
   // suggested is only established once its work identifier is confirmed verbatim in its own records.
   // Everything downstream — the actions, the packet, the case status — depends on the answer.
   const selected = ctx.matches.find((m) => m.projectId === ctx.selectedProjectId);
-  const identity: Determination["identity"] =
-    ctx.identity ??
+  const fromRecord = () =>
     resolveIdentityFromRecord({ project, claims: all, evidence: ctx.evidence, corpus: ctx.corpus, linkedBy: selected?.linkedBy });
+  // A supplied code that resolved (to one project, or to several) settles the question. A code that
+  // was malformed or matched nothing must not poison the case: the record is still allowed to
+  // establish identity, and the failed attempt is carried into the explanation.
+  const identity: Determination["identity"] = ctx.identity ?? withFailedCode(fromRecord(), ctx.identityAttempt);
+
 
   const nextActions = deriveNextActions(all, missing, authority, ctx.proposedActions, project?.officer, identity.value === "VERIFIED");
 
@@ -289,7 +318,7 @@ export function finalizeClaims(ctx: RunContext) {
     sufficiency: ctx.photoSufficiency,
     today: new Date().toISOString().slice(0, 10),
     completeness: {
-      have: KEY_FIELDS.filter((k) => all.some((c) => c.field === k.field && usable(c))).length,
+      have: KEY_FIELDS.filter((k) => keyFieldSatisfied(k.field, all)).length,
       of: KEY_FIELDS.length,
     },
   });

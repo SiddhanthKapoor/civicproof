@@ -24,6 +24,37 @@ export interface PhotoSufficiency {
   recapture?: string;
 }
 
+/**
+ * The deterministic gate on a photograph, computed in code before any model sees it.
+ *
+ * Scope, stated plainly so the claim is not overread: this checks **technical usability** — that a
+ * file is present, that it decoded to real dimensions, that it clears a resolution floor, and that
+ * it is not trivially small. It is **not** blur, exposure or content analysis, and it does not
+ * judge whether the right thing was photographed. What it guarantees is the direction of the gate:
+ * a photograph this check rejects can never be talked into sufficiency by a model.
+ */
+export const MIN_PHOTO_EDGE_PX = 640;
+export const MIN_PHOTO_BYTES = 8 * 1024;
+
+export function photoSufficiency(photo: { width?: number; height?: number; bytes: number } | undefined): PhotoSufficiency {
+  if (!photo) {
+    return { sufficient: false, reasons: ["no photograph was submitted"], recapture: "Add a photograph of the damage, taken at the spot." };
+  }
+  const reasons: string[] = [];
+  const short = photo.width && photo.height ? Math.min(photo.width, photo.height) : undefined;
+  if (short === undefined) {
+    reasons.push("the image's dimensions could not be read");
+  } else if (short < MIN_PHOTO_EDGE_PX) {
+    reasons.push(`the image is ${short}px on its short edge, below the ${MIN_PHOTO_EDGE_PX}px needed to show surface detail`);
+  }
+  if (photo.bytes < MIN_PHOTO_BYTES) {
+    reasons.push(`the file is ${Math.round(photo.bytes / 1024)}KB, too small to carry usable detail`);
+  }
+  return reasons.length
+    ? { sufficient: false, reasons, recapture: "Take the photograph again, closer to the damage and at your camera's normal quality." }
+    : { sufficient: true, reasons: [] };
+}
+
 const usable = (c: Claim) => c.verification === "verified" || c.verification === "partially_verified";
 
 // ---------------------------------------------------------------------------
@@ -229,7 +260,18 @@ export function determine(input: {
   today: string;
   completeness: Determination["completeness"];
 }): Determination {
-  const contractual = contractualStatus(input.window, input.claims, input.today);
+  // A contract belongs to a project. Until the project is established, its window says nothing
+  // about this report, so it is not presented as ACTIVE or EXPIRED (spec item F).
+  const computed = contractualStatus(input.window, input.claims, input.today);
+  const contractual: Determination["contractualStatus"] =
+    input.identity.value === "VERIFIED"
+      ? computed
+      : {
+          value: "UNKNOWN",
+          reason:
+            "A defect-liability period was computed for the project suggested by the location, but that project's identity is not established, so it says nothing about this report.",
+          basedOnClaimIds: computed.basedOnClaimIds,
+        };
   const field = fieldCondition(input.photoCount, input.observation, input.sufficiency);
   const scope = scopeRelationship(input.identity.value, input.project, input.category, input.claims, input.evidence, input.corpus);
   const overall = overallState({ identity: input.identity.value, contractual: contractual.value, field: field.value, scope: scope.value });

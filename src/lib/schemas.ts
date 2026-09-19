@@ -60,7 +60,6 @@ export const VERIFICATION = [
   "partially_verified",
   "unverified",
   "contradicted",
-  "unknown",
 ] as const;
 export const VerificationSchema = z.enum(VERIFICATION);
 export type Verification = z.infer<typeof VerificationSchema>;
@@ -94,6 +93,12 @@ export const LocationSchema = LatLngSchema.extend({
   city: z.string().max(120).optional(),
   /** How the coordinates were obtained — shown next to the location. */
   source: z.enum(["photo_exif", "device", "map_pin", "geocoded", "official_record"]),
+  /**
+   * The device's own estimate of how precise the fix was, in metres. Recorded because a 2 km fix
+   * and a 5 m fix are not the same evidence, and the difference decides whether the location can
+   * corroborate anything at all.
+   */
+  accuracyM: z.number().positive().max(100000).optional(),
 });
 export type CaseLocation = z.infer<typeof LocationSchema>;
 
@@ -541,6 +546,8 @@ export const NewReportSchema = z.object({
     .refine((d) => new Date(d + "T00:00:00Z").getTime() <= Date.now() + 36 * 3600 * 1000, "The observed date can't be in the future."),
   reporterName: z.string().trim().max(80).optional(),
   reporterContact: z.string().trim().max(120).optional(),
+  /** The device's stated accuracy for a "device" fix, in metres. */
+  locationAccuracyM: z.coerce.number().positive().max(100000).optional(),
   /**
    * The work or package identifier printed on the project board, if the reporter can read one.
    * This is what *establishes* which project a report concerns; everything else only suggests.

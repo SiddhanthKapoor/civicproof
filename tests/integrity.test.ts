@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { verifyClaim, type CorpusReader } from "@/lib/agent/verifier";
 import { normaliseProposals } from "@/lib/agent/finalize";
-import { buildComplaint } from "@/lib/packet";
+import { buildComplaint, buildRti } from "@/lib/packet";
 import type { Case, Claim, SourceDocument } from "@/lib/schemas";
 
 /**
@@ -124,5 +124,68 @@ describe("nothing a model authored reaches the complaint packet", () => {
       .sections.map((s) => s.body).join("\n");
     expect(body).not.toContain("computed from the cited dates");
     expect(body).not.toContain("2031");
+  });
+});
+
+describe("an official complaint never carries language the records do not support", () => {
+  const claim = (over: Partial<Claim>): Claim => ({
+    id: "c", field: "contractor", text: "text", value: "value", evidenceIds: [],
+    verification: "verified", confidence: 0.9, origin: "official_record", ...over,
+  });
+  const determination = (identity: "VERIFIED" | "UNVERIFIED") => ({
+    identity: { value: identity, method: identity === "VERIFIED" ? "verified_record" : "geographic", reason: "test" },
+    contractualStatus: { value: "UNKNOWN", reason: "test", basedOnClaimIds: [] },
+    fieldCondition: { value: "INSUFFICIENT_EVIDENCE", reason: "test" },
+    scopeRelationship: { value: "UNKNOWN", reason: "test", basedOnClaimIds: [] },
+    overall: { value: identity === "VERIFIED" ? "UNKNOWN" : "UNVERIFIED", reason: "test" },
+    requiresHumanReview: false,
+    completeness: { have: 1, of: 7 },
+  });
+  const caseWith = (claims: Claim[], identity: "VERIFIED" | "UNVERIFIED" = "VERIFIED"): Case => ({
+    id: "CP-TEST-0002", title: "Potholes on a test road", description: "Surface is breaking up.",
+    category: "pothole", location: { lat: 12.9, lng: 77.6, source: "map_pin" },
+    observedOn: "2026-09-15", reportedAt: "2026-09-16T00:00:00.000Z", updatedAt: "2026-09-16T00:00:00.000Z",
+    photos: [], status: "evidence_found", demo: false, ownerKeyHash: "x".repeat(64),
+    packets: {}, documents: [], timeline: [],
+    investigation: {
+      runId: "run_t", engine: "rules", status: "complete", startedAt: "2026-09-16T00:00:00.000Z",
+      matches: [], claims, evidence: [], missing: [
+        { field: "completion_date", label: "Completion date", reason: "Not stated in the documents available to CivicProof.",
+          whyItMatters: "Without it the defect-liability period cannot be computed.", requestableRecord: "Completion certificate" },
+      ], conflicts: [], nextActions: [], trace: [], determination: determination(identity),
+    },
+  } as Case);
+  const body = (c: Case, kind: "complaint" | "rti" = "complaint") =>
+    (kind === "complaint" ? buildComplaint(c, undefined, undefined, new Date("2026-09-20T00:00:00Z")) : buildRti(c, undefined, undefined, new Date("2026-09-20T00:00:00Z")))
+      .sections.map((s) => s.body).join("\n");
+
+  it("never alleges causation, fault, liability or negligence", () => {
+    const text = body(caseWith([claim({ value: "M/s Example Infra", text: "The contractor is M/s Example Infra." })]));
+    expect(text).not.toMatch(/\bcaused\b|\bat fault\b|\bliable\b|\bliability of\b|\bnegligen|\bresponsible for the damage\b/i);
+    expect(text).not.toMatch(/\bcorrupt|\bfraud|\bmisuse of funds\b/i);
+  });
+
+  it("does not print a figure whose unit was never established", () => {
+    // A unit-less cost cannot reach "verified" (the verifier caps it), so it must not appear as a fact.
+    const text = body(caseWith([claim({ id: "cost", field: "sanctioned_cost", value: "364.29", text: "The sanctioned cost is 364.29.", verification: "partially_verified" })]));
+    expect(text).not.toContain("364.29");
+  });
+
+  it("says what is missing rather than filling the gap", () => {
+    const text = body(caseWith([claim({ value: "M/s Example Infra", text: "The contractor is M/s Example Infra." })]));
+    expect(text).toMatch(/Completion date/i);
+  });
+
+  it("an information request still works when the project is not established, and asks for the record", () => {
+    // This is exactly when an RTI is the right next step, so it must not be withheld.
+    const text = body(caseWith([], "UNVERIFIED"), "rti");
+    expect(text.length).toBeGreaterThan(100);
+    expect(text).toMatch(/Completion certificate|completion/i);
+  });
+
+  it("is labelled a draft and states that nothing has been filed", () => {
+    const packet = buildComplaint(caseWith([]), undefined, undefined, new Date("2026-09-20T00:00:00Z"));
+    const all = [packet.disclaimer ?? "", ...packet.sections.map((s) => s.body)].join("\n");
+    expect(all).toMatch(/CivicProof has not sent this|draft/i);
   });
 });

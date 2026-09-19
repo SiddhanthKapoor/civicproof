@@ -55,3 +55,7 @@ eval-results/
 
 # Local demo recordings
 .demo/
+
+# Local scratch worktrees from other tooling
+.kilo/
+.kilocode/

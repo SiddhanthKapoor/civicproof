@@ -17,6 +17,10 @@ const eslintConfig = defineConfig([
     ".data/**",
     "public/maplibre/**",
     "corpus/**",
+    // Local scratch worktrees from other tooling. Committed here rather than relying on a
+    // developer's .git/info/exclude, so `npm run lint` is the same for everyone.
+    ".kilo/**",
+    ".kilocode/**",
     "test-results/**",
     "playwright-report/**",
   ]),

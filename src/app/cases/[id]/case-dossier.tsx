@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from "motion/react";
 import type { Claim, Evidence, MissingItem, PublicCase } from "@/lib/schemas";
 import { CATEGORY_LABELS, matchPlacement } from "@/lib/schemas";
 import type { StageId } from "@/lib/agent/stages";
-import { formatDistance } from "@/lib/geo";
+import { formatDistance, describeAccuracy } from "@/lib/geo";
 import { Button, buttonClass, Container, DemoTag, ExternalIcon, formatDate, StatusPill } from "@/components/ui";
 import { InvestigationPanel, type LiveState } from "./investigation-panel";
 import { Findings } from "./findings";
@@ -16,6 +16,7 @@ import { ProvenanceChain } from "./chain";
 import { Candidates } from "./candidates";
 import { RtiClockCard } from "./rti-clock-card";
 import { KeyFacts } from "./key-facts";
+import { DeterminationCard } from "./determination-card";
 import { DocumentsPanel } from "./documents-panel";
 import { NextActions } from "./actions";
 import { saveOwnerKey, useStoredOwnerKey } from "@/lib/use-owner-key";
@@ -248,6 +249,7 @@ export function CaseDossier({ initial, projects, nearby = [] }: { initial: Publi
           </div>
           {caseData.demo && caseData.demoNote && <p className="mt-3 max-w-3xl text-[13px] text-ink-3">{caseData.demoNote}</p>}
           <KeyFacts caseData={caseData} />
+          <DeterminationCard caseData={caseData} />
           {/* On small screens the sidebar comes last, so show the report itself up front. */}
           <div className="mt-6 flex gap-4 rounded-2xl border border-rule bg-card p-4 shadow-card lg:hidden">
             {photo && (
@@ -376,7 +378,12 @@ export function CaseDossier({ initial, projects, nearby = [] }: { initial: Publi
             />
             <div className="space-y-1.5 border-t border-rule px-4 py-3 text-[12.5px]">
               <p className="font-mono text-ink-2">{caseData.location.lat.toFixed(6)}, {caseData.location.lng.toFixed(6)}</p>
-              <p className="text-ink-3">Location {LOCATION_SOURCE[caseData.location.source]}.</p>
+              <p className="text-ink-3">
+                Location {LOCATION_SOURCE[caseData.location.source]}
+                {/* A device fix carries its own margin; stating it keeps the pin from implying a
+                    precision it never had. */}
+                {caseData.location.accuracyM ? `, accurate to ${describeAccuracy(caseData.location.accuracyM)}` : ""}.
+              </p>
               {selected && <p className="text-ink-3">{selected.geometryNote}</p>}
               <a
                 className="inline-flex items-center gap-1 text-ink-2 hover:text-accent"

@@ -92,10 +92,29 @@ async function main() {
   const pages: Record<string, { sha256: string; pages: string[] }> = {};
   let failures = 0;
 
+  // A source whose licence restricts republication may legitimately be absent from a clone. That is
+  // reported explicitly and counted, never papered over: the facts that cite it then fail to verify
+  // (their pages cannot be read), so nothing is silently promoted to verified without its source.
+  const restricted = (d: { licence?: string }) => /restrict|written permission|republi/i.test(d.licence ?? "");
+  const unavailable: Array<{ id: string; restricted: boolean }> = [];
+
   for (const doc of manifest.documents) {
     if (!doc.file) continue;
     const file = path.join(ROOT, "documents", doc.file);
-    const buf = await fs.readFile(file);
+    let buf: Buffer;
+    try {
+      buf = await fs.readFile(file);
+    } catch {
+      const isRestricted = restricted(doc);
+      unavailable.push({ id: doc.id, restricted: isRestricted });
+      console.error(
+        isRestricted
+          ? `⚠ ${doc.id}: source not present in this clone. Its licence restricts republication, so it is not distributed here. Facts citing it cannot be re-verified locally.`
+          : `✗ ${doc.id}: source file missing (${doc.file}).`,
+      );
+      if (!isRestricted) failures++;
+      continue;
+    }
     const hash = sha256(buf);
     if (doc.sha256 && doc.sha256 !== hash) {
       console.error(`✗ ${doc.id}: sha256 mismatch (manifest ${doc.sha256.slice(0, 12)}…, file ${hash.slice(0, 12)}…)`);
@@ -147,6 +166,22 @@ async function main() {
   await fs.writeFile(path.join(ROOT, "generated", "pages.json"), JSON.stringify(pages));
   const total = Object.values(pages).reduce((s, d) => s + d.pages.length, 0);
   console.log(`\n${Object.keys(pages).length} documents, ${total} pages → corpus/generated/pages.json`);
+  if (unavailable.length) {
+    const r = unavailable.filter((u) => u.restricted).length;
+    console.error(
+      `\n${unavailable.length} source${unavailable.length === 1 ? " is" : "s are"} not present in this clone` +
+        (r ? ` (${r} withheld because their licence restricts republication)` : "") +
+        `. Facts citing them are NOT re-verified here and must not be presented as verified from this checkout.`,
+    );
+    if (!process.env.CIVICPROOF_ALLOW_MISSING_SOURCES) {
+      console.error(
+        "Set CIVICPROOF_ALLOW_MISSING_SOURCES=1 to build anyway, acknowledging that this corpus is only partially verifiable.",
+      );
+      process.exit(1);
+    }
+    console.error("CIVICPROOF_ALLOW_MISSING_SOURCES is set: continuing with a partially verifiable corpus.");
+  }
+
   if (failures) {
     console.error(`\n${failures} check${failures === 1 ? "" : "s"} failed. Fix corpus/projects.json or the manifest.`);
     process.exit(1);

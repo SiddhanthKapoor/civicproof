@@ -3,6 +3,7 @@
  * verifier → finalize → persisted case → complaint and RTI packets.
  */
 import { beforeAll, describe, expect, it, vi } from "vitest";
+import zlib from "node:zlib";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -229,6 +230,8 @@ describe("reporter documents", () => {
   });
 });
 
+const KEY_FIELD_NAMES = ["project_name", "agency", "contractor", "contract_value", "completion_date", "defect_liability", "scope"];
+
 describe("identity: identifier-first, never identifier-required", () => {
   const run = async (over: Record<string, unknown>) => {
     const { caseData } = await createCase({ ...base, lat: 12.894573, lng: 77.71297, ...over } as never, []);
@@ -265,13 +268,52 @@ describe("identity: identifier-first, never identifier-required", () => {
     expect(gap.requestableRecord).toBeTruthy();
   });
 
-  it("case 1c: a malformed identifier does not stop the case, it just does not establish anything", async () => {
+  it("case 1c: a malformed identifier is rejected but does not poison the case", async () => {
+    // The supplied code cannot be looked up, so the project's own record is still allowed to
+    // establish identity — a typo in an optional field must not be worse than leaving it blank.
     const { done, d } = await run({ title: "Pothole here, the board was unreadable", jobCode: "??unreadable??" });
     expect(d.identity.patternValid).toBe(false);
-    expect(d.identity.value).toBe("UNVERIFIED");
-    // The report itself survives: a case was created and the field evidence is preserved.
+    expect(d.identity.value).toBe("VERIFIED");
+    expect(d.identity.method).toBe("verified_record");
+    expect(d.identity.reason).toMatch(/not in the form of an identifier/);
+    expect(d.identity.reason).toMatch(/established from the verified project record/);
     expect(done.id).toMatch(/^CP-/);
     expect(done.description).toBe(base.description);
+  });
+
+  it("case 1d: a well-formed code that matches nothing also falls through to the record", async () => {
+    const { d } = await run({ title: "Pothole, the board reads KN9999", jobCode: "KN9999" });
+    expect(d.identity.patternValid).toBe(true);
+    expect(d.identity.registryMatches).toBe(0);
+    expect(d.identity.value).toBe("VERIFIED");
+    expect(d.identity.reason).toMatch(/matches no project in the registry/);
+  });
+
+  it("case 1e: a rejected code with nothing to fall back to stays UNVERIFIED", async () => {
+    const { d } = await run({ title: "Pothole on an internal road elsewhere", jobCode: "not-a-code", lat: 12.93, lng: 77.55 });
+    expect(d.identity.value).toBe("UNVERIFIED");
+    expect(d.overall.value).toBe("UNVERIFIED");
+    expect(d.identity.reason).toMatch(/could not be looked up/);
+  });
+
+  it("a location-suggested project never reports a live contract while its identity is unestablished", async () => {
+    // Lavelle Road: a project sits at this location but carries no work identifier in its records.
+    const { d } = await run({ title: "Broken paving and a sunken patch on Lavelle Road", lat: 12.971, lng: 77.5976 });
+    if (d.identity.value !== "VERIFIED") {
+      expect(d.contractualStatus.value).toBe("UNKNOWN");
+      expect(d.overall.value).toBe("UNVERIFIED");
+    }
+  });
+
+  it("evidence completeness and the missing checklist never contradict each other", async () => {
+    // Both apply the same substitution rule, so a sanctioned cost answers the contract-value slot
+    // in the count and in the checklist alike.
+    for (const title of ["Broken surface on the Kodathi road", "Surface breaking up on the Hebbagodi road"]) {
+      const { done, d } = await run({ title });
+      const satisfied = d.completeness.have;
+      const outstanding = done.investigation!.missing.filter((m) => KEY_FIELD_NAMES.includes(m.field)).length;
+      expect(satisfied + outstanding, `${title}: ${satisfied} satisfied + ${outstanding} missing != ${d.completeness.of}`).toBe(d.completeness.of);
+    }
   });
 
   it("case 2: with no identifier at all, the case still runs and identity rests on the record", async () => {
@@ -295,5 +337,89 @@ describe("identity: identifier-first, never identifier-required", () => {
     expect(done.investigation!.nextActions.some((a) => a.type === "rti_request")).toBe(true);
     // But no repair request, which would name a contractor.
     expect(done.investigation!.nextActions.some((a) => a.type === "defect_liability_repair_request")).toBe(false);
+  });
+});
+
+describe("golden cases", () => {
+  const OBSERVATION = {
+    infrastructure_damage_visible: true,
+    visible_issues: ["potholes", "broken edges"],
+    description: "Demo fixture observation: potholes with broken edges.",
+    severity: "moderate" as const,
+  };
+  // A deterministic, visibly synthetic PNG — noise, not a photograph of anything. Noise rather than
+  // flat colour so it does not compress below the size floor the sufficiency gate enforces.
+  const fixtureImage = (w = 1024, h = 768) => {
+    let seed = 20260919;
+    const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) >>> 16) & 0xff;
+    const raw = Buffer.concat(
+      Array.from({ length: h }, () => {
+        const row = Buffer.alloc(w * 3);
+        for (let i = 0; i < row.length; i++) row[i] = rnd();
+        return Buffer.concat([Buffer.from([0]), row]);
+      }),
+    );
+    const table = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+    const crc = (b: Buffer) => { let c = 0xffffffff; for (const x of b) c = table[(c ^ x) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+    const chunk = (t: string, d: Buffer) => { const len = Buffer.alloc(4); len.writeUInt32BE(d.length); const td = Buffer.concat([Buffer.from(t), d]); const c = Buffer.alloc(4); c.writeUInt32BE(crc(td)); return Buffer.concat([len, td, c]); };
+    const ihdr = Buffer.alloc(13); ihdr.writeUInt32BE(w, 0); ihdr.writeUInt32BE(h, 4); ihdr[8] = 8; ihdr[9] = 2;
+    return new Uint8Array(Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), chunk("IHDR", ihdr), chunk("IDAT", zlib.deflateSync(raw)), chunk("IEND", Buffer.alloc(0))]));
+  };
+
+  it("Golden Case A: verified identity + active period + observed defect + related scope = POTENTIAL_ISSUE", async () => {
+    const { caseData } = await createCase(
+      { ...base, title: "Potholes along the Kodathi–Mullur road", lat: 12.894573, lng: 77.71297 } as never,
+      [{ bytes: fixtureImage(), meta: { width: 1024, height: 768 }, credit: "Generated fixture image, not a photograph" }] as never,
+    );
+    await runInvestigation(caseData.id, () => {}, { demoObservation: OBSERVATION });
+    const done = (await getStore().get(caseData.id))!;
+    const d = done.investigation!.determination!;
+
+    expect(d.identity.value).toBe("VERIFIED");
+    expect(d.contractualStatus.value).toBe("ACTIVE");
+    expect(d.fieldCondition.value).toBe("DEFECT_OBSERVED");
+    expect(d.scopeRelationship.value).toBe("POTENTIALLY_RELATED");
+    expect(d.overall.value).toBe("POTENTIAL_ISSUE");
+    expect(d.requiresHumanReview).toBe(true);
+
+    // The observation stays an unverified AI-origin claim, labelled as a fixture.
+    const obs = done.investigation!.claims.find((c) => c.field === "photo_observation")!;
+    expect(obs.origin).toBe("ai_inference");
+    expect(obs.verification).toBe("unverified");
+    expect(obs.notes).toMatch(/Demo fixture/);
+
+    // And nothing anywhere in the determination assigns responsibility.
+    const text = JSON.stringify(d).replace(/It does not establish who is responsible for the defect\./g, "");
+    expect(text).not.toMatch(/\bcaused\b|\bat fault\b|\bliable\b|\bnegligen/i);
+  });
+
+  it("Golden Case B: an unknown period stays UNKNOWN even with a defect plainly observed", async () => {
+    // Thimmaiah: a defect-liability clause is on file but no verified completion date.
+    const { caseData } = await createCase(
+      { ...base, title: "Potholes on Thimmaiah Road near Kamaraj Road", category: "pothole", lat: 12.989693, lng: 77.610844 } as never,
+      [{ bytes: fixtureImage(), meta: { width: 1024, height: 768 }, credit: "Generated fixture image, not a photograph" }] as never,
+    );
+    await runInvestigation(caseData.id, () => {}, { demoObservation: OBSERVATION });
+    const done = (await getStore().get(caseData.id))!;
+    const d = done.investigation!.determination!;
+
+    expect(d.identity.value).toBe("VERIFIED");
+    expect(d.fieldCondition.value).toBe("DEFECT_OBSERVED");
+    expect(d.contractualStatus.value).toBe("UNKNOWN");
+    expect(d.overall.value).toBe("UNKNOWN"); // conservative: a visible defect does not create a contract
+    expect(done.investigation!.missing.some((m) => m.field === "completion_date")).toBe(true);
+  });
+
+  it("a recorded observation is refused when the deterministic image gate fails", async () => {
+    // 64x64 is below the resolution floor: the model's opinion must not rescue it.
+    const { caseData } = await createCase(
+      { ...base, title: "Potholes along the Kodathi–Mullur road", lat: 12.894573, lng: 77.71297 } as never,
+      [{ bytes: fixtureImage(64, 64), meta: { width: 64, height: 64 } }] as never,
+    );
+    await runInvestigation(caseData.id, () => {}, { demoObservation: OBSERVATION });
+    const d = (await getStore().get(caseData.id))!.investigation!.determination!;
+    expect(d.fieldCondition.value).toBe("INSUFFICIENT_EVIDENCE");
+    expect(d.fieldCondition.reason).toMatch(/short edge|not sufficient/);
+    expect(d.overall.value).toBe("UNKNOWN");
   });
 });

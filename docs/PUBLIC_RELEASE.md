@@ -13,7 +13,7 @@ Measured against the working tree at `1822608`. Counts are of matches, not of va
 | # | Path | Problem | Backs facts? | Action |
 |---|---|---|---|---|
 | 1 | `corpus/documents/ommas-slr-pmgsy{1,2,3}-*.csv` (16 files) + `ommas-slr-pmgsy3-bangalore-urban.pdf` + `ommas-quality-grading-*` (2) — **18 documents** | Their own `licence` field in `corpus/manifest.json` records it: *"OMMAS's legal notice restricts republication without NRIDA's written permission."* | **Yes, load-bearing.** `ommas-slr-pmgsy1-tumakuru` alone carries 2,014 citations; the OMMAS set backs the overwhelming majority of the 7,622 facts | **Remove from the repo; replace with build-time retrieval** (§3) |
-| 2 | `corpus/documents/opencity-bbmp-work-orders-2025-26-198-wards.csv` | **4,665 Indian mobile numbers** appended to contractor names in the `contractor` column — ~4,700 individuals' and small firms' personal numbers, published as a bulk greppable dataset | **No — 0 citations.** Verified: no reference fact cites this document at all; it is a searchable dataset only | **Redact in place** (§2). Licence is Public Domain, so redistribution is fine once the PII is gone |
+| 2 | `corpus/documents/opencity-bbmp-work-orders-2025-26-198-wards.csv` | **4,728 Indian mobile numbers** appended to contractor names in the `contractor` column — ~4,700 individuals' and small firms' personal numbers, published as a bulk greppable dataset | **No — 0 citations.** Verified: no reference fact cites this document at all; it is a searchable dataset only | **Redact in place** (§2). Licence is Public Domain, so redistribution is fine once the PII is gone |
 | 3 | `corpus/documents/kppp-bbmp-whitetopping-pkg2-tender-full-view.json` | **1 mobile number** (a tender officer — the same class of leak fixed once already at the rendering layer) | Yes | **Redact in place** (§2) |
 | 4 | Git history — commits `feb0593`, `0b6f025`, `e4652ed` | The blobs above remain retrievable from history even after they are removed from `HEAD` | — | **Decision required** (§5) |
 
@@ -76,12 +76,12 @@ Then the full suite: `npx vitest run` (59+), `npm run build`, Playwright against
 
 ## 5. Git history — a decision I need from you
 
-Removing the files from `HEAD` does **not** remove them from a public repository: all three blobs stay reachable from commits `feb0593`, `0b6f025` and `e4652ed`. So anyone could `git log -p` and recover 4,665 personal mobile numbers and 18 restricted government exports.
+Removing the files from `HEAD` does **not** remove them from a public repository: all three blobs stay reachable from commits `feb0593`, `0b6f025` and `e4652ed`. So anyone could `git log -p` and recover 4,728 personal mobile numbers and 18 restricted government exports.
 
 The options, plainly:
 
 - **(a) Purge those paths from history** with `git filter-repo`, preserving every commit's message, author, date and order, then force-push. This *does* rewrite history and change commit hashes. It is scoped to data blobs only — it would not alter when work happened, who did it, or what the commits say. GitHub may retain unreferenced objects until garbage collection, so a support request to GC is part of it.
-- **(b) Publish with history intact.** Simple and preserves hashes, but knowingly publishes ~4,665 people's phone numbers and the restricted exports. **I do not recommend this.**
+- **(b) Publish with history intact.** Simple and preserves hashes, but knowingly publishes ~4,728 people's phone numbers and the restricted exports. **I do not recommend this.**
 - **(c) Publish a fresh repository** containing the cleaned tree and a documented pointer to the private original. Loses the visible incremental history, which is a genuine judging asset (25 honest commits over two days).
 
 **My recommendation: (a).** The earlier instruction not to rewrite history was aimed at *concealing when work happened or who did it* — which (a) does not do. Removing personal data and restricted third-party content from history is a different act, and it is the only option that satisfies both the public-repo requirement and the privacy obligation. But this contradicts a standing instruction, so **I will not run it without your explicit go-ahead**, and the reason for the rewrite should be recorded in the README so the hash change is not mistaken for tampering.

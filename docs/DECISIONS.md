@@ -57,7 +57,7 @@ Do not touch these. Each is a spec requirement already met or exceeded.
 
 | # | Question | Status |
 |---|---|---|
-| P1 | **Git history purge.** 4,665 contractor phone numbers and 18 restricted OMMAS exports remain reachable from commits `feb0593`, `0b6f025`, `e4652ed`. Publishing with history intact exposes both. Recommended: scoped `git filter-repo` of those paths only, preserving every commit message, author, date and order. This contradicts the standing "never rewrite history" instruction, so it will not be run without explicit approval. | **BLOCKED** — `docs/PUBLIC_RELEASE.md` §5 |
+| P1 | **Git history purge.** 4,728 contractor phone numbers and 18 restricted OMMAS exports remain reachable from commits `feb0593`, `0b6f025`, `e4652ed`. Publishing with history intact exposes both. Recommended: scoped `git filter-repo` of those paths only, preserving every commit message, author, date and order. This contradicts the standing "never rewrite history" instruction, so it will not be run without explicit approval. | **BLOCKED** — `docs/PUBLIC_RELEASE.md` §5 |
 
 ---
 
@@ -66,7 +66,7 @@ Do not touch these. Each is a spec requirement already met or exceeded.
 | # | File | Change | Reason |
 |---|---|---|---|
 | *(pending)* | `corpus/projects.json` | Add a `value` to 3 reference facts (`bbmp-whitetopping-2023-24-pkg2·scope`, `bscl-tender-sure-phase-a-pkg7·roads_covered`, `·audit_finding`) | Defect D1's fix requires a `value` on every `official_record` claim. Measured blast radius: exactly 3 of 7,622. `npm run ingest` re-verifies the quotes verbatim, so the edit is self-checking. |
-| *(pending)* | `corpus/documents/opencity-bbmp-work-orders-2025-26-198-wards.csv` + `corpus/manifest.json` | Redact the `contractor` column; update the file's `sha256` | 4,665 personal mobile numbers. **Zero evidence impact, verified:** 0 of 7,622 curated quotes contain a mobile-number pattern, and 0 citations reference this document. Hash and file must change together — `scripts/ingest.ts:100` fails the build otherwise. |
+| *(pending)* | `corpus/documents/opencity-bbmp-work-orders-2025-26-198-wards.csv` + `corpus/manifest.json` | Redact the `contractor` column; update the file's `sha256` | 4,728 personal mobile numbers. **Zero evidence impact, verified:** 0 of 7,622 curated quotes contain a mobile-number pattern, and 0 citations reference this document. Hash and file must change together — `scripts/ingest.ts:100` fails the build otherwise. |
 | *(pending)* | `corpus/documents/kppp-bbmp-whitetopping-pkg2-tender-full-view.json` + manifest | Redact 1 mobile number; update `sha256` | Same class of leak as the tender-officer number already fixed at the rendering layer. |
 
 
@@ -214,3 +214,62 @@ Do not touch these. Each is a spec requirement already met or exceeded.
 | **Was** | The reply was selected with `e.at > submission.at`, comparing the timestamps the rows were *written*. When a submission and a reply are recorded in the same millisecond — which the warmed-up test run made routine — the reply was invisible, the clock stayed `waiting`, and a legitimate first appeal was refused. The test looked flaky; it was reporting a bug. |
 | **Now** | Replies are selected and ordered by the dates the reporter recorded, which is what the file's own header says the clock counts from, with the write timestamp only as a tie-break and a not-before guard. |
 | **Verified** | Three new cases in `tests/rti-clock.test.ts` (same-millisecond reply, a response dated before its application, earliest of several replies). `tests/investigation.test.ts` then passed **three consecutive full-file runs**, where it had been failing consistently. |
+
+
+---
+
+## Device location: the "use my current location" button (spec items A, L)
+
+Audited end to end: the button, the fallbacks, what is stored, and what the reporter is told.
+
+**What was already right and stays:** coordinates are rounded to six decimals (about 0.1 m, sensible for a pin); `maximumAge` is unset on the precise attempt so it defaults to 0 and never reuses a stale fix; the pin can always be corrected by tapping the map; and a `device` fix is labelled as such in `LocationSchema.source` rather than being passed off as a surveyed point.
+
+**G1 — the accuracy the device reported was being thrown away.** `pos.coords.accuracy` was never read, so a 5 m satellite fix and a 2 km Wi-Fi fix were stored identically and both displayed as "from your device" at five decimal places — implying a precision the second one never had. This matters more here than in most products: the pin feeds `projectsNear` and the `MIN_LOCATION_SCORE` floor, and a 2 km fix at the default 750 m radius can sit on the wrong road entirely. The product's own rule is that a location corroborates; it cannot corroborate honestly with its uncertainty discarded. **Now** `accuracyM` is captured, carried through the report to `LocationSchema`, shown beside the pin ("±8 m"), repeated on the case page, and a fix coarser than `COARSE_FIX_M` (100 m) raises a warning inviting the reporter to drag the pin onto the damaged stretch.
+
+**G2 — every failure claimed the reporter had declined permission.** The error callback ignored `err.code`, so a timeout, a device with location services off, and an actual refusal all produced *"Location permission was declined."* Someone who timed out indoors was sent looking for a permission prompt that was not the problem. **Now** the three `GeolocationPositionError` codes are distinguished and each says what to do; a test asserts that codes 2, 3 and unknown never mention "declined", and that every message still offers the map as a way forward.
+
+**G3 — a ten-second timeout with `enableHighAccuracy: true` fails routinely indoors,** and with G2 it failed *misleadingly*. **Now** the precise attempt gets 20 s, and if it times out or the device reports no fix, a second attempt runs with `enableHighAccuracy: false` and a 60 s cache allowance — the network fix, which usually returns at once. A refusal is never retried, because retrying only re-prompts someone who has already said no.
+
+**G4 — `navigator.geolocation` exists on an insecure origin but always fails there,** so the old guard missed it and the failure surfaced as G2's wrong message. **Now** `window.isSecureContext` is checked first and says plainly that location needs https.
+
+**Testability.** The staged fallback was extracted from the component into `getDeviceLocation(geo)` in `src/lib/geo.ts`, which takes anything with `getCurrentPosition`. That turns the part worth testing into a pure function: `tests/device-location.test.ts` (12 tests) drives a scripted stand-in through a precise fix, a timeout falling back to the network fix, a device with no fix, a refusal that must *not* retry, both attempts failing, and accuracy values the device reports as 0/NaN/negative. Before this the button had **no test coverage at all**.
+
+**Deliberately not changed:** project matching still uses the pin as-is. Feeding `accuracyM` into `projectsNear`'s radius or into the score floor is the principled next step, but it changes matching behaviour and the evaluation, so it is recorded here as a follow-up rather than slipped in under an audit. The data is now on the case, so that change is a small one when it is made.
+
+**Verified** — `tsc --noEmit` clean · eslint clean on tracked source · **143 tests** (was 131) · build exit 0 · Playwright **5/5 with axe "no violations"**, including the report-flow map interaction.
+
+---
+
+## Post-audit remediation (19 September 2026)
+
+Closing the findings from `docs/AUDIT.md` and the final pre-submission audit. Every item below was verified by running the thing, not by inspection alone.
+
+| Finding | Action | Verification |
+|---|---|---|
+| **F3** determinations computed but not rendered | New `src/app/cases/[id]/determination-card.tsx`, mounted under `KeyFacts`. Shows the overall verdict first, then the three axes with their reasons, then identity (with the normalised code and, when a code is ambiguous, the candidate count), then completeness as *N of 7* explicitly labelled not a score, then the safety boundary. | Rendered page contains every element; **0** occurrences of causation/fault language; axe reports **no violations**. |
+| **F4** `POTENTIAL_ISSUE` unreachable | A seed-only `demoObservation` option on `runInvestigation` (the HTTP route passes no such argument, so it is unreachable from the API) plus a generated **noise** fixture image — visibly not a photograph. The claim stays `ai_inference`/`unverified` and is labelled a demo fixture. | Kodathi now reads POTENTIAL_ISSUE · human review required · 7/7. Three regression tests, including one proving the observation is **refused** when the image gate fails. |
+| **F6** completeness vs missing checklist disagreed | One shared `keyFieldSatisfied()` now backs both, so the sanctioned-cost-for-contract-value substitution applies identically. | Kodathi and Hebbagodi went from *6/7 with nothing missing* to **7/7 with nothing missing**; a test asserts satisfied + missing = 7 on both. |
+| **F7** a malformed job code poisoned identity | A code that resolves pins identity; one that is malformed or matches nothing is recorded as an *attempt*, and the record-based resolver still runs. The rejected code is folded into the explanation. | A typo now yields VERIFIED-from-record with *"The work number supplied … could not be looked up. Identity was established from the verified project record instead."* Five tests cover valid, normalised, ambiguous, malformed-with-fallback and malformed-without. |
+| **F8** `photoSufficiency` had no producer | Implemented as a **technical-usability** gate — present, decodes, clears a 640px short edge, not trivially small — computed in `run.ts` before any model sees the image. Its limits are stated in the README rather than overclaimed as image analysis. | A 64×64 fixture yields INSUFFICIENT_EVIDENCE even when a recorded observation says damage is visible. |
+| **F11** evaluation could not fail | Prints scope (**130 of 779 projects, 1,317 of 7,622 facts**), states plainly that a rules run is a deterministic replay and not model accuracy, counts errored runs, and exits non-zero below thresholds (`EVAL_MIN_LINKED`, `EVAL_MIN_RECALL`). Added to `npm run check`. | `EVAL_MIN_RECALL=101 npm run eval` → exit 1. Normal run → exit 0. |
+| **F12** prompt was location-first | Rewritten identifier-first: exact matching only, no fuzzy identifiers, location is supporting evidence, ambiguous codes wait for a person, and the model is told plainly that a deterministic verifier — not its confidence — decides what becomes a fact. | 155 tests and the evaluation unchanged. |
+| **F13/F19** lint and clean-clone ordering | `.kilo/**` ignored in committed config rather than a developer's `.git/info/exclude`; `check.sh` now builds **before** typechecking (Next generates the types `tsc` needs) and no longer swallows lint warnings. | `npm run lint` exit 0; `npm run check` exit 0 end to end. |
+| **F14** shared array from the code index | `findProjectsByCode` returns a copy. | Identity tests pass; no caller mutated it, so this closes a latent hazard. |
+| **F15** ACTIVE contract under unverified identity | `determine()` reports contractual status as UNKNOWN unless identity is VERIFIED, explaining that the contract belongs to a project that is not established. | Regression test on the Lavelle Road shape. |
+| **F16/F17/F18** | Whitespace removed; `@aws-sdk/client-lambda` and `@aws-sdk/s3-request-presigner` uninstalled (zero references); the never-produced `Verification: "unknown"` removed from the enum and its dead badge. | Build and 155 tests pass after removal. |
+| **F20** packet safety | Five further tests: no causation/fault/liability wording, no unit-less figure printed as a fact, missing records named rather than filled, an RTI draft still produced when identity is unverified, and the draft disclaimer present. | 12 tests in `tests/integrity.test.ts`. |
+| **F9/F10/F5** documentation | README gained *How a report becomes a determination* and *Where the system stops*, honest limitations, and the corrected test count; the Bedrock default was corrected to `apac.amazon.nova-pro-v1:0` in three documents; `docs/SUBMISSION.md` rewritten with real numbers and no placeholders. | Stale-claim sweep returns nothing. |
+
+### F1 — public release: partly closed, one decision outstanding
+
+**Done:** contractors' mobile numbers removed at source from `opencity-bbmp-work-orders-2025-26-198-wards.csv` (**4,728**) and `kppp-bbmp-whitetopping-pkg2-tender-full-view.json` (**1**), with the manifest SHA-256s updated in the same change and the redaction recorded in each document's `notes`. `npm run ingest` still verifies **7,622 facts, 0 failures** — no verified evidence was touched, and no reference fact cites the BBMP dataset at all. A `.gitattributes` entry exempts committed source data from whitespace rewriting so its hashes stay meaningful.
+
+**History purge, dry-run proven, not applied — and its replacement list is now known to be incomplete:** `git filter-repo --replace-text` on a throwaway mirror took the history from **4,665 phone matches to 0** by that run's own pattern, replacing them with `[phone removed]`, while `git log --format='%an|%ae|%aI|%cI|%s'` was **byte-identical** before and after across all 26 commits. A full mirror backup was taken first. Not applied to the working repository and not pushed, per the standing instruction that no force-push happens without explicit confirmation.
+
+**Correction (2026-09-19).** That pattern had a blind spot: it did not match a number preceded by `.`, so contractor cells of the form `KRISHNA.C.9740377357` were left intact — **43 occurrences, 17 distinct numbers**, which survived the working-tree redaction and were only caught by a later scan for *any* run of 10 or more digits. The working tree is now clean by that stricter test (`grep -oE '[0-9]{10,}'` → 0; no amount in this file exceeds 8 digits, so the wider pattern is safe here). The true working-tree total is **4,728** from the CSV, not 4,665. **The consequence for the pending purge: the proven `replacements.txt` would leave those same 43 occurrences in history.** Re-derive the replacement list from the stricter pattern and re-prove the dry run before any purge is applied.
+
+**Outstanding:** the 18 OMMAS exports whose own licence restricts republication are still committed. A build-time downloader was investigated and **not** shipped: the committed files are SSRS report-viewer exports (`Textbox24,Textbox28` headers) whose re-export would not reproduce the committed SHA-256, so hash verification — the mechanism the whole provenance claim rests on — would break. Shipping an unproven downloader that gates `npm run ingest` would trade a licensing problem for a reproducibility one. This needs a decision, not a patch.
+
+### F2 — deployment: blocked on external prerequisites
+
+`infra/template.yaml` validates in structure and `scripts/deploy.sh` is deterministic, but neither the `aws` nor the `sam` CLI is installed here and there are no credentials, so nothing has been deployed. `docs/SUBMISSION.md` says so in those words rather than carrying a placeholder URL.

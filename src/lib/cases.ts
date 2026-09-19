@@ -113,6 +113,8 @@ export async function createCase(
       locality,
       city: undefined,
       source: input.locationSource,
+      // Only a device fix carries a meaningful accuracy; a tapped pin or a geocoded address does not.
+      ...(input.locationSource === "device" && input.locationAccuracyM ? { accuracyM: input.locationAccuracyM } : {}),
     },
     observedOn: input.observedOn,
     reportedAt: now,

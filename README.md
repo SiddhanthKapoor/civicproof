@@ -65,6 +65,31 @@ The hard part is reading: 65-page bid documents, scheme reports whose tables ext
 - **Neutral language is enforced.** A Strands intervention stops accusatory wording ("fraud", "corruption"…) in the model's findings and asks it to rephrase.
 - **Actions are rules, not vibes.** Next steps and packets are assembled deterministically from verified facts. The model can suggest an extra action; it is labelled "AI suggestion".
 
+> **What re-verification depends on.** That guarantee holds for a checkout that has the source documents. **6,826 of the 7,622 facts (89.6%) cite one of the 18 OMMAS documents whose licence restricts republication**, so how this repository is released decides whether a fresh clone can re-verify them. `npm run ingest` is explicit about it: a source that is absent is named, the facts citing it fail to verify rather than being assumed good, and the build stops. See [docs/PUBLIC_RELEASE.md](docs/PUBLIC_RELEASE.md).
+
+## How a report becomes a determination
+
+1. **A report** — a pin, a photograph, a description, and optionally the work number printed on the project board.
+2. **Identity, identifier-first.** A work number is looked up *exactly* in a registry index built from the corpus (778 of 779 projects carry one). Normalisation fixes case and separators but never guesses between look-alike characters, and there is no fuzzy matching. A code that matches several projects — 53 of them do; `KN0204` matches 13 — yields `CODE_MATCHES_MULTIPLE_PROJECTS` and a person chooses. With no code, the location only *suggests* candidates: identity is established only once the project's own `project_id` is confirmed word for word in a document from that project's own bundle. Otherwise the project is **UNVERIFIED**, and the case does not advance, the complaint does not name a project, and no repair request is raised.
+3. **Records and facts.** The agent reads the project's documents and proposes claims; the deterministic verifier accepts one only if the quotation is on the cited page and contains the stated value.
+4. **Conflicts and units.** Values normalise into typed quantities (kind + magnitude in one canonical unit), so `12 months` and `1 year` are one fact while `12.5 million` and `12.5 crore` are a conflict that gets surfaced. A figure with no unit is its own kind and can never pass as a cost.
+5. **The defect-liability window** is arithmetic over a *physical* completion date and a stated period — resolved by the nearest label in the source, never by position, and UNKNOWN when the labels do not settle it. A model-authored window is discarded outright.
+6. **Four determinations**, each standing alone and each derived by plain code:
+
+   | | |
+   |---|---|
+   | **Identity** | VERIFIED · UNVERIFIED · CODE_MATCHES_MULTIPLE_PROJECTS |
+   | **Contractual status** | ACTIVE · EXPIRED · UNKNOWN (as of today; whether the *observation* fell inside the window is recorded separately) |
+   | **Field condition** | DEFECT_OBSERVED · NO_DEFECT_OBSERVED · INSUFFICIENT_EVIDENCE · HUMAN_REVIEW |
+   | **Scope relationship** | POTENTIALLY_RELATED · NOT_ESTABLISHED · UNKNOWN |
+
+7. **An overall state** — SUPPORTED, POTENTIAL_ISSUE, UNKNOWN or UNVERIFIED — is an ordered rule table over those three, total across all 108 combinations and asserted as such in `tests/determination.test.ts`. `POTENTIAL_ISSUE` and `HUMAN_REVIEW` both route to a person.
+8. **Evidence completeness** is shown as *N of 7 records we check for*. It is a checklist count, **not** a confidence or truth score, and it is labelled that way in the UI.
+
+### Where the system stops
+
+CivicProof establishes what the records support. It does not decide who is responsible. No determination, complaint or packet asserts that a contractor caused a defect, is at fault, was negligent or is liable — a test asserts that none of the 108 outcomes contains such language. An open maintenance period is a fact about a contract, and the product says so in those words and no stronger.
+
 ## Why AWS
 
 Each service does a job the product needs; none is there for show.
@@ -132,7 +157,7 @@ The free tier allows about 20 requests per model per day and a few per minute; a
 ```bash
 export AWS_REGION=ap-south-1
 export CIVICPROOF_PLANNER=bedrock
-export BEDROCK_MODEL_ID=global.anthropic.claude-opus-5   # or another Claude model / inference profile you have access to
+export BEDROCK_MODEL_ID=apac.amazon.nova-pro-v1:0   # the default; any Bedrock model with tool use works
 npm run dev
 ```
 
@@ -141,12 +166,15 @@ See [.env.example](.env.example) for every setting.
 ## Test
 
 ```bash
-npm test            # 51 unit/integration tests (Vitest)
+npm test            # 155 unit/integration tests (Vitest)
 npm run test:e2e    # 5 browser tests incl. an axe WCAG 2.1 AA audit (Playwright), against a running server
                     # (they create cases: run that server with CIVICPROOF_PLANNER=rules and CIVICPROOF_DATA_DIR
                     #  pointing at a scratch dir you've seeded, so they neither spend model quota nor touch .data)
 npm run check       # all of the above plus types and lint
-npm run eval        # scores the investigator on every mapped project's reference facts (uses Gemini when GEMINI_API_KEY is set; costs model quota)
+npm run eval        # replays every *mapped* project's reference facts through the real pipeline and
+                    # fails below its thresholds. It prints its own denominators: 130 of 779 projects
+                    # and 1,317 of 7,622 facts. With no GEMINI_API_KEY it is a deterministic replay —
+                    # a corpus-integrity check, not a measure of model accuracy.
 npm run typecheck
 npm run lint
 ```
@@ -188,6 +216,10 @@ docs/               architecture, agent, data sources, security, deploy, demo sc
 - No accounts: an owner key in the browser proves you filed a report.
 - Real model runs are only as good as the model's reading: in live Gemini runs it has recorded a financial completion date as the completion date, and dropped units to pass the verifier. Both are now handled in code (field guide, unit notes read from the cited page, deterministic clean-up), but a model can still miss facts the rules planner's curated extractions contain.
 - On Gemini's free tier, runs pause for rate limits and fail cleanly when the daily quota or Google's capacity runs out.
+- **The evaluation covers a subset, and says so.** `npm run eval` probes each project with a synthetic pin, which only works where a project has a mapped alignment: **130 of 779 projects and 1,317 of 7,622 facts**. With no model key it is a deterministic replay of curated extractions through the real pipeline — a corpus-integrity and plumbing check, not a measure of model accuracy. There is no whole-corpus accuracy figure, and none is claimed.
+- **The photograph gate checks technical usability, not image quality.** A photograph must exist, decode, clear a resolution floor and not be trivially small. It is not blur, exposure or content analysis, and it does not judge whether the right thing was photographed. What it does guarantee is direction: an image the deterministic check rejects can never be talked into sufficiency by a model.
+- **Without a vision model the field condition is INSUFFICIENT_EVIDENCE**, so `DEFECT_OBSERVED` — and therefore `POTENTIAL_ISSUE` — is only reachable with a model configured, or through the clearly-labelled demo fixture the seed creates. That fixture's image is generated noise, not a photograph, and its observation is marked a demo fixture; it is stored as an unverified AI-origin claim and can never become a verified fact or enter a complaint.
+- **The OMMAS exports carry a redistribution restriction.** NRIDA's notice restricts republishing its reports, which is why the repository's publication status is handled deliberately rather than by default; see `docs/PUBLIC_RELEASE.md`. Contractors' phone numbers have been removed from the committed BBMP and KPPP sources, and no reference fact cites the BBMP work-order dataset.
 
 ## What's next
 
