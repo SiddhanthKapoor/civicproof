@@ -1,4 +1,4 @@
-import { ForbiddenError, recordTimeline, TimelineInputSchema } from "@/lib/cases";
+import { ForbiddenError, InvalidInputError, recordTimeline, TimelineInputSchema } from "@/lib/cases";
 import { toPublicCase } from "@/lib/schemas";
 import { handle, json, ownerKeyFrom, problem } from "@/lib/http";
 
@@ -12,6 +12,7 @@ export const POST = handle("cases.timeline", async (req: Request, ctx: RouteCont
     return json({ case: toPublicCase(updated) });
   } catch (e) {
     if (e instanceof ForbiddenError) return problem(403, e.message, { policies: e.policies });
+    if (e instanceof InvalidInputError) return problem(400, e.message, { fields: e.fields });
     throw e;
   }
 });

@@ -33,6 +33,20 @@ import {
   type TimelineEvent,
 } from "@/lib/schemas";
 
+/**
+ * A value the schema cannot judge on its own, because whether it is valid depends on the case being
+ * written to. Carries field messages so it reaches the form the same way a schema error does.
+ */
+export class InvalidInputError extends Error {
+  constructor(readonly fields: Record<string, string>, message?: string) {
+    // With one field at fault, its own wording is the message: it is what the reader needs, and it
+    // is what shows up in a log or a stack trace instead of a shrug.
+    const only = Object.values(fields);
+    super(message ?? (only.length === 1 ? only[0] : "Some fields need attention."));
+    this.name = "InvalidInputError";
+  }
+}
+
 export class ForbiddenError extends Error {
   constructor(public policies: string[], message = "Not allowed") {
     super(message);
@@ -215,6 +229,27 @@ export async function createCase(
 // Owner actions: tracking what happened in the real world
 // ---------------------------------------------------------------------------
 
+/**
+ * Today in IST. The tracking form offers dates in IST — this app's reporters and every authority it
+ * writes to are in India — so the server bounds them the same way. A UTC bound would reject a
+ * perfectly good "today" for five and a half hours every evening.
+ */
+function todayIst(now = new Date()): string {
+  return new Date(now.getTime() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
+}
+
+/**
+ * The date of the most recent submission on a case, by the date it was made rather than the order
+ * the rows were written — the same event `rtiClock` counts from.
+ */
+function latestSubmissionDate(timeline: Case["timeline"]): string | undefined {
+  return timeline
+    .filter((e) => e.type === "complaint_submitted" && e.date)
+    .map((e) => e.date!)
+    .sort()
+    .at(-1);
+}
+
 export const TimelineInputSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("complaint_submitted"),
@@ -276,6 +311,52 @@ export async function recordTimeline(caseId: string, ownerKey: string | null, in
   ] as const) {
     const d = authorize(principal, action, caseId, ctx);
     if (!d.allowed) throw new ForbiddenError(d.policies, isOwner ? "This action isn't allowed for this case." : "Only the person who filed this report can record this. Use the owner key you received when reporting.");
+  }
+
+  // Dates, checked after authorization so that someone who may not write here learns nothing about
+  // the case's dates from an error message.
+  //
+  // `date` is when the thing happened in the real world; `at`, set below, is when CivicProof was
+  // told about it. Only `at` is a record of this system. So the bounds here are about what could
+  // have happened, not about what CivicProof knew: a citizen may well have complained to an
+  // authority weeks before discovering this product, and `reportedAt` — the moment the case was
+  // created — is deliberately **not** a floor. Using it as one would refuse a true record.
+  //
+  // This is not cosmetic. The statutory reply deadline is counted from `date` (rti-clock.ts), and
+  // the timeline is ordered by it, so a date that could not have happened produces a wrong deadline
+  // and a record that reads out of order.
+  if (input.type === "complaint_submitted" || input.type === "response_received") {
+    const today = todayIst();
+    if (input.date > today) {
+      throw new InvalidInputError({
+        date:
+          input.type === "complaint_submitted"
+            ? `${fmtDate(input.date)} is in the future. Record the submission once you have made it.`
+            : `${fmtDate(input.date)} is in the future. Record the response once you have received it.`,
+      });
+    }
+
+    if (input.type === "complaint_submitted") {
+      // The preceding real-world event is seeing the problem, not filing the case: you cannot
+      // complain about a defect before you observed it.
+      if (input.date < current.observedOn) {
+        throw new InvalidInputError({
+          date: `This report is about something observed on ${fmtDate(current.observedOn)}, so the complaint could not have been submitted on ${fmtDate(input.date)}.`,
+        });
+      }
+    } else {
+      // A reply cannot predate what it answers. rti-clock.ts already ignores a response dated
+      // before its submission; without this the timeline would record one anyway and advance the
+      // case to "authority responded" while the clock still reported "waiting" — the same page
+      // saying two different things. With no submission on file there is nothing to be consistent
+      // with, and no floor is invented.
+      const submittedOn = latestSubmissionDate(current.timeline);
+      if (submittedOn && input.date < submittedOn) {
+        throw new InvalidInputError({
+          date: `The complaint was submitted on ${fmtDate(submittedOn)}, so a response could not have arrived on ${fmtDate(input.date)}.`,
+        });
+      }
+    }
   }
 
   const at = new Date().toISOString();

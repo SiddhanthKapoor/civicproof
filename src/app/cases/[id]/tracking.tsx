@@ -88,6 +88,12 @@ export function TrackingPanel({
   const [keyInput, setKeyInput] = useState("");
   const [keyError, setKeyError] = useState<string | null>(null);
   const channels = [...new Set((caseData.investigation?.nextActions ?? []).map((a) => a.channel).filter(Boolean) as string[])];
+  // The latest submission on file, by the date it was made — the floor for recording a reply.
+  const submittedOn = caseData.timeline
+    .filter((e) => e.type === "complaint_submitted" && e.date)
+    .map((e) => e.date!)
+    .sort()
+    .at(-1);
 
   async function submit(ev: React.FormEvent<HTMLFormElement>) {
     ev.preventDefault();
@@ -190,15 +196,21 @@ export function TrackingPanel({
                   <label className="text-[13px] text-ink-2">Reference number (as issued)
                     <input name="referenceNumber" className={cn(field, "mt-1 font-mono")} placeholder="Leave blank if none was issued" />
                   </label>
+                  {/* A complaint cannot predate the observation it is about, and cannot be in the
+                      future — but it may well predate this case, so the floor is the observation
+                      rather than when the case was filed. The server enforces the same range; this
+                      only saves the reporter a round trip and is not the boundary that matters. */}
                   <label className="text-[13px] text-ink-2">Date submitted
-                    <input name="date" type="date" max={TODAY()} defaultValue={TODAY()} required className={cn(field, "mt-1")} />
+                    <input name="date" type="date" min={caseData.observedOn} max={TODAY()} defaultValue={TODAY()} required className={cn(field, "mt-1")} />
                   </label>
                 </>
               )}
               {kind === "response_received" && (
                 <>
+                  {/* A reply cannot arrive before the complaint it answers; with nothing submitted
+                      yet there is no floor to apply. Server-enforced either way. */}
                   <label className="text-[13px] text-ink-2">Date of response
-                    <input name="date" type="date" max={TODAY()} defaultValue={TODAY()} required className={cn(field, "mt-1")} />
+                    <input name="date" type="date" min={submittedOn} max={TODAY()} defaultValue={TODAY()} required className={cn(field, "mt-1")} />
                   </label>
                   <label className="text-[13px] text-ink-2">Reference in the response
                     <input name="referenceNumber" className={cn(field, "mt-1 font-mono")} />

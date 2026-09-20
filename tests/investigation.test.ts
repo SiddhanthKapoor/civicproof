@@ -10,6 +10,7 @@ import path from "node:path";
 import { wordCount } from "@/lib/packet-text";
 import { buildRti } from "@/lib/packet";
 import { getCorpus } from "@/lib/corpus";
+import { rtiClock } from "@/lib/rti-clock";
 import { toPublicCase } from "@/lib/schemas";
 import { whyItMatters } from "@/lib/agent/determination";
 
@@ -99,8 +100,9 @@ describe("investigation", () => {
     expect(long.disclaimer).toMatch(/left out and can be asked for in a separate application: Measurement book entries for reach \d+/);
 
     // Only the owner can record a submission.
-    await expect(recordTimeline(caseData.id, "wrong-key", { type: "complaint_submitted", channel: "CPGRAMS", date: "2026-09-16", packet: "complaint" })).rejects.toThrow();
-    const submitted = await recordTimeline(caseData.id, ownerKey, { type: "complaint_submitted", channel: "CPGRAMS", referenceNumber: "TEST/123", date: "2026-09-16", packet: "complaint" });
+    const filedOn = caseData.reportedAt.slice(0, 10); // a date this case could have been submitted on
+    await expect(recordTimeline(caseData.id, "wrong-key", { type: "complaint_submitted", channel: "CPGRAMS", date: filedOn, packet: "complaint" })).rejects.toThrow();
+    const submitted = await recordTimeline(caseData.id, ownerKey, { type: "complaint_submitted", channel: "CPGRAMS", referenceNumber: "TEST/123", date: filedOn, packet: "complaint" });
     expect(submitted.status).toBe("submitted");
   });
 
@@ -149,7 +151,11 @@ describe("rules planner, road found by name", () => {
 describe("RTI first appeal", () => {
   const daysAgo = (n: number) => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10);
   const fileRti = async (title: string, filedDaysAgo: number) => {
-    const { caseData, ownerKey } = await createCase({ ...base, title, lat: 12.894573, lng: 77.71297 }, []);
+    // Backdated: the report has to exist before it can be submitted, so a case whose RTI went in 40
+    // days ago was filed at least that long ago too. Creating it "now" modelled an impossible order.
+    const reportedAt = new Date(Date.now() - (filedDaysAgo + 1) * 86400000).toISOString();
+    const observedOn = new Date(Date.now() - (filedDaysAgo + 2) * 86400000).toISOString().slice(0, 10);
+    const { caseData, ownerKey } = await createCase({ ...base, title, observedOn, lat: 12.894573, lng: 77.71297 }, [], { reportedAt });
     await recordTimeline(caseData.id, ownerKey, { type: "complaint_submitted", channel: "RTI Online (Karnataka)", referenceNumber: "KA/RTI/2026/1", date: daysAgo(filedDaysAgo), packet: "rti" });
     return { id: caseData.id, ownerKey };
   };
@@ -544,12 +550,18 @@ describe("removing a case from the local store", () => {
 describe("the case lifecycle after the citizen files it", () => {
   // CivicProof never contacts an authority, so every step past "submitted" exists only because the
   // reporter said so. These assert that it records what they attest to and invents nothing.
-  const file = async (title: string) => {
-    const { caseData, ownerKey } = await createCase({ ...base, title, lat: 12.894573, lng: 77.71297 }, []);
+  const file = async (title: string, reportedDaysAgo = 0) => {
+    // A case filed N days ago was seen on or before then, so the observation moves with it.
+    // Leaving observedOn at a fixed recent date would model a report of something not yet seen.
+    const reportedAt = new Date(Date.now() - reportedDaysAgo * 86400000).toISOString();
+    const observedOn = new Date(Date.now() - (reportedDaysAgo + 1) * 86400000).toISOString().slice(0, 10);
+    const { caseData, ownerKey } = await createCase({ ...base, title, observedOn, lat: 12.894573, lng: 77.71297 }, [], { reportedAt });
     await runInvestigation(caseData.id, () => {});
     return { id: caseData.id, ownerKey };
   };
   const status = async (id: string) => (await getStore().get(id))!.status;
+  /** A date this case could actually have been submitted on: the day it was reported. */
+  const submittedOn = async (id: string) => (await getStore().get(id))!.reportedAt.slice(0, 10);
 
   it("does not call a case submitted until the citizen says they submitted it", async () => {
     const { id } = await file("Lifecycle: nothing claimed on its own");
@@ -559,11 +571,12 @@ describe("the case lifecycle after the citizen files it", () => {
 
   it("records the submission the citizen made, with its channel and reference", async () => {
     const { id, ownerKey } = await file("Lifecycle: submission recorded");
+    const filedOn = await submittedOn(id);
     await recordTimeline(id, ownerKey, {
       type: "complaint_submitted",
       channel: "Greater Bengaluru Authority (BBMP) civic grievance channels",
       referenceNumber: "BBMP-2026-00417",
-      date: "2026-09-19",
+      date: filedOn,
       packet: "complaint",
     });
     expect(await status(id)).toBe("submitted");
@@ -572,20 +585,20 @@ describe("the case lifecycle after the citizen files it", () => {
     expect(ev.actor).toBe("reporter");
     expect(ev.referenceNumber).toBe("BBMP-2026-00417");
     expect(ev.channel).toMatch(/Greater Bengaluru Authority/);
-    expect(ev.date).toBe("2026-09-19");
+    expect(ev.date).toBe(filedOn);
   });
 
   it("moves to 'authority responded' only when a reply is recorded, and no further", async () => {
     const { id, ownerKey } = await file("Lifecycle: reply recorded");
-    await recordTimeline(id, ownerKey, { type: "complaint_submitted", channel: "CPGRAMS", date: "2026-09-19", packet: "complaint" });
-    await recordTimeline(id, ownerKey, { type: "response_received", date: "2026-09-25", notes: "Ward engineer will inspect." });
+    await recordTimeline(id, ownerKey, { type: "complaint_submitted", channel: "CPGRAMS", date: await submittedOn(id), packet: "complaint" });
+    await recordTimeline(id, ownerKey, { type: "response_received", date: await submittedOn(id), notes: "Ward engineer will inspect." });
     // A reply is a reply. It is not an inspection, an action, or a resolution.
     expect(await status(id)).toBe("response_received");
   });
 
   it("lets the citizen carry the case through inspection, action and an outcome", async () => {
     const { id, ownerKey } = await file("Lifecycle: through to an outcome");
-    await recordTimeline(id, ownerKey, { type: "complaint_submitted", channel: "CPGRAMS", date: "2026-09-19", packet: "complaint" });
+    await recordTimeline(id, ownerKey, { type: "complaint_submitted", channel: "CPGRAMS", date: await submittedOn(id), packet: "complaint" });
     for (const toStatus of ["inspection_reported", "action_reported", "resolved"] as const) {
       await recordTimeline(id, ownerKey, { type: "status_changed", toStatus, notes: `Reporter recorded: ${toStatus}` });
       expect(await status(id)).toBe(toStatus);
@@ -601,8 +614,142 @@ describe("the case lifecycle after the citizen files it", () => {
     await expect(recordTimeline(id, null, { type: "status_changed", toStatus: "resolved" })).rejects.toThrow(/Only the person/);
   });
 
+  // ── Timeline dates ────────────────────────────────────────────────────────
+  // `date` is when the thing happened in the world; `at` is when CivicProof was told. So the
+  // bounds are about what could have happened, and the case's own creation time is deliberately
+  // not one of them: a citizen may have complained long before they found this product.
+  describe("the dates a reporter may record", () => {
+    const IST_MS = 5.5 * 3600_000;
+    const istToday = () => new Date(Date.now() + IST_MS).toISOString().slice(0, 10);
+    const istShift = (n: number) => new Date(Date.now() + IST_MS + n * 86400_000).toISOString().slice(0, 10);
+    const shift = (from: string, n: number) => new Date(Date.parse(from + "T00:00:00Z") + n * 86400_000).toISOString().slice(0, 10);
+    const submit = (id: string, key: string, date: string) =>
+      recordTimeline(id, key, { type: "complaint_submitted", channel: "CPGRAMS", date, packet: "complaint" });
+    const respond = (id: string, key: string, date: string) =>
+      recordTimeline(id, key, { type: "response_received", date, notes: "Acknowledged." });
+
+    it("refuses a complaint dated before the citizen saw the problem", async () => {
+      const { id, ownerKey } = await file("Dates: before the observation");
+      const observedOn = (await getStore().get(id))!.observedOn;
+      await expect(submit(id, ownerKey, shift(observedOn, -1))).rejects.toThrow(/could not have been submitted/);
+      // A rejected date leaves no trace: nothing half-written, no status moved.
+      const after = (await getStore().get(id))!;
+      expect(after.timeline.some((e) => e.type === "complaint_submitted")).toBe(false);
+      expect(after.status).not.toBe("submitted");
+    });
+
+    it("accepts a complaint dated exactly on the observation", async () => {
+      const { id, ownerKey } = await file("Dates: on the observation");
+      await submit(id, ownerKey, (await getStore().get(id))!.observedOn);
+      expect(await status(id)).toBe("submitted");
+    });
+
+    it("accepts a real complaint made before the CivicProof case existed", async () => {
+      // The point of the whole rule, built explicitly: saw the road ten days ago, complained to the
+      // authority eight days ago, only found CivicProof today. reportedAt must not be a floor here,
+      // or a true record of something that really happened would be refused.
+      const observedOn = istShift(-10);
+      const { caseData, ownerKey } = await createCase(
+        { ...base, title: "Dates: complained before finding CivicProof", observedOn, lat: 12.894573, lng: 77.71297 },
+        [],
+      );
+      const complainedOn = istShift(-8);
+      expect(complainedOn < caseData.reportedAt.slice(0, 10)).toBe(true); // genuinely before the case
+      expect(complainedOn > observedOn).toBe(true); // and after seeing the problem
+
+      await submit(caseData.id, ownerKey, complainedOn);
+      const after = (await getStore().get(caseData.id))!;
+      expect(after.status).toBe("submitted");
+      expect(after.timeline.find((e) => e.type === "complaint_submitted")!.date).toBe(complainedOn);
+      // And it sorts where it happened, above the row for a case created afterwards.
+      const when = (e: (typeof after.timeline)[number]) => e.date ?? e.at.slice(0, 10);
+      const ordered = [...after.timeline].sort((a, b) => when(a).localeCompare(when(b)) || a.at.localeCompare(b.at));
+      expect(ordered.findIndex((e) => e.type === "complaint_submitted")).toBeLessThan(
+        ordered.findIndex((e) => e.type === "reported"),
+      );
+    });
+
+    it("refuses a complaint dated in the future, in the reporter's own calendar", async () => {
+      const { id, ownerKey } = await file("Dates: submission in the future");
+      await expect(submit(id, ownerKey, istShift(1))).rejects.toThrow(/in the future/);
+      // Between 18:30 and midnight UTC it is already tomorrow in IST; today must still be accepted.
+      await submit(id, ownerKey, istToday());
+      expect(await status(id)).toBe("submitted");
+    });
+
+    it("refuses a response dated before the complaint it answers", async () => {
+      // rti-clock.ts already ignores such a response. Before this, the timeline recorded it anyway
+      // and moved the case to "authority responded" while the clock still said "waiting".
+      const { id, ownerKey } = await file("Dates: reply before the complaint", 30);
+      const submittedOn = shift((await getStore().get(id))!.observedOn, 5);
+      await submit(id, ownerKey, submittedOn);
+      await expect(respond(id, ownerKey, shift(submittedOn, -1))).rejects.toThrow(/could not have arrived/);
+      const after = (await getStore().get(id))!;
+      expect(after.timeline.some((e) => e.type === "response_received")).toBe(false);
+      expect(after.status).toBe("submitted"); // not advanced
+    });
+
+    it("accepts a response on the submission date, and after it", async () => {
+      const { id, ownerKey } = await file("Dates: reply on and after", 30);
+      const submittedOn = shift((await getStore().get(id))!.observedOn, 5);
+      await submit(id, ownerKey, submittedOn);
+      await respond(id, ownerKey, submittedOn); // same day is possible
+      expect(await status(id)).toBe("response_received");
+
+      const later = await file("Dates: reply days later", 30);
+      const on = shift((await getStore().get(later.id))!.observedOn, 5);
+      await submit(later.id, later.ownerKey, on);
+      await respond(later.id, later.ownerKey, shift(on, 6));
+      expect(await status(later.id)).toBe("response_received");
+    });
+
+    it("refuses a response dated in the future", async () => {
+      const { id, ownerKey } = await file("Dates: reply in the future", 30);
+      await submit(id, ownerKey, shift((await getStore().get(id))!.observedOn, 5));
+      await expect(respond(id, ownerKey, istShift(1))).rejects.toThrow(/in the future/);
+    });
+
+    it("invents no floor for a response when nothing has been submitted", async () => {
+      // With no submission on file there is nothing to be consistent with. Only the ceiling applies,
+      // so a reply about something filed outside CivicProof can still be recorded.
+      const { id, ownerKey } = await file("Dates: reply with no submission", 30);
+      const longBefore = shift((await getStore().get(id))!.observedOn, -20);
+      await respond(id, ownerKey, longBefore);
+      const after = (await getStore().get(id))!;
+      expect(after.timeline.find((e) => e.type === "response_received")!.date).toBe(longBefore);
+      await expect(respond(id, ownerKey, istShift(1))).rejects.toThrow(/in the future/);
+    });
+
+    it("decides who may write before it judges what they wrote", async () => {
+      // An impossible date from someone without the key must be refused for the key, not the date:
+      // otherwise the error leaks that the case exists and when it was observed.
+      const { id } = await file("Dates: authorization comes first");
+      const observedOn = (await getStore().get(id))!.observedOn;
+      await expect(submit(id, null as unknown as string, shift(observedOn, -1))).rejects.toThrow(/Only the person/);
+      await expect(submit(id, "not-the-owner-key", istShift(1))).rejects.toThrow(/Only the person/);
+      await expect(respond(id, "not-the-owner-key", istShift(1))).rejects.toThrow(/Only the person/);
+    });
+
+    it("keeps the timeline and the RTI clock telling the same story", async () => {
+      // The two used to be able to disagree on the same page. Now a recorded reply is a reply the
+      // clock can see, because the write obeys the rule the clock already enforced.
+      const { id, ownerKey } = await file("Dates: clock and timeline agree", 60);
+      const filedOn = shift((await getStore().get(id))!.observedOn, 2);
+      await recordTimeline(id, ownerKey, { type: "complaint_submitted", channel: "RTI Online (Karnataka)", referenceNumber: "KA/RTI/2026/9", date: filedOn, packet: "rti" });
+      const repliedOn = shift(filedOn, 10);
+      await respond(id, ownerKey, repliedOn);
+
+      const c = (await getStore().get(id))!;
+      const clock = rtiClock(c.timeline, istToday())!;
+      expect(clock.submittedOn).toBe(filedOn);
+      expect(clock.repliedOn).toBe(repliedOn); // the clock sees the reply the timeline recorded
+      expect(clock.state).toBe("replied");
+      expect(c.status).toBe("response_received"); // and the case agrees
+    });
+  });
+
   it("keeps the whole history, in the order things happened", async () => {
-    const { id, ownerKey } = await file("Lifecycle: the record reads as a record");
+    const { id, ownerKey } = await file("Lifecycle: the record reads as a record", 30);
     // Dated relative to the report, not to a calendar day: a submission can only follow the report
     // that produced it, and a fixture pinned to a fixed date silently inverts once that date passes.
     const reportedOn = (await getStore().get(id))!.reportedAt.slice(0, 10);
