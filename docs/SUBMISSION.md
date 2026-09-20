@@ -145,7 +145,9 @@ Deployed with `sam deploy` from `infra/template.yaml` into `ap-south-1` (stack `
 
 | | |
 |---|---|
-| `/api/health` | `{"ok":true,"store":"dynamodb","blobs":"s3","planner":"rules"}` · 26 documents, 853 pages, 790 projects |
+| `/api/health` | `{"ok":true,"store":"dynamodb","blobs":"s3","planner":"gemini"}` · 26 documents, 853 pages, 790 projects |
+| Google Gemini in production | a live investigation on the Kodathi–Mullur case completed **on the deployment** in 143 s with `gemini-3-flash-preview`: 12 facts verified against the pages they cite, the financial completion date correctly kept out of `completion_date` |
+| Secrets Manager | the Gemini key is held as a stack secret and read by the function's role at run time; it is not in the bundle, the repository or the function's environment |
 | DynamoDB | the 7 demo cases seeded into `civicproof-CasesTable-…`, each producing the determination it exists to demonstrate |
 | S3 | photographs stored and served through `/api/media/…` (200, `image/png`) |
 | Lambda Function URL | response streaming confirmed: a live investigation returned 20 trace events, 11 claims and a completed run as NDJSON in 2.5 s |
@@ -166,6 +168,6 @@ sam deploy -t infra/template.yaml --stack-name civicproof --region ap-south-1 \
   --parameter-overrides Planner=bedrock Cdn=on      # add GeminiApiKey=… for the Gemini path
 ```
 
-That one command switches the investigator from the deterministic rules planner to Amazon Nova and puts the CDN in place. **Until then the deployment runs on the rules planner: no model is called, so the Gemini → Nova fallback is implemented and locally tested but has not executed in production, and is not claimed to have.**
+Since 20 September the deployment runs **Google Gemini** as the investigator (`Planner=gemini`, key in Secrets Manager). Amazon Bedrock stays switched off because this account still cannot invoke it, so `FallbackToBedrock=false`: when Gemini's free-tier quota runs out, the run is finished by the deterministic rules planner and the case page says exactly that. The `Cdn=on` flag remains available for CloudFront once verification completes.
 
 **Security note on the deploying identity.** The IAM user used here holds `AdministratorAccess` with a long-lived access key. That is broader than a deploy needs and should be rotated or removed after the hackathon; the Lambda's own role is least-privilege and is defined in the template.
