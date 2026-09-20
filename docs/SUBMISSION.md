@@ -34,7 +34,7 @@ Connects a field report to a verified government project, reconstructs the contr
 
 ## Architecture
 
-Next.js 16 on AWS Lambda behind a Function URL in `RESPONSE_STREAM` mode, so the investigation streams to the browser as it happens. Strands Agents drives the loop; **Cedar** policies are evaluated before every tool call; **Amazon Bedrock** (Nova Pro, `apac.amazon.nova-pro-v1:0`) takes over mid-run if Gemini hits its quota, reconstructing provider-neutral state rather than replaying a transcript; **DynamoDB** stores cases, **S3** stores photographs, packet PDFs and an archive of every record the agent fetches live (URL, retrieval time, SHA-256); **Textract** OCRs scanned uploads; **Amazon Location** resolves the road at a pin; **CloudWatch** carries per-run metrics including the share of the model's claims the verifier accepted.
+Next.js 16 on AWS Lambda behind a Function URL in `RESPONSE_STREAM` mode, so the investigation streams to the browser as it happens. Strands Agents drives the loop; **Cedar** policies are evaluated before every tool call; **Amazon Bedrock** (Nova Pro) is wired as the mid-run fallback and tested locally, but is **switched off in this deployment** because the account cannot yet invoke Bedrock; when Gemini's quota runs out the deterministic rules planner finishes the run and the case says so.
 
 A deterministic **rules planner** implements the same `Model` interface, so the whole product runs end to end with no language model at all — which is also how the test suite and the evaluation run.
 

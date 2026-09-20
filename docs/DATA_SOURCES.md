@@ -14,7 +14,7 @@ Everything CivicProof states as a verified fact is a quotation from one of these
 | `kppp-bbmp-wt-pkg2-tender` | KPPP tender record (full view) — BBMP/2023-24/RD/WORK_INDENT1733 | Karnataka Public Procurement Portal (Government of Karnataka) | [link](https://kppp.karnataka.gov.in/supplier-registration-service/v1/api/portal-service/59700/works-tender-full-view) | 2026-09-18 | `4f0b23afbab59bd0…` |
 | `bscl-tender-sure-status-2021` | Tender SURE Phase A roads — project status presentation (Feb 2021) | Bengaluru Smart City Limited (copy hosted by OpenCity.in) | [link](https://data.opencity.in/dataset/865313bc-c287-406a-be69-1b23c8392fca/resource/adb616c4-1f8a-4d39-93c7-53f651caf783/download/1d272e9b-4926-4ffc-836f-01c476ac5022.pdf) | 2026-09-18 | `90c43c0f22d4ddad…` |
 | `cag-karnataka-2025-11` | CAG Report No. 11 of 2025 — Implementation of Smart City Mission, Government of Karnataka | Comptroller and Auditor General of India | [link](https://cag.gov.in/ag1/karnataka/en/audit-report) | 2026-09-18 | `275e0254bc4276bf…` |
-| `datagovin-pmgsy3-karnataka` | District-wise road works sanctioned under PMGSY-III in Karnataka (as on 10 Mar 2023) | Rajya Sabha, via Open Government Data Platform India | [link](https://api.data.gov.in/resource/e8ccbaa7-f9eb-4ebb-9f4e-3ff34a102b6b) | 2026-09-18 | `9d042bcc07ffbbdb…` |
+| `datagovin-pmgsy3-karnataka` | District-wise road works sanctioned under PMGSY-III in Karnataka (as on 10 Mar 2023) | Rajya Sabha, via Open Government Data Platform India | [link](https://www.data.gov.in/resource/district-wise-road-works-sanctioned-under-pradhan-mantri-gram-sadak-yojana-iii-pmgsy-iii) | 2026-09-18 | `9d042bcc07ffbbdb…` |
 
 Full hashes are in `corpus/manifest.json`; `npm run ingest` refuses to build if a file's hash changes.
 

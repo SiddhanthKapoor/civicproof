@@ -27,7 +27,7 @@ Stack name and region: `STACK=civicproof AWS_REGION=ap-south-1 ./scripts/deploy.
 
 | Parameter | Default | Meaning |
 |---|---|---|
-| `Planner` | `bedrock` | `rules` runs without model calls (no Bedrock cost). |
+| `Planner` | `gemini` | `gemini` needs `GeminiApiKey` (what this deployment uses); `bedrock` needs a Bedrock-enabled account; `rules` runs without model calls. |
 | `BedrockModelId` | `apac.amazon.nova-pro-v1:0` | Model or inference profile for the investigator and photo description. |
 | `MaxRunsPerDay` | 150 | Deployment-wide daily cap on investigations. |
 | `MaxRunsPerCase` | 5 | Cap per case. |
@@ -40,7 +40,7 @@ Change them with `sam deploy --parameter-overrides Planner=rules`.
 
 ```bash
 URL=$(aws cloudformation describe-stacks --stack-name civicproof --query "Stacks[0].Outputs[?OutputKey=='AppUrl'].OutputValue" --output text)
-curl "$URL/api/health"            # runtime: store=dynamodb, blobs=s3, planner=bedrock
+curl "$URL/api/health"            # runtime: store=dynamodb, blobs=s3, planner=gemini
 ```
 
 Then open the URL, report something on a PMGSY road (e.g. near Kodathi, off Sarjapur Road) and watch the investigation stream.
@@ -55,7 +55,7 @@ fields @timestamp, event, caseId, engine, verifiedOfficial, inputTokens, outputT
 
 ## Cost notes
 
-- Lambda, DynamoDB on-demand, S3, Textract (only for scanned uploads) and CloudWatch at demo volumes: cents.
+- Lambda, DynamoDB on-demand, S3 and CloudWatch at demo volumes: cents. Textract is billed only where it is enabled; it is not enabled in this deployment.
 - Bedrock is the variable: one investigation is roughly 15–25 model turns over a small corpus, and each turn re-sends the conversation. Prompt caching is on (tools, system prompt and conversation prefix), so repeated context is billed at the cache-read rate. Run `CIVICPROOF_PLANNER=bedrock npm run eval` once to see real token counts, use `MaxRunsPerDay` to cap spend, or `Planner=rules` for a zero-model deployment.
 
 ## Troubleshooting

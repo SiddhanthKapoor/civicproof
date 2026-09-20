@@ -6,6 +6,8 @@ Report a damaged road. CivicProof finds the public-works project at that spot, r
 
 Built for **First Commit** (WeMakeDevs × AWS, 17–20 Sep 2026).
 
+**Live on AWS:** https://gzsydwsdj32igzrbxprwl6ba7y0oyzif.lambda-url.ap-south-1.on.aws/ — deployed in `ap-south-1` (Lambda Function URL, DynamoDB, S3, Amazon Location, Secrets Manager, CloudWatch). The investigator there runs **Google Gemini**.
+
 ![CivicProof case page: a report linked to a PMGSY road, with verified contractor, completion date and maintenance window](docs/screenshots/case.png)
 
 ---
@@ -52,7 +54,7 @@ Residents and resident welfare associations, ward volunteers, local journalists 
 | Project locations | PMGSY-III roads: official GeoSadak GIS (128 roads). City roads: traced from OpenStreetMap by road name and labelled approximate. Older PMGSY roads have no published map line: they are found by name. |
 | Live records | The investigator can **search and fetch records from the government's PMGSY portal (OMMAS) at run time**, for any Karnataka district. Each fetched record is archived with its URL, retrieval time and SHA-256, and quoted and verified like the bundled ones. |
 | Demo reports | **Illustrative.** Seven seeded reports show the workflow. They are marked "Demo report" everywhere; nobody filed them anywhere. |
-| AI investigation | Real Strands agent + Cedar + verifier. With a Gemini key it runs **Google Gemini** (tested live: on the Kodathi road it linked the right project and verified the contractor, work order date, 5-year maintenance period and costs from the OMMAS pages); on AWS it can run a model on **Amazon Bedrock** instead. With neither, a **rules planner** drives the same tools by replaying curated extractions, and the UI says so. |
+| AI investigation | Real Strands agent + Cedar + verifier. With a Gemini key it runs **Google Gemini** (tested live: on the Kodathi road it linked the right project and verified the contractor, work order date, 5-year maintenance period and costs from the OMMAS pages); a model on **Amazon Bedrock** is supported in code but disabled in this deployment (the account is not yet Bedrock-verified). With neither, a **rules planner** drives the same tools by replaying curated extractions, and the UI says so. |
 
 Details: [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).
 
@@ -96,12 +98,12 @@ Each service does a job the product needs; none is there for show.
 
 | Service | Role |
 |---|---|
-| **Amazon Bedrock (Amazon Nova)** | When Gemini runs out of quota or stays overloaded, the investigation **continues on Nova mid-run**, keeping the project it selected and the facts it verified. With `Planner=bedrock`, Nova runs the whole investigation. |
+| **Amazon Bedrock (Amazon Nova)** | *Implemented and tested locally; **switched off in this deployment**, because the AWS account is still being verified and returns `Operation not allowed` for Bedrock.* When enabled, a Gemini run that loses its model **continues on Nova mid-run**, keeping the project it selected and the facts it verified. With `Planner=bedrock`, Nova runs the whole investigation. |
 | **Strands Agents** (AWS open source) | The agent loop, the Gemini and Bedrock model providers, retries, lifecycle hooks and the Cedar intervention. |
 | **Cedar** (AWS open source) | Two policy sets: every agent tool call (including which live records it may fetch, and how many), and every change to a case. |
 | **AWS Lambda** | Next.js standalone server behind a **Function URL in response-streaming mode**, via the Lambda Web Adapter, so the agent's steps stream to the browser live. |
 | **Amazon S3** | Report photos, packet PDFs, and the **archive of public records the agent fetches live**, each stored with its URL, retrieval time and SHA-256 so a citation keeps pointing at the same bytes. Private, SSE, TLS-only. |
-| **Amazon Textract** | OCR for scanned uploads (RTI replies usually come back as scanned letters), so the investigator can quote them. |
+| **Amazon Textract** | OCR for scanned uploads (RTI replies usually come back as scanned letters), so the investigator can quote them. *Implemented and tested against a local stand-in; **not enabled in this deployment** — the account is not subscribed to Textract yet.* |
 | **Amazon Location Service** | Address search on the report form, and the **road name at a report's pin**, which is how government records identify places. |
 | **Amazon DynamoDB** | Cases (single table, optimistic locking), daily investigation budget counters with TTL. |
 | **AWS Secrets Manager** | The Gemini API key; the function's role can read that one secret and nothing else. |
@@ -119,7 +121,7 @@ flowchart LR
   end
   U --> API
   AG --> GM[Gemini]
-  AG -. fallback .-> BR[Amazon Bedrock · Nova]
+  AG -. fallback, off in this deployment .-> BR[Amazon Bedrock · Nova]
   T -- fetch live records --> P[OMMAS<br/>PMGSY road lists]
   T --> S3[(S3<br/>photos · PDFs · record archive)]
   API --> DDB[(DynamoDB)]
@@ -137,7 +139,7 @@ Requirements: Node.js 22+ (developed on 24).
 ```bash
 npm install
 npm run ingest      # extract page text, check SHA-256s, re-verify all curated quotations
-npm run seed        # six labelled demo reports (local JSON store)
+npm run seed        # seven labelled demo reports (local JSON store)
 npm run dev         # http://localhost:3000
 ```
 
@@ -183,7 +185,7 @@ The suites cover the verifier (amounts, dates, durations, fabricated citations, 
 
 ## Deploy to AWS
 
-Requirements: AWS CLI and SAM CLI, credentials for an account with Amazon Bedrock model access in your region.
+Requirements: AWS CLI and SAM CLI, and either a Gemini key (the path this deployment uses) or an account with Amazon Bedrock model access.
 
 ```bash
 ./scripts/deploy.sh
@@ -196,7 +198,7 @@ This builds the Next.js standalone server into `.lambda/`, validates `infra/temp
 ```
 src/lib/agent/      tools, rules planner, verifier, guards, finalize, orchestrator (Strands + Cedar)
 src/lib/            schemas (Zod), case service, packets, PDF, storage (local/DynamoDB, local/S3), authz
-src/app/            pages (report, cases, case dossier, packet editor, records, projects, method) and API routes
+src/app/            pages (report, cases, case dossier, packet editor, /sources, /projects/[id], /how-it-works) and API routes
 policies/           Cedar policies for the agent and for case actions
 corpus/             manifest, curated project records, authorities, source documents, geometry
 infra/              AWS SAM template
@@ -212,7 +214,7 @@ docs/               architecture, agent, data sources, security, deploy, demo sc
 - City road alignments are approximate; the tenders' key maps have not been digitised.
 - PMGSY maintenance windows use the programme guideline's 5-year rule and the recorded completion date; individual contracts were not available.
 - Submission is manual: there is no supported government API to file into, so CivicProof drafts and tracks.
-- Scanned uploads are OCR'd with Amazon Textract on AWS; locally (no AWS) they are stored but can't be quoted. Scanned documents in the shared corpus are not OCR'd.
+- Scanned uploads are OCR'd with Amazon Textract where it is enabled; it is **not** enabled in this deployment (account not subscribed), and locally they are stored but can't be quoted. Scanned documents in the shared corpus are not OCR'd.
 - No accounts: an owner key in the browser proves you filed a report.
 - Real model runs are only as good as the model's reading: in live Gemini runs it has recorded a financial completion date as the completion date, and dropped units to pass the verifier. Both are now handled in code (field guide, unit notes read from the cited page, deterministic clean-up), but a model can still miss facts the rules planner's curated extractions contain.
 - On Gemini's free tier, runs pause for rate limits and fail cleanly when the daily quota or Google's capacity runs out.
