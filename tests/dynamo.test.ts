@@ -105,4 +105,22 @@ describe("DynamoCaseStore", () => {
     const values = await Promise.all(Array.from({ length: 4 }, () => store.increment("runs:test", 60)));
     expect(values.sort()).toEqual([1, 2, 3, 4]);
   });
+
+  it("deletes a case, drops it from the listing, and is quiet about one that is already gone", async () => {
+    // Only `npm run seed --reset` deletes, so the risk is not under-deleting but over-deleting:
+    // a delete must take exactly the row named and leave its neighbours intact.
+    await store.create(makeCase("CP-AAAA-0003", "2026-09-18T03:00:00.000Z"));
+    expect((await store.list()).map((c) => c.id)).toContain("CP-AAAA-0003");
+
+    await store.delete("CP-AAAA-0003");
+    expect(await store.get("CP-AAAA-0003")).toBeNull();
+    const after = (await store.list()).map((c) => c.id);
+    expect(after).not.toContain("CP-AAAA-0003");
+    expect(after).toContain("CP-AAAA-0001"); // the neighbours survive
+    expect(after).toContain("CP-AAAA-0002");
+
+    // Idempotent: reseeding must not fail because a case vanished between the listing and the delete.
+    await expect(store.delete("CP-AAAA-0003")).resolves.toBeUndefined();
+    await expect(store.delete("CP-ZZZZ-9999")).resolves.toBeUndefined();
+  });
 });

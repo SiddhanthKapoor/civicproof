@@ -11,6 +11,7 @@ import { wordCount } from "@/lib/packet-text";
 import { buildRti } from "@/lib/packet";
 import { getCorpus } from "@/lib/corpus";
 import { toPublicCase } from "@/lib/schemas";
+import { whyItMatters } from "@/lib/agent/determination";
 
 let createCase: typeof import("@/lib/cases").createCase;
 let savePacket: typeof import("@/lib/cases").savePacket;
@@ -448,6 +449,60 @@ describe("golden cases", () => {
     expect(done.investigation!.missing.some((m) => m.field === "completion_date")).toBe(true);
   });
 
+  it("Golden Case C: one work number carried by three works stays UNVERIFIED, with all three offered", async () => {
+    // Ward 119: the civil work, its design report and its supervision contract share a job number.
+    // Preferring one of them would be a guess dressed as identification.
+    const { caseData } = await createCase(
+      { ...base, title: "Broken road surface and missing drain covers in Ward 119", category: "pothole", lat: 12.9716, lng: 77.5946, jobCode: "119-23-000003" } as never,
+      [{ bytes: fixtureImage(), meta: { width: 1024, height: 768 }, credit: "Generated fixture image, not a photograph" }] as never,
+    );
+    await runInvestigation(caseData.id, () => {}, { demoObservation: OBSERVATION });
+    const done = (await getStore().get(caseData.id))!;
+    const d = done.investigation!.determination!;
+
+    expect(d.identity.value).toBe("CODE_MATCHES_MULTIPLE_PROJECTS");
+    expect(d.identity.registryMatches).toBe(3);
+    expect(d.identity.candidateProjectIds).toHaveLength(3);
+    // The defect is still read from the photograph — it is the project, not the damage, that is unsettled.
+    expect(d.fieldCondition.value).toBe("DEFECT_OBSERVED");
+    expect(d.overall.value).toBe("UNVERIFIED");
+    expect(d.requiresHumanReview).toBe(true);
+    // No project is selected, so no contractor or period is attributed to this report.
+    expect(done.investigation!.selectedProjectId).toBeUndefined();
+    expect(d.contractualStatus.value).toBe("UNKNOWN");
+  });
+
+  it("Golden Case D: a period that has ended reads as EXPIRED, and never as a finding against anyone", async () => {
+    // KN02120, Devanahalli block: OMMAS records completion on 01-06-2021 and a five-year period, so
+    // the window closed on 2026-06-01 — before this report. The case must say so and stop.
+    const { caseData } = await createCase(
+      { ...base, title: "Broken surface on the Boodihal–Channahalli road near Devanahalli", category: "road_damage", lat: 13.2073, lng: 77.74985, jobCode: "KN02120" } as never,
+      [{ bytes: fixtureImage(), meta: { width: 1024, height: 768 }, credit: "Generated fixture image, not a photograph" }] as never,
+    );
+    await runInvestigation(caseData.id, () => {}, { demoObservation: OBSERVATION });
+    const done = (await getStore().get(caseData.id))!;
+    const d = done.investigation!.determination!;
+
+    expect(d.identity.value).toBe("VERIFIED");
+    expect(d.contractualStatus.value).toBe("EXPIRED");
+    expect(d.contractualStatus.windowEnd).toBe("2026-06-01");
+    expect(d.contractualStatus.observationInsideWindow).toBe(false);
+    expect(d.fieldCondition.value).toBe("DEFECT_OBSERVED");
+    expect(d.scopeRelationship.value).toBe("POTENTIALLY_RELATED");
+    expect(d.overall.value).toBe("SUPPORTED");
+    // An expired period is not a problem to escalate, and not an accusation either: nobody is asked
+    // to review it, because there is nothing unsettled left for a person to settle.
+    expect(d.requiresHumanReview).toBe(false);
+
+    // Why it matters still has to be honest about what a citizen can do with an expired period.
+    const s = whyItMatters(d, done.investigation!.claims);
+    expect(s.findings[0].text).toMatch(/defect-liability period ended on 1 Jun 2026/);
+    expect(s.consequence).toMatch(/can still be reported to the authority/);
+    expect(s.boundary).toBe("This does not establish contractor fault, causation, negligence, or legal liability.");
+    const text = JSON.stringify({ d, s }).replace(/does not establish contractor fault, causation, negligence, or legal liability/g, "");
+    expect(text).not.toMatch(/\bcaused\b|\bat fault\b|\bliable\b|\bnegligen|\bbreach\b/i);
+  });
+
   it("a recorded observation is refused when the deterministic image gate fails", async () => {
     // 64x64 is below the resolution floor: the model's opinion must not rescue it.
     const { caseData } = await createCase(
@@ -459,6 +514,30 @@ describe("golden cases", () => {
     expect(d.fieldCondition.value).toBe("INSUFFICIENT_EVIDENCE");
     expect(d.fieldCondition.reason).toMatch(/short edge|not sufficient/);
     expect(d.overall.value).toBe("UNKNOWN");
+  });
+});
+
+describe("removing a case from the local store", () => {
+  // Only `npm run seed -- --reset` deletes. The risk is over-deleting, so this pins that a delete
+  // takes the case named and nothing else, and that a second delete is not an error — a reseed must
+  // not fail because a case vanished between listing it and removing it.
+  it("takes the case named, leaves its neighbours, and is idempotent", async () => {
+    const store = getStore();
+    const a = (await createCase({ ...base, title: "Case to delete", lat: 12.894573, lng: 77.71297 }, [])).caseData;
+    const b = (await createCase({ ...base, title: "Case to keep", lat: 12.894573, lng: 77.71297 }, [])).caseData;
+
+    await store.delete(a.id);
+    expect(await store.get(a.id)).toBeNull();
+    expect(await store.get(b.id)).not.toBeNull();
+    const ids = (await store.list()).map((c) => c.id);
+    expect(ids).not.toContain(a.id);
+    expect(ids).toContain(b.id);
+
+    await expect(store.delete(a.id)).resolves.toBeUndefined();
+    await expect(store.delete("CP-NOPE-0000")).resolves.toBeUndefined();
+    // A malformed id is rejected rather than turned into a path, and does not remove anything.
+    await expect(store.delete("../../etc/passwd")).rejects.toThrow();
+    expect(await store.get(b.id)).not.toBeNull();
   });
 });
 
@@ -524,8 +603,12 @@ describe("the case lifecycle after the citizen files it", () => {
 
   it("keeps the whole history, in the order things happened", async () => {
     const { id, ownerKey } = await file("Lifecycle: the record reads as a record");
-    await recordTimeline(id, ownerKey, { type: "complaint_submitted", channel: "CPGRAMS", referenceNumber: "REF-1", date: "2026-09-19", packet: "complaint" });
-    await recordTimeline(id, ownerKey, { type: "response_received", date: "2026-09-25", notes: "Acknowledged." });
+    // Dated relative to the report, not to a calendar day: a submission can only follow the report
+    // that produced it, and a fixture pinned to a fixed date silently inverts once that date passes.
+    const reportedOn = (await getStore().get(id))!.reportedAt.slice(0, 10);
+    const daysAfter = (n: number) => new Date(Date.parse(reportedOn + "T00:00:00Z") + n * 86400_000).toISOString().slice(0, 10);
+    await recordTimeline(id, ownerKey, { type: "complaint_submitted", channel: "CPGRAMS", referenceNumber: "REF-1", date: daysAfter(1), packet: "complaint" });
+    await recordTimeline(id, ownerKey, { type: "response_received", date: daysAfter(7), notes: "Acknowledged." });
     await recordTimeline(id, ownerKey, { type: "status_changed", toStatus: "inspection_reported", notes: "Engineer visited 30 Sep." });
 
     const c = (await getStore().get(id))!;

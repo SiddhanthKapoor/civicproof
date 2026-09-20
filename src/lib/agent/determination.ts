@@ -9,6 +9,7 @@
 import type { Case, Claim, Determination, Evidence } from "@/lib/schemas";
 import { CLAIM_FIELD_LABELS } from "@/lib/schemas";
 import type { Corpus, Project } from "@/lib/corpus";
+import { fmtDate } from "./text";
 
 /** What the photo call reported, when a vision model ran. */
 export interface PhotoObservation {
@@ -330,4 +331,107 @@ export function humanReviewReasons(d: Determination, claims: Claim[]): Array<{ w
     });
   }
   return out;
+}
+
+// ---------------------------------------------------------------------------
+// Why it matters — the practical significance of what was established
+// ---------------------------------------------------------------------------
+
+/** The no-fault boundary, stated verbatim wherever significance is stated. */
+export const NO_FAULT_BOUNDARY = "This does not establish contractor fault, causation, negligence, or legal liability.";
+
+export interface Significance {
+  /**
+   * One sentence per axis that the evidence actually settled, each carrying the claims it rests on
+   * so a reader can open the cited page. An axis that was not established contributes nothing.
+   */
+  findings: Array<{ text: string; basedOnClaimIds: string[] }>;
+  /** What the combination of those findings makes appropriate to do — never who is at fault. */
+  consequence: string;
+  /** Always `NO_FAULT_BOUNDARY`. Present on the type so no caller can render `consequence` alone. */
+  boundary: string;
+}
+
+/**
+ * Why the determination matters in practice, composed in code from the determination itself.
+ *
+ * Every sentence is gated on an axis whose value the evidence settled, and carries the claim ids
+ * that settled it — so this is a restatement of verified evidence, not an interpretation layered on
+ * top of it. Nothing here is model output, and `consequence` says what the evidence makes
+ * *appropriate to do*, never what anyone did wrong: the strongest thing it will ever say is that a
+ * matter warrants inspection by the authority.
+ */
+export function whyItMatters(d: Determination, claims: Claim[]): Significance {
+  const findings: Significance["findings"] = [];
+  const has = (id: string) => claims.some((c) => c.id === id);
+  const ids = (xs: string[] | undefined) => (xs ?? []).filter(has);
+
+  if (d.identity.value !== "VERIFIED") {
+    findings.push({ text: "No public-works project has been established for the reported location.", basedOnClaimIds: [] });
+  }
+
+  // ACTIVE and EXPIRED are only ever returned with the computed end date, but the date is stated
+  // conditionally rather than asserted: a stored determination that somehow lacks it must still
+  // read as a sentence, not as "Invalid Date".
+  const end = d.contractualStatus.windowEnd;
+  if (d.contractualStatus.value === "ACTIVE") {
+    findings.push({
+      text: `The project record shows that the work is within its recorded defect-liability period${end ? `, which runs to ${fmtDate(end)}` : ""}.`,
+      basedOnClaimIds: ids(d.contractualStatus.basedOnClaimIds),
+    });
+  } else if (d.contractualStatus.value === "EXPIRED") {
+    findings.push({
+      text: end
+        ? `The project record shows that the work's recorded defect-liability period ended on ${fmtDate(end)}.`
+        : "The project record shows that the work's recorded defect-liability period has ended.",
+      basedOnClaimIds: ids(d.contractualStatus.basedOnClaimIds),
+    });
+  }
+
+  const observation = claims.find((c) => c.field === "photo_observation");
+  if (d.fieldCondition.value === "DEFECT_OBSERVED") {
+    findings.push({
+      text: "The submitted photograph shows a visible defect in the surface at the reported location.",
+      basedOnClaimIds: observation ? [observation.id] : [],
+    });
+  } else if (d.fieldCondition.value === "NO_DEFECT_OBSERVED") {
+    findings.push({
+      text: "The submitted photograph was examined and does not show damage to public infrastructure.",
+      basedOnClaimIds: observation ? [observation.id] : [],
+    });
+  }
+
+  if (d.scopeRelationship.value === "POTENTIALLY_RELATED") {
+    findings.push({
+      text: "The project record also documents work covering the reported road section.",
+      basedOnClaimIds: ids(d.scopeRelationship.basedOnClaimIds),
+    });
+  } else if (d.scopeRelationship.value === "NOT_ESTABLISHED") {
+    findings.push({
+      text: "The project's recorded scope describes work of a different kind from the condition reported here.",
+      basedOnClaimIds: ids(d.scopeRelationship.basedOnClaimIds),
+    });
+  }
+
+  return { findings, consequence: CONSEQUENCE(d), boundary: NO_FAULT_BOUNDARY };
+}
+
+/**
+ * What the reader can do with the result. One sentence per overall state, and for SUPPORTED one
+ * per sub-case, because "nothing to raise" and "raise it, but outside the maintenance period" are
+ * different instructions to a citizen.
+ */
+function CONSEQUENCE(d: Determination): string {
+  switch (d.overall.value) {
+    case "POTENTIAL_ISSUE":
+      return "This makes the issue appropriate for authority inspection under the project's documented maintenance context.";
+    case "SUPPORTED":
+      return d.fieldCondition.value === "NO_DEFECT_OBSERVED"
+        ? "There is nothing here to put to the authority as a maintenance question: the records are in order and the photograph shows no damage."
+        : "The defect can still be reported to the authority as a maintenance issue, but the records place it outside the project's recorded defect-liability period, so it does not fall within that period's maintenance context.";
+    case "UNKNOWN":
+      return "One of the records this rests on is not established, so the case cannot yet be put to the authority as a maintenance question. The open questions below name the record that would settle it, and the RTI draft requests it.";
+    case "UNVERIFIED":
+      return "Until the project is established, nothing can be said about any project's recorded obligations. The report can still be sent to the local authority as a civic complaint about the condition of the road.";
+  }
 }

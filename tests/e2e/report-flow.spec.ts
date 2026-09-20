@@ -36,11 +36,18 @@ test("report → case → live investigation → packet", async ({ page }) => {
   // Place the pin by clicking the map (the map starts centred on Bengaluru; the test then sets it exactly).
   const map = page.getByRole("region", { name: "Choose the location of the issue" });
   await expect(map.locator("canvas")).toBeVisible({ timeout: 20_000 });
+  // The canvas exists before MapLibre finishes loading and attaches its click handlers, so waiting
+  // on the canvas alone can click a map that is not listening yet — which fails here, intermittently
+  // and only under parallel load. MapView hides its own "Loading map…" overlay on the load event,
+  // so that is the signal to wait for.
+  await expect(map.getByText("Loading map…")).toHaveCount(0, { timeout: 20_000 });
   await map.click({ position: { x: 200, y: 150 } });
   await expect(page.getByText(/placed on map/)).toBeVisible();
 
   await page.getByRole("button", { name: "Create case" }).click();
   await page.waitForURL(/\/cases\/CP-/);
+  // That this notice does not wait on a round trip is pinned separately, by the test that blocks the
+  // case API and still expects it — here the page is simply loading under whatever else is running.
   await expect(page.getByText("Case created. Keep your owner key.")).toBeVisible();
   // The investigation starts on its own and finishes (rules planner locally).
   await expect(page.getByText(/Agent run|Agent running/)).toBeVisible({ timeout: 20_000 });
@@ -50,6 +57,49 @@ test("report → case → live investigation → packet", async ({ page }) => {
   await page.goto(caseUrl.replace(/[?#].*$/, "") + "/packet?kind=rti");
   await expect(page.getByRole("heading", { name: "RTI application" })).toBeVisible();
   await expect(page.getByLabel("Subject")).toHaveValue(/Section 6\(1\)/);
+});
+
+test("the owner key notice survives a navigation that drops the URL fragment", async ({ page, request }) => {
+  // The report form pushes here with the key in the fragment, but that fragment does not always
+  // survive the client-side navigation — measured: it arrives on a freshly started server and is
+  // dropped on a warm one. The key is in this browser either way, so `?new=1` plus the stored key
+  // is what has to carry the notice. Without that, a reporter is silently never shown their key.
+  const form = {
+    title: "Fragment-less arrival check", description: "Arriving at a fresh case without the fragment the report form meant to send.",
+    category: "pothole", lat: "12.894573", lng: "77.71297", locationSource: "map_pin", observedOn: "2026-09-15",
+  };
+  const { id, ownerKey } = (await (await request.post("/api/cases", { multipart: form })).json()) as { id: string; ownerKey: string };
+
+  await page.goto("/");
+  await page.evaluate(([i, k]) => localStorage.setItem(`civicproof:owner:${i}`, k), [id, ownerKey]);
+  await page.goto(`/cases/${id}?new=1`); // no #k=… : the fragment was lost on the way here
+
+  await expect(page.getByText("Case created. Keep your owner key.")).toBeVisible();
+  await expect(page.getByText(ownerKey, { exact: false })).toBeVisible();
+  // And the marker is cleaned off, so a reload or a shared link does not replay the notice.
+  await expect.poll(() => new URL(page.url()).search).toBe("");
+});
+
+test("the owner key notice never waits on the network to appear", async ({ page, request }) => {
+  // The key is shown once, and the URL that carried it is rewritten immediately afterwards. So the
+  // notice has to render from the key the report itself returned. Holding the confirming request
+  // open past the deadline is the direct test of that: it fails if the notice waits on a round trip.
+  const form = {
+    title: "Owner key notice check", description: "Checking that the owner key is shown without waiting on a request.",
+    category: "pothole", lat: "12.894573", lng: "77.71297", locationSource: "map_pin", observedOn: "2026-09-15",
+  };
+  const { id, ownerKey } = (await (await request.post("/api/cases", { multipart: form })).json()) as { id: string; ownerKey: string };
+
+  await page.route(`**/api/cases/${id}`, async (route) => {
+    await new Promise((r) => setTimeout(r, 8_000));
+    await route.continue();
+  });
+
+  await page.goto(`/cases/${id}?new=1#k=${encodeURIComponent(ownerKey)}`);
+  await expect(page.getByText("Case created. Keep your owner key.")).toBeVisible({ timeout: 5_000 });
+  await expect(page.getByText(ownerKey, { exact: false })).toBeVisible({ timeout: 5_000 });
+  // And the key is out of the URL, so the notice is the only place it is still on screen.
+  expect(page.url()).not.toContain(ownerKey);
 });
 
 test("pages render without console errors", async ({ page }) => {
@@ -77,7 +127,9 @@ test("reporter adds an RTI reply; only they can read it", async ({ page, request
   await page.getByRole("button", { name: "Add document" }).click();
   await expect(page.getByText(/pages? of text are now available/)).toBeVisible();
 
-  await page.getByRole("link", { name: "Read" }).click();
+  // exact: Playwright matches an accessible name by substring, and a nearby case card carrying the
+  // status "Ready for submission" would otherwise match too.
+  await page.getByRole("link", { name: "Read", exact: true }).click();
   await expect(page.getByRole("heading", { name: "PIO reply with quality grades" })).toBeVisible();
   await expect(page.getByText("Works Wise Grading Abstract")).toBeVisible();
 
@@ -161,8 +213,22 @@ test("an active DLP is shown in full, and never as a finding about a person", as
     dlp.getByText(/An active DLP provides contractual\/maintenance context\. It does not by itself establish who is responsible for the observed defect\./),
   ).toBeVisible();
 
-  // An open period is never turned into blame anywhere on the page.
-  const body = (await page.locator("body").textContent()) ?? "";
+  // WHY IT MATTERS: the practical significance of the same evidence, and the boundary it must not
+  // cross. The three findings are each composed from an axis; the closing sentence is fixed.
+  const why = page.getByRole("region", { name: "Why it matters" });
+  await expect(why.getByText(/within its recorded defect-liability period, which runs to 5 Mar 2027/)).toBeVisible();
+  await expect(why.getByText(/photograph shows a visible defect in the surface/)).toBeVisible();
+  await expect(why.getByText(/documents work covering the reported road section/)).toBeVisible();
+  await expect(why.getByText("This makes the issue appropriate for authority inspection under the project's documented maintenance context.")).toBeVisible();
+  await expect(why.getByText("This does not establish contractor fault, causation, negligence, or legal liability.")).toBeVisible();
+
+  // An open period is never turned into blame anywhere on the page. The one sentence that names
+  // those terms does so to deny them, and is removed before the check — everywhere else they stay
+  // banned outright, including the words this denial adds to the page.
+  const body = ((await page.locator("body").textContent()) ?? "").replace(
+    /This does not establish contractor fault, causation, negligence, or legal liability\./g,
+    "",
+  );
   expect(body).not.toMatch(/\bcaused\b|\bat fault\b|\bliable\b|\bnegligen|\bbreach of contract\b/i);
 });
 
@@ -180,7 +246,8 @@ test("the photograph is kept separate from the public record, and an unusable on
   await expect(panel.getByText(/does not establish who is responsible for that condition/)).toBeVisible();
 
   // A case with no photograph: nothing is read from it, and nothing is concluded about the ground.
-  const noPhoto = rows.find((c) => c.title === "Potholes on the inner road in BTM Layout")!;
+  // Demo case F is the set's deliberate no-photograph case — every other demo carries the fixture.
+  const noPhoto = rows.find((c) => c.title === "Surface breaking up on the Hebbagodi–Hulimangala road")!;
   await page.goto(`/cases/${noPhoto.id}`);
   const panel2 = page.getByRole("region", { name: "Photograph and citizen observation" });
   await expect(panel2.getByText("None submitted")).toBeVisible();
@@ -230,6 +297,7 @@ test("the case page reads in the order a citizen needs it", async ({ page, reque
     "Defect liability / maintenance period",
     "Scope relationship",
     "What the evidence establishes",
+    "Why it matters",
     "What to do next",
     "Tracking",
     "How this was investigated",
@@ -247,6 +315,124 @@ test("the case page reads in the order a citizen needs it", async ({ page, reque
   for (const kind of ["Verified fact", "Citizen observation", "System determination", "Missing evidence", "Human review required"]) {
     await expect(page.getByText(kind, { exact: false }).first()).toBeVisible();
   }
+});
+
+test("the home page is the way in: every demo case, its outcome, and a first one to open", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: /Seven cases\. Seven different answers\./ })).toBeVisible();
+
+  // Each row carries its letter, its title and what the evidence established — the outcome, not only
+  // where the case sits in the workflow. One row per demo case, each one a link.
+  const rows = page.locator("li", { has: page.getByRole("link", { name: /Demo|road|Road|Ward/ }) });
+  for (const [letter, title, outcome] of [
+    ["A", "Potholes along the Kodathi–Mullur road", "Potential contractual issue"],
+    ["B", "Potholes on Thimmaiah Road near Kamaraj Road", "Unknown — evidence is incomplete"],
+    ["C", "Broken road surface and missing drain covers in Ward 119", "Project not established"],
+    ["D", "Broken surface on the Boodihal–Channahalli road near Devanahalli", "Supported by the records"],
+  ] as const) {
+    const row = rows.filter({ hasText: title }).first();
+    await expect(row, `demo case ${letter} should be listed`).toBeVisible();
+    await expect(row.getByText(letter, { exact: true })).toBeVisible();
+    await expect(row.getByText(outcome, { exact: true })).toBeVisible();
+  }
+
+  // And the first step of the demo is one click: open case A.
+  await page.getByRole("link", { name: /Open case A/ }).click();
+  await page.waitForURL(/\/cases\/CP-/);
+  await expect(page.getByRole("region", { name: "What the evidence establishes" }).getByText("Potential contractual issue", { exact: true })).toBeVisible();
+  await expect(page.getByText(/^Demo case A — /)).toBeVisible();
+});
+
+test("the demo set shows four different evidence states, each with its own outcome", async ({ page, request }) => {
+  // The demo is the product's argument: that these outcomes are read off the records rather than
+  // arranged. So the four states have to be visibly different on the page, not just in the data.
+  const cases = (await (await request.get("/api/cases")).json()) as { cases?: Array<{ id: string; title: string }> } | Array<{ id: string; title: string }>;
+  const rows = Array.isArray(cases) ? cases : (cases.cases ?? []);
+
+  const set = [
+    { match: /Kodathi–Mullur/, verdict: "Potential contractual issue", dlp: "DLP STATUS: ACTIVE", review: true },
+    { match: /Thimmaiah Road/, verdict: "Unknown — evidence is incomplete", dlp: "DLP STATUS: UNKNOWN", review: false },
+    { match: /Ward 119/, verdict: "Project not established", dlp: "DLP STATUS: UNKNOWN", review: true },
+    { match: /Boodihal–Channahalli/, verdict: "Supported by the records", dlp: "DLP STATUS: EXPIRED", review: false },
+  ];
+
+  for (const c of set) {
+    const row = rows.find((r) => c.match.test(r.title));
+    expect(row, `a demo case matching ${c.match} should be seeded`).toBeTruthy();
+    await page.goto(`/cases/${row!.id}`);
+
+    // Scoped: the evidence chain's last node names the verdict too, which is the point of the chain.
+    await expect(page.getByRole("region", { name: "What the evidence establishes" }).getByText(c.verdict, { exact: true })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Defect liability / maintenance period" }).getByText(c.dlp)).toBeVisible();
+    // The legend names "Human review required" on every case, so the thing to assert is the block
+    // that only appears when a person is actually being asked — with its reason attached.
+    await expect(page.getByText("Why a person needs to look")).toHaveCount(c.review ? 1 : 0);
+
+    // Every case says on the page what it is there to demonstrate, and that it is a demo.
+    await expect(page.getByText(/^Demo case [A-G] — /)).toBeVisible();
+
+    // And none of them turns a contractual state into a finding about a person.
+    const body = ((await page.locator("body").textContent()) ?? "").replace(
+      /This does not establish contractor fault, causation, negligence, or legal liability\./g,
+      "",
+    );
+    expect(body, `${row!.title} names blame`).not.toMatch(/\bcaused\b|\bat fault\b|\bliable\b|\bnegligen|\bbreach of contract\b/i);
+  }
+
+  // Case D is the one that must not read as an accusation: the obligation simply ended.
+  const expired = rows.find((r) => /Boodihal–Channahalli/.test(r.title))!;
+  await page.goto(`/cases/${expired.id}`);
+  const why = page.getByRole("region", { name: "Why it matters" });
+  await expect(why.getByText(/defect-liability period ended on 1 Jun 2026/)).toBeVisible();
+  await expect(why.getByText(/can still be reported to the authority as a maintenance issue/)).toBeVisible();
+
+  // A finished run never reads as an active one. C and G stay in `investigating` on purpose — their
+  // identity was never established — so the pill has to say the run happened, not that it is running.
+  await page.goto("/cases");
+  for (const title of ["Broken road surface and missing drain covers in Ward 119", "Broken paving and a sunken patch on Lavelle Road"]) {
+    const row = page.locator("li", { hasText: title }).first();
+    await expect(row.getByText("Investigated", { exact: true })).toBeVisible();
+  }
+  // "Investigating" survives only in the map's status legend, never on a case whose run has ended.
+  await expect(page.locator("li").getByText("Investigating", { exact: true })).toHaveCount(0);
+
+  // Case C keeps the ambiguity visible rather than resolving it quietly.
+  const ambiguous = rows.find((r) => /Ward 119/.test(r.title))!;
+  await page.goto(`/cases/${ambiguous.id}`);
+  await expect(page.getByText(/matches 3 records in the registry/)).toBeVisible();
+});
+
+test("what to do next is six practical steps, and none of them is done for the citizen", async ({ page, request }) => {
+  const cases = (await (await request.get("/api/cases")).json()) as { cases?: Array<{ id: string; title: string }> } | Array<{ id: string; title: string }>;
+  const rows = Array.isArray(cases) ? cases : (cases.cases ?? []);
+  const golden = rows.find((c) => c.title === "Potholes along the Kodathi–Mullur road")!;
+  await page.goto(`/cases/${golden.id}`);
+
+  const steps = [
+    "Review the evidence",
+    "Open the official submission channel",
+    "Submit the complaint and evidence",
+    "Record the official complaint or reference number in CivicProof",
+    "Add authority responses or follow-up photographs",
+    "Track the case until an outcome is documented",
+  ];
+  for (const step of steps) await expect(page.getByRole("heading", { name: step, exact: true })).toBeVisible();
+
+  // The steps are in order, and above the routed actions that say which office the packet goes to.
+  const body = ((await page.locator("body").textContent()) ?? "").replace(/\s+/g, " ");
+  let cursor = body.indexOf("What to do next");
+  for (const step of [...steps, "Where this goes, and why"]) {
+    const at = body.indexOf(step, cursor + 1);
+    expect(at, `"${step}" should follow the step before it`).toBeGreaterThan(cursor);
+    cursor = at;
+  }
+
+  // Human-in-the-loop, stated where the citizen is told to open the portal. Nothing is filed for
+  // them, and no human-verification step is answered on their behalf.
+  await expect(page.getByText(/CivicProof does not submit on your behalf and does not complete any sign-in, consent or CAPTCHA step for you\./)).toBeVisible();
+
+  // Nothing is marked done: this seeded case has recorded no submission, and CivicProof makes none.
+  await expect(page.getByText(/^Done · /)).toHaveCount(0);
 });
 
 test("where to submit names an official channel, and leaves submitting to the citizen", async ({ page, request }) => {

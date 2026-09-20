@@ -3,6 +3,11 @@
  * Pure functions, no I/O — covered by tests/verifier.test.ts.
  */
 
+/** A date for a reader, from an ISO day. Pinned to UTC so it never shifts with the host's zone. */
+export function fmtDate(iso: string): string {
+  return new Date(iso + "T00:00:00Z").toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+}
+
 /** Canonical form for comparing an excerpt with extracted document text. */
 export function normalizeText(s: string): string {
   return s

@@ -84,11 +84,30 @@ const STATUS_STYLE: Record<CaseStatus, string> = {
   closed: "bg-paper-3 text-ink-3",
 };
 
-export function StatusPill({ status, className, live }: { status: CaseStatus; className?: string; live?: boolean }) {
+/**
+ * `investigating` covers two different situations: a run in progress, and a run that finished
+ * without establishing a project for the report (run.ts keeps the case there deliberately, because
+ * verified facts about an unestablished project say nothing about this report). Saying
+ * "Investigating" on the second reads as an active process that does not exist, so a case whose run
+ * has finished says "Investigated" and leaves what it concluded to the determination beside it.
+ */
+export function StatusPill({
+  status,
+  className,
+  live,
+  investigated,
+}: {
+  status: CaseStatus;
+  className?: string;
+  live?: boolean;
+  /** True once a run has finished on this case, whatever it concluded. */
+  investigated?: boolean;
+}) {
+  const label = status === "investigating" && investigated && !live ? "Investigated" : STATUS_LABELS[status];
   return (
     <span className={cn("inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-[12px] font-medium", STATUS_STYLE[status], className)}>
       {live && <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-current" aria-hidden />}
-      {STATUS_LABELS[status]}
+      {label}
     </span>
   );
 }

@@ -103,15 +103,28 @@ export function CaseDossier({ initial, projects, nearby = [] }: { initial: Publi
   const [runError, setRunError] = useState<string | null>(null);
   const started = useRef(false);
 
-  // Owner key: arrives in the URL fragment right after reporting (then saved), else from this browser.
+  // Owner key. The report form saves it in this browser and then pushes here with it in the URL
+  // fragment — but that fragment is dropped on some client-side navigations (measured: it survives
+  // on a freshly started server and not on a warm one, where the route has been prefetched). The
+  // `?new=1` marker survives in every case, and the key is already in storage, so that pair is what
+  // decides a report is fresh. Reading the key from storage is also the better half of the two: a
+  // fragment is never sent to the server, but a key that never enters the URL cannot leak at all.
   const storedKey = useStoredOwnerKey(initial.id);
   useEffect(() => {
     const m = window.location.hash.match(/k=([^&]+)/);
-    if (!m) return;
-    saveOwnerKey(initial.id, decodeURIComponent(m[1]));
+    const fresh = m ? decodeURIComponent(m[1]) : search.get("new") === "1" ? storedKey : null;
+    if (!fresh) return;
+    saveOwnerKey(initial.id, fresh);
     history.replaceState(null, "", window.location.pathname + window.location.search.replace(/([?&])new=1&?/, "$1").replace(/[?&]$/, ""));
-    queueMicrotask(() => setShowKey(true));
-  }, [initial.id]);
+    // Trusted straight from the report that issued it, rather than waiting for the confirming fetch
+    // below. This is the only moment the reporter is told to save the key, and the key has just been
+    // stripped from the URL — so a slow or failed round trip must not swallow the notice. Nothing is
+    // granted by holding the key here: every owner action is authorized by the server on its own.
+    queueMicrotask(() => {
+      setOwnerKey(fresh);
+      setShowKey(true);
+    });
+  }, [initial.id, search, storedKey]);
   useEffect(() => {
     if (!storedKey) return;
     let cancelled = false;
@@ -233,7 +246,7 @@ export function CaseDossier({ initial, projects, nearby = [] }: { initial: Publi
             <span className="font-mono text-ink-2">{caseData.id}</span>
           </nav>
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <StatusPill status={caseData.status} live={live.running} />
+            <StatusPill status={caseData.status} live={live.running} investigated={inv?.status === "complete"} />
             <span className="inline-flex h-6 items-center rounded-full border border-rule-strong px-2.5 text-[12px] text-ink-2">{CATEGORY_LABELS[caseData.category]}</span>
             {caseData.demo && <DemoTag />}
           </div>

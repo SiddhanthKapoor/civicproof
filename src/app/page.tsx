@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getStore } from "@/lib/store";
 import { getCorpus } from "@/lib/corpus";
 import { config } from "@/lib/config";
-import { CLAIM_FIELD_LABELS, type Claim, type Evidence } from "@/lib/schemas";
+import { CLAIM_FIELD_LABELS, OVERALL_LABELS, type Claim, type Evidence } from "@/lib/schemas";
 import { ButtonLink, Container, Eyebrow, OriginTag, VerificationBadge } from "@/components/ui";
 import { WordReveal } from "@/components/word-reveal";
 import { AnimatedGroup } from "@/components/motion-primitives/animated-group";
@@ -69,6 +69,14 @@ const STEPS = [
   },
 ];
 
+/** The same four tones the case page uses, so an outcome looks the same wherever it appears. */
+const OUTCOME_TONE: Record<keyof typeof OVERALL_LABELS, string> = {
+  POTENTIAL_ISSUE: "bg-partial-soft text-partial",
+  SUPPORTED: "bg-verified-soft text-verified",
+  UNKNOWN: "bg-missing-soft text-ink-3",
+  UNVERIFIED: "bg-missing-soft text-ink-3",
+};
+
 const STATES: Array<{ v: "verified" | "partially_verified" | "unverified" | "contradicted"; text: string }> = [
   { v: "verified", text: "The quoted words, including the value, were found on the cited page." },
   { v: "partially_verified", text: "The source exists, but the value could not be matched word for word." },
@@ -80,6 +88,10 @@ export default async function Home() {
   const corpus = getCorpus();
   const specimen = await loadSpecimen().catch(() => null);
   const cases = await getStore().list(500).catch(() => []);
+  // The demo set in label order, so "case A" on the page is case A in the seeder.
+  const demos = cases.filter((c) => c.demo && c.demoLabel).sort((a, b) => a.demoLabel!.localeCompare(b.demoLabel!));
+  // Counted, not asserted: the claim on the page has to stay true if the demo set changes.
+  const inconclusive = demos.filter((c) => c.overall === "UNKNOWN" || c.overall === "UNVERIFIED").length;
   const facts = corpus.projects.reduce((s, p) => s + p.reference.length, 0);
   const pages = corpus.documents.reduce((s, d) => s + (d.pageCount ?? 0), 0);
   const publishers = [...new Set(corpus.documents.map((d) => d.publisher.split(",")[0].split(" (")[0]))];
@@ -182,6 +194,53 @@ export default async function Home() {
           </AnimatedGroup>
         </Container>
       </section>
+
+      {/* Worked cases — the entry point. A reader who has just been told how it works can see the
+          seven states it actually produces, and open any of them. The outcome is on the row because
+          that is the product's output; the workflow status is not what a first-time reader needs. */}
+      {demos.length > 0 && (
+        <section className="border-b border-rule">
+          <Container className="grid gap-10 py-16 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:py-24 [&>*]:min-w-0">
+            <Reveal>
+              <Eyebrow>See it work</Eyebrow>
+              <h2 className="mt-4 max-w-md font-serif text-[36px] leading-[1.08] tracking-[-0.01em] sm:text-[44px]">
+                Seven cases. Seven different answers.
+              </h2>
+              <p className="mt-5 max-w-md text-[16px] leading-relaxed text-ink-2">
+                Each one is a real Bengaluru public-works record read end to end. The outcomes are not written by hand: they are
+                worked out from what the documents do and do not say, which is why {inconclusive} of these {demos.length} stop short of
+                a conclusion.
+                Start with <strong className="font-medium text-ink">A</strong> for the full chain.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <ButtonLink href={`/cases/${demos[0].id}`}>Open case {demos[0].demoLabel ?? "A"}</ButtonLink>
+                <ButtonLink href="/cases" variant="ghost">All cases on the map →</ButtonLink>
+              </div>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <ul className="divide-y divide-rule border-y border-rule">
+                {demos.map((c) => (
+                  <li key={c.id}>
+                    <Link href={`/cases/${c.id}`} className="group flex flex-wrap items-baseline gap-x-3 gap-y-1.5 py-3.5">
+                      <span className="font-mono text-[12px] text-ink-3">{c.demoLabel}</span>
+                      <span className="min-w-0 flex-1 text-[15px] leading-snug text-ink group-hover:text-accent">{c.title}</span>
+                      {c.overall && (
+                        <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[12px] ${OUTCOME_TONE[c.overall]}`}>
+                          {OVERALL_LABELS[c.overall]}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 text-[13px] text-ink-3">
+                Labelled demo reports: the descriptions are illustrative, the records they cite are real, and nothing has been filed
+                with any authority.
+              </p>
+            </Reveal>
+          </Container>
+        </section>
+      )}
 
       {/* Receipts */}
       <section className="border-b border-rule">

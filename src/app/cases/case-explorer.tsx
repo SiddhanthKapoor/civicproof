@@ -5,7 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "motion/react";
 import type { CaseSummary } from "@/lib/store/types";
-import { CATEGORY_LABELS, STATUS_LABELS, type CaseStatus } from "@/lib/schemas";
+import { CATEGORY_LABELS, OVERALL_LABELS, STATUS_LABELS, type CaseStatus } from "@/lib/schemas";
 import { Container, DemoTag, formatDate, StatusPill } from "@/components/ui";
 import { STATUS_COLOR } from "@/components/map-view";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,14 @@ const FILTERS: Array<{ id: Filter; label: string; test: (s: CaseStatus) => boole
   // outcome, not an open case.
   { id: "resolved", label: "Concluded", test: (s) => s === "resolved" || s === "disputed" || s === "closed" },
 ];
+
+/** The case page's four tones, so an outcome reads the same in the list as on the case. */
+const OUTCOME_TONE: Record<keyof typeof OVERALL_LABELS, string> = {
+  POTENTIAL_ISSUE: "bg-partial-soft text-partial",
+  SUPPORTED: "bg-verified-soft text-verified",
+  UNKNOWN: "bg-missing-soft text-ink-3",
+  UNVERIFIED: "bg-missing-soft text-ink-3",
+};
 
 export function CaseExplorer({
   cases,
@@ -123,8 +131,9 @@ export function CaseExplorer({
                   )}
                 >
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <StatusPill status={c.status} />
-                    {c.demo && <DemoTag />}
+                    <StatusPill status={c.status} investigated={Boolean(c.overall)} />
+                    {c.demoLabel && <span className="rounded-full bg-paper-3 px-2 py-0.5 font-mono text-[11.5px] text-ink-2">Demo {c.demoLabel}</span>}
+                    {c.demo && !c.demoLabel && <DemoTag />}
                     <span className="ml-auto font-mono text-[11.5px] text-ink-3">{c.id}</span>
                   </div>
                   <Link href={`/cases/${c.id}`} className="mt-2 block font-serif text-[19px] leading-snug text-ink after:absolute after:inset-0 after:rounded-2xl after:content-[''] group-hover:text-accent-ink">
@@ -134,6 +143,11 @@ export function CaseExplorer({
                     {CATEGORY_LABELS[c.category]} · observed {formatDate(c.observedOn)}
                     {c.locality ? ` · ${c.locality}` : ""}
                   </p>
+                  {c.overall && (
+                    <p className={cn("mt-2 inline-flex rounded-full px-2.5 py-0.5 text-[12.5px]", OUTCOME_TONE[c.overall])}>
+                      {OVERALL_LABELS[c.overall]}
+                    </p>
+                  )}
                   <div className="mt-3 flex items-center justify-between gap-3 border-t border-rule pt-3 text-[12.5px]">
                     <span className={cn("min-w-0 truncate", c.projectName ? "text-ink-2" : "text-ink-3")}>
                       {c.projectName ? `Project: ${c.projectName}` : "No project identified"}

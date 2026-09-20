@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import type { ClaimField, Determination, PublicCase } from "@/lib/schemas";
-import { CATEGORY_LABELS } from "@/lib/schemas";
-import { humanReviewReasons } from "@/lib/agent/determination";
+import { CATEGORY_LABELS, OVERALL_LABELS } from "@/lib/schemas";
+import { humanReviewReasons, whyItMatters } from "@/lib/agent/determination";
 import { sourceHref } from "@/components/evidence";
 import { cn } from "@/lib/utils";
 
@@ -23,24 +23,25 @@ const TONE: Record<Tone, string> = {
   accent: "bg-accent-soft text-accent",
 };
 
+// The labels come from schemas.ts so every surface that names an outcome names it identically.
 export const OVERALL: Record<Determination["overall"]["value"], { label: string; tone: Tone; blurb: string }> = {
   POTENTIAL_ISSUE: {
-    label: "Potential contractual issue",
+    label: OVERALL_LABELS.POTENTIAL_ISSUE,
     tone: "partial",
     blurb: "The records place an observed defect inside a maintenance obligation that is still open. A person must review this; it does not establish who is responsible.",
   },
   SUPPORTED: {
-    label: "Supported by the records",
+    label: OVERALL_LABELS.SUPPORTED,
     tone: "verified",
     blurb: "The project, its obligations and the condition on the ground are all established, and together they raise no open contractual question.",
   },
   UNKNOWN: {
-    label: "Unknown — evidence is incomplete",
+    label: OVERALL_LABELS.UNKNOWN,
     tone: "missing",
     blurb: "Something required is missing or unverified. CivicProof does not guess what it could not establish.",
   },
   UNVERIFIED: {
-    label: "Project not established",
+    label: OVERALL_LABELS.UNVERIFIED,
     tone: "missing",
     blurb: "Until the project this report concerns is established, nothing downstream has been assessed.",
   },
@@ -96,6 +97,8 @@ export function DeterminationCard({ caseData }: { caseData: PublicCase }) {
     .filter((c): c is NonNullable<typeof c> => Boolean(c));
   const judgedOn = caseData.investigation.finishedAt?.slice(0, 10);
   const reviewReasons = humanReviewReasons(d, claims);
+  // What the established evidence means in practice — derived from the determination, not authored.
+  const significance = whyItMatters(d, claims);
 
   // Contractor is displayed as a recorded project fact. It is deliberately not an input to the
   // verdict above: who held the contract is not evidence about who caused a defect, and gating the
@@ -487,6 +490,39 @@ export function DeterminationCard({ caseData }: { caseData: PublicCase }) {
           <p className="max-w-2xl text-[13.5px] leading-relaxed text-ink-2">{d.overall.reason}</p>
           <p className="max-w-2xl text-[12.5px] leading-relaxed text-ink-3">{overall.blurb}</p>
         </div>
+
+        {/* WHY IT MATTERS — what the established evidence means in practice. Every line is composed
+            in code from the axes above and carries the claims it rests on; the closing sentence is
+            fixed, because the significance of an open maintenance period must never be read as a
+            finding about who is at fault. */}
+        <section aria-labelledby="why-heading" className="space-y-2 border-t border-rule px-4 py-4 sm:px-5">
+          <p id="why-heading" className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3">Why it matters</p>
+          {significance.findings.length > 0 && (
+            <ul className="max-w-2xl space-y-1">
+              {significance.findings.map((f, i) => (
+                <li key={i} className="text-[13.5px] leading-relaxed text-ink-2">
+                  {f.text}
+                  {f.basedOnClaimIds.map((id) => {
+                    const c = claims.find((x) => x.id === id);
+                    const ev = (c?.evidenceIds ?? []).map((eid) => inv.evidence.find((e) => e.id === eid)).find(Boolean);
+                    return ev ? (
+                      <a
+                        key={id}
+                        href={sourceHref(ev)}
+                        className="ml-2 text-[12px] text-ink-3 underline decoration-rule-strong underline-offset-4 hover:text-accent"
+                      >
+                        {ev.sourceTitle}
+                        {ev.page !== undefined ? `, p. ${ev.page}` : ""}
+                      </a>
+                    ) : null;
+                  })}
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="max-w-2xl text-[13.5px] leading-relaxed text-ink">{significance.consequence}</p>
+          <p className="max-w-2xl rounded-lg bg-paper-2 px-3 py-2 text-[12.5px] leading-relaxed text-ink-2">{significance.boundary}</p>
+        </section>
 
         {/* Why a person is being asked to look, and what would settle it — so the flag is a request
             with a reason attached rather than a shrug. */}

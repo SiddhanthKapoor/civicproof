@@ -44,8 +44,19 @@ Parameters:
   LogRetentionDays:
     Type: Number
     Default: 30
+  Cdn:
+    Type: String
+    Default: "off"
+    AllowedValues: ["on", "off"]
+    Description: >
+      "on" puts CloudFront in front of the Function URL and serves /_next/static from the edge.
+      Every Function URL request is a Lambda invocation, so without it one page load spends ~20 of
+      them on build assets and throttles wherever account concurrency is low. Left off by default
+      because a new AWS account cannot create CloudFront distributions until it is verified, and a
+      stack that cannot be created is worse than one missing an optimisation.
 
 Conditions:
+  UseCdn: !Equals [!Ref Cdn, "on"]
   HasGeminiKey: !Not [!Equals [!Ref GeminiApiKey, ""]]
   UseBedrockFallback: !Equals [!Ref FallbackToBedrock, "true"]
   GeminiWithoutKey: !And [!Equals [!Ref Planner, "gemini"], !Not [!Condition HasGeminiKey]]
@@ -291,9 +302,63 @@ Resources:
           ]
         }
 
+  # A CDN in front of the Function URL. Every request to a Function URL is a Lambda invocation,
+  # including each of the ~15 hashed chunks a page asks for at once — which throttles the moment the
+  # account's concurrency ceiling is low, and returns 429s for assets the page cannot run without.
+  # Caching the immutable build output at the edge takes those off the function entirely; everything
+  # else is passed straight through uncached, so cases, streaming runs and owner-key requests behave
+  # exactly as they do against the function directly.
+  CdnDistribution:
+    Type: AWS::CloudFront::Distribution
+    Condition: UseCdn
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub "${AWS::StackName} — edge cache for build assets, pass-through for everything else"
+        HttpVersion: http2and3
+        IPV6Enabled: true
+        PriceClass: PriceClass_All
+        Origins:
+          - Id: FunctionUrlOrigin
+            # The Function URL's host, taken from the URL CloudFormation returns.
+            DomainName: !Select [2, !Split ["/", !GetAtt AppFunctionUrl.FunctionUrl]]
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols: [TLSv1.2]
+              OriginReadTimeout: 60
+              OriginKeepaliveTimeout: 60
+        DefaultCacheBehavior:
+          TargetOriginId: FunctionUrlOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+          CachedMethods: [GET, HEAD]
+          Compress: true
+          # CachingDisabled: pages and APIs are per-case and must never be served from a shared cache.
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+          # AllViewerExceptHostHeader: forwards x-owner-key and the rest, but keeps the origin's own
+          # Host — a Function URL rejects a request carrying the viewer's Host.
+          OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+        CacheBehaviors:
+          # Hashed, immutable build output: fetched from the function once, then served from the edge.
+          - PathPattern: /_next/static/*
+            TargetOriginId: FunctionUrlOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD]
+            Compress: true
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+          - PathPattern: /icons/*
+            TargetOriginId: FunctionUrlOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [GET, HEAD]
+            Compress: true
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+
 Outputs:
   AppUrl:
     Description: Public URL of the app
+    Value: !If [UseCdn, !Sub "https://${CdnDistribution.DomainName}/", !GetAtt AppFunctionUrl.FunctionUrl]
+  FunctionUrl:
+    Description: The Lambda Function URL itself (the CDN origin when Cdn=on)
     Value: !GetAtt AppFunctionUrl.FunctionUrl
   TableName:
     Value: !Ref CasesTable

@@ -9,10 +9,14 @@ import type { Claim, ClaimField, Determination, MissingItem, NextAction, Verific
 import { CLAIM_FIELD_LABELS } from "@/lib/schemas";
 import type { Authority } from "@/lib/corpus";
 import { detectConflicts } from "./verifier";
-import { labelledDates, parseDates, parseDurationsMonths } from "./text";
+import { fmtDate, labelledDates, parseDates, parseDurationsMonths } from "./text";
 import { determine } from "./determination";
 import { resolveIdentityFromRecord } from "./identity";
 import type { RunContext } from "./context";
+
+// The date formatter now lives in ./text, so determination.ts can use it without an import cycle.
+// Re-exported here because packet.ts and cases.ts have always read it from this module.
+export { fmtDate };
 
 /**
  * What not knowing each field blocks. Stated here, deterministically, so the explanation a citizen
@@ -63,9 +67,6 @@ function monthsBetween(a: string, b: string): number {
   return (db.getUTCFullYear() - da.getUTCFullYear()) * 12 + (db.getUTCMonth() - da.getUTCMonth()) - (db.getUTCDate() < da.getUTCDate() ? 1 : 0);
 }
 
-export function fmtDate(iso: string): string {
-  return new Date(iso + "T00:00:00Z").toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
-}
 
 /**
  * A completion date is only usable when the source says it is the *physical* completion of the

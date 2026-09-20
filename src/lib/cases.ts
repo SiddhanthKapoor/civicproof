@@ -156,7 +156,7 @@ export async function storePhoto(caseId: string, bytes: Uint8Array, meta: z.infe
 export async function createCase(
   input: NewReport,
   photos: Array<{ bytes: Uint8Array; meta: z.infer<typeof PhotoMetaSchema>; credit?: string }>,
-  opts: { demo?: boolean; demoNote?: string; reportedAt?: string } = {},
+  opts: { demo?: boolean; demoNote?: string; demoLabel?: string; reportedAt?: string } = {},
 ): Promise<{ caseData: Case; ownerKey: string }> {
   const store = getStore();
   const id = newCaseId();
@@ -190,6 +190,7 @@ export async function createCase(
     status: "reported",
     demo: opts.demo ?? false,
     demoNote: opts.demoNote,
+    demoLabel: opts.demoLabel,
     reporterName: input.reporterName || undefined,
     reporterContact: input.reporterContact || undefined,
     ownerKeyHash: sha256Hex(ownerKey),

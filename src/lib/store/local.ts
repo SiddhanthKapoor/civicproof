@@ -49,6 +49,16 @@ export class LocalCaseStore implements CaseStore {
     }
   }
 
+  async delete(id: string): Promise<void> {
+    await this.withLock(id, async () => {
+      try {
+        await fs.unlink(this.file(id));
+      } catch (e) {
+        if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
+      }
+    });
+  }
+
   async create(c: Case): Promise<void> {
     const file = this.file(c.id);
     await this.withLock(c.id, async () => {

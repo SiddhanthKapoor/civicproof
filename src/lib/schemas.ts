@@ -60,7 +60,7 @@ export const STATUS_LABELS: Record<CaseStatus, string> = {
   reported: "Reported",
   investigating: "Investigating",
   evidence_found: "Evidence found",
-  case_prepared: "Case prepared",
+  case_prepared: "Ready for submission",
   submitted: "Submitted by citizen",
   awaiting_response: "Awaiting response",
   response_received: "Authority responded",
@@ -335,6 +335,17 @@ export const CONTRACTUAL_STATUS = ["ACTIVE", "EXPIRED", "UNKNOWN"] as const;
 export const FIELD_CONDITION = ["DEFECT_OBSERVED", "NO_DEFECT_OBSERVED", "INSUFFICIENT_EVIDENCE", "HUMAN_REVIEW"] as const;
 export const SCOPE_RELATIONSHIP = ["POTENTIALLY_RELATED", "NOT_ESTABLISHED", "UNKNOWN"] as const;
 export const OVERALL_STATE = ["SUPPORTED", "POTENTIAL_ISSUE", "UNKNOWN", "UNVERIFIED"] as const;
+/**
+ * What each outcome is called in front of a reader. Kept here rather than in the case page so the
+ * list views, the evidence chain and the determination card cannot drift into naming the same
+ * outcome three different ways.
+ */
+export const OVERALL_LABELS: Record<(typeof OVERALL_STATE)[number], string> = {
+  POTENTIAL_ISSUE: "Potential contractual issue",
+  SUPPORTED: "Supported by the records",
+  UNKNOWN: "Unknown — evidence is incomplete",
+  UNVERIFIED: "Project not established",
+};
 /** CODE_MATCHES_MULTIPLE_PROJECTS is an unverified state: the identifier narrowed, but not to one. */
 export const IDENTITY_STATE = ["VERIFIED", "UNVERIFIED", "CODE_MATCHES_MULTIPLE_PROJECTS"] as const;
 export const IDENTITY_METHOD = ["job_code", "manual_job_code", "verified_record", "road_name", "geographic", "none"] as const;
@@ -522,6 +533,8 @@ export const CaseSchema = z.object({
   /** Seeded demo report. The report is illustrative; linked official records are real. */
   demo: z.boolean().default(false),
   demoNote: z.string().optional(),
+  /** "A".."G" — which demo case this is, so the list views can point a reader at a specific one. */
+  demoLabel: z.string().optional(),
   reporterName: z.string().optional(),
   /** Stored server-side only, never returned by public APIs. */
   reporterContact: z.string().optional(),

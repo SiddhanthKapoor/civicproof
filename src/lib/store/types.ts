@@ -1,4 +1,4 @@
-import type { Case, CaseStatus, Category } from "@/lib/schemas";
+import type { Case, CaseStatus, Category, Determination } from "@/lib/schemas";
 
 /** Slim projection used for the map and list views. */
 export interface CaseSummary {
@@ -12,6 +12,10 @@ export interface CaseSummary {
   reportedAt: string;
   observedOn: string;
   demo: boolean;
+  /** "A".."G" for a seeded demo case; absent on a real report. */
+  demoLabel?: string;
+  /** What the evidence established, when an investigation finished. The list views' headline. */
+  overall?: Determination["overall"]["value"];
   photoKey?: string;
   projectName?: string;
   projectId?: string;
@@ -27,6 +31,11 @@ export interface CaseStore {
    */
   update(id: string, mutate: (c: Case) => Case): Promise<Case>;
   list(limit?: number): Promise<CaseSummary[]>;
+  /**
+   * Removes a case. Used by `npm run seed -- --reset` to rebuild the demo set in place instead of
+   * appending another copy of it; nothing in the application deletes a citizen's report.
+   */
+  delete(id: string): Promise<void>;
   /** Atomically increments a named counter and returns the new value. */
   increment(counter: string, ttlSeconds: number): Promise<number>;
 }
@@ -44,6 +53,8 @@ export function summarize(c: Case): CaseSummary {
     reportedAt: c.reportedAt,
     observedOn: c.observedOn,
     demo: c.demo,
+    demoLabel: c.demoLabel,
+    overall: c.investigation?.determination?.overall.value,
     photoKey: c.photos[0]?.key,
     projectName: selected?.projectName,
     projectId: selected?.projectId,

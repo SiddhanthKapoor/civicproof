@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { NextAction, PublicCase } from "@/lib/schemas";
+import { nextSteps } from "@/lib/submission";
 import { buttonClass, ExternalIcon } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
@@ -13,14 +14,91 @@ const TYPE_LABEL: Record<NextAction["type"], string> = {
   add_evidence: "More evidence",
 };
 
+/**
+ * The practical procedure, then the routing.
+ *
+ * The six steps are the same on every case and are written in code (`nextSteps`), so what a citizen
+ * is told to do never varies with model output. A step shows as recorded only when the case's own
+ * timeline says so — CivicProof never reports a submission it has not been told about, because it
+ * never makes one. Beneath them sit the routed actions, which are derived from the verified facts
+ * and carry the office and channel the packet should go to.
+ */
+const LINK = "text-[13px] text-ink-2 underline decoration-rule-strong underline-offset-4 hover:text-accent";
+
+function Steps({ caseData }: { caseData: PublicCase }) {
+  // The complaint channel, taken from the routed actions (which read it from the authority
+  // directory). An RTI action carries the RTI portal, which is not where a complaint goes.
+  const routed = (caseData.investigation?.nextActions ?? []).find(
+    (a) => a.type === "defect_liability_repair_request" || a.type === "grievance_portal",
+  );
+  const steps = nextSteps({
+    caseId: caseData.id,
+    timeline: caseData.timeline,
+    destination: routed?.channelUrl ? { verified: true, channel: routed.channel, url: routed.channelUrl } : undefined,
+    status: caseData.status,
+  });
+
+  return (
+    <ol className="space-y-3">
+      {steps.map((s) => (
+        <li key={s.n} className="flex gap-3.5 rounded-2xl border border-rule bg-card p-4 shadow-card sm:p-5">
+          <span
+            className={cn(
+              "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-[12px]",
+              s.recorded ? "bg-verified-soft text-verified" : "bg-paper-3 text-ink-2",
+            )}
+            aria-hidden
+          >
+            {s.n}
+          </span>
+          <div className="min-w-0 space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-[15.5px] font-medium leading-snug text-ink">{s.title}</h3>
+              {s.recorded && (
+                <span className="rounded-full bg-verified-soft px-2 py-0.5 text-[12px] text-verified">Done · {s.recorded}</span>
+              )}
+            </div>
+            <p className="max-w-2xl text-[13.5px] leading-relaxed text-ink-2">{s.detail}</p>
+            {s.note && <p className="max-w-2xl rounded-lg bg-missing-soft px-3 py-2 text-[12.5px] leading-relaxed text-ink-2">{s.note}</p>}
+            {(s.channel || s.href) && (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5">
+                {s.channel && (
+                  <a
+                    href={s.channel.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-[13px] text-ink underline decoration-rule-strong underline-offset-4 hover:text-accent"
+                  >
+                    Open {s.channel.label} <ExternalIcon />
+                  </a>
+                )}
+                {/* A hash is a jump within this page, not a route: Link would prefetch nothing. */}
+                {s.href?.startsWith("#") ? (
+                  <a href={s.href} className={LINK}>{s.linkLabel}</a>
+                ) : s.href ? (
+                  <Link href={s.href} className={LINK}>{s.linkLabel}</Link>
+                ) : null}
+              </div>
+            )}
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export function NextActions({ caseData }: { caseData: PublicCase }) {
   const actions = caseData.investigation?.nextActions ?? [];
   const id = caseData.id;
 
   return (
     <div className="space-y-3">
+      <Steps caseData={caseData} />
       {actions.length === 0 && (
         <p className="text-[14px] text-ink-3">Next steps appear after the investigation, based only on what was verified.</p>
+      )}
+      {actions.length > 0 && (
+        <p className="pt-3 text-[12px] font-medium uppercase tracking-[0.08em] text-ink-3">Where this goes, and why</p>
       )}
       {actions.map((a, i) => (
         <article

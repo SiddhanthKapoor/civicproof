@@ -3,7 +3,7 @@
 **One sentence:** CivicProof turns a photograph of a broken road into an evidence-backed case that says exactly what the official records establish, what they do not, and what would settle the difference — and refuses to guess in between.
 
 **Repository:** https://github.com/SiddhanthKapoor/civicproof
-**Live URL:** **Not yet deployed.** The one remaining external step is set out under “Deployment status” below. This line carries the served URL once `./scripts/deploy.sh` has run; it is deliberately not filled in with anything else.
+**Live URL:** **https://gzsydwsdj32igzrbxprwl6ba7y0oyzif.lambda-url.ap-south-1.on.aws/** — deployed in `ap-south-1`, stack `civicproof`. It serves, and the seven demo cases are in the deployed DynamoDB table. Read the constraints under “Deployment status” before demoing it.
 **Video:** **Not yet recorded.** The demo flow it follows is set out under “Demo flow” below.
 
 ---
@@ -59,7 +59,7 @@ policies and verifier — a corpus-integrity and pipeline check, not a measure o
 
 The harness probes each project with a synthetic pin, which only works where a project has a mapped alignment — hence the subset. **There is no whole-corpus accuracy figure and none is claimed.** The run fails with a non-zero exit below its thresholds, so a catastrophic result cannot pass silently.
 
-**Tests:** 155 unit and integration tests across 19 files, plus 5 browser tests including an axe WCAG 2.1 AA audit that reports no violations.
+**Tests:** 219 unit and integration tests across 20 files, plus 12 browser tests including an axe WCAG 2.1 AA audit that reports no violations.
 
 ## The human-review boundary
 
@@ -67,18 +67,52 @@ The harness probes each project with a synthetic pin, which only works where a p
 
 ## Demo flow
 
-1. Open a seeded case — **Kodathi**: identity VERIFIED from the work number confirmed in the project's own OMMAS record, maintenance period ACTIVE to 2027-03-05, damage observed, scope possibly within the contract → **POTENTIAL ISSUE · human review required**, 7 of 7 records on file.
-2. Open **Thimmaiah**: a defect-liability clause is on file but no verified completion date → contractual status **UNKNOWN** → overall **UNKNOWN**, with the missing record named and an RTI draft that asks for exactly it. A visible defect does not create a contract.
-3. Open **Lavelle Road**: a project sits at that location but its records never state a work identifier → **project not established**, and the complaint declines to name it.
-4. File a report with the work number `KN0204`: 13 projects carry it → **CODE_MATCHES_MULTIPLE_PROJECTS**, candidates listed nearest-first, nothing chosen on the reporter's behalf.
-5. Click any fact to land on the page of the source document with the quotation highlighted and a "found verbatim" banner.
+Seven labelled demo cases, each showing a different state the evidence can be in. `npm run seed`
+checks every one against the determination it is meant to demonstrate and **fails** if one comes out
+differently, so the states are derived rather than arranged.
+
+| | Case | What the evidence does | Outcome |
+|---|---|---|---|
+| **A** | Potholes along the **Kodathi–Mullur** road | Work number confirmed in the project's own OMMAS record; agency, contractor, completion date (05-03-2022) and a five-year period all verified; period **ACTIVE** to 2027-03-05; usable photograph showing a defect; documented scope covering this road; 7 of 7 records on file | **POTENTIAL ISSUE · human review required** |
+| **B** | Potholes on **Thimmaiah Road** | Project and scope established from a tender document, defect plainly visible — but no completion date is on file | period **UNKNOWN** → **UNKNOWN**, the missing record named and an RTI draft that asks for exactly it |
+| **C** | Broken surface in **Ward 119** | One BBMP ward job number (`119-23-000003`) covers the civil work, its design report and its supervision contract, under three different contractors | **CODE_MATCHES_MULTIPLE_PROJECTS** → **UNVERIFIED**, all three candidates offered, none chosen |
+| **D** | Broken surface on the **Boodihal–Channahalli** road | Completion (01-06-2021) and a five-year period both on record → the window closed 2026-06-01, before this report | period **EXPIRED** → **SUPPORTED**, stated without becoming a finding against anyone |
+| **E** | Potholes in **BTM Layout** | The work number entered matches exactly one BBMP ward work order, which records the ward, work and contractor but no dates | period **UNKNOWN** → **UNKNOWN**, from a different register than B |
+| **F** | **Hebbagodi–Hulimangala** road | Obligations established and still open, but no photograph was submitted | field condition **INSUFFICIENT_EVIDENCE** → **UNKNOWN**; paperwork alone does not conclude |
+| **G** | Broken paving on **Lavelle Road** | The location does suggest a project and facts about it verify — but its record carries no work identifier to confirm against | **project not established**; the complaint declines to name it |
+
+A and D carry a saved complaint packet. Click any fact on any of them to land on the page of the
+source document with the quotation highlighted and a "found verbatim" banner.
+
+### The run order
+
+One path, three screens, no detours. `npm run seed` prints an owner key per demo case; steps 17–18
+need one, because recording a submission is something only the reporter can do.
+
+| Screen | Steps | What to point at |
+|---|---|---|
+| Home | 1–2 | **See it work** — seven cases, seven outcomes. Open case **A**. |
+| Case A | 3 | **How this was investigated** → *Run again* streams the agent's tool calls, and the evidence above fills in as facts are verified. |
+| Case A | 4–12 | The panels top to bottom: project identification · contractor · contract · defect liability (the arithmetic and all five inputs) · photograph · scope · **What the evidence establishes** · **Why it matters** · every fact linking to the page it is quoted from. |
+| Packet | 13–16 | **Complaint packet** → the draft built only from verified facts, then **Where to submit**: authority, official channel, method, and *Open official portal*. The portal is opened, signed into and submitted by the citizen; CivicProof answers no CAPTCHA. |
+| Case A | 17 | Paste the owner key into **Tracking**, record the submission and its reference number → the case moves *Ready for submission* → **Submitted by citizen**. Nothing moves it without that confirmation. |
+| Case A | 18 | Add a follow-up photograph or the authority's reply under Tracking; both are kept as dated evidence and appear on the timeline in the order they happened. |
+
+Then open **D** for the same chain with an expired period, and **C** for an identifier three works
+share. Together they are the argument: the outcome changes because the records do.
+
+Every demo case is flagged `demo` in the schema, shows a visible pill, and states on the page what it
+is there to demonstrate. Cases A–E carry a fixture image — generated noise, labelled as such, never
+presented as a photograph — and a recorded observation labelled a demo fixture, so the
+defect-observed path is reachable with no vision model. Neither can become a verified fact or enter a
+complaint.
 
 ## Reproduce locally
 
 ```bash
 npm install
-npm run ingest   # 26 documents, 853 pages, re-verifies 7,622 facts, fails on drift
-npm run seed     # six labelled demo reports, including the golden cases above
+npm run ingest   # 26 documents, 853 pages, re-verifies 7,677 facts, fails on drift
+npm run seed     # the seven labelled demo cases above; --reset rebuilds them in place
 npm run dev      # http://localhost:3000
 ```
 
@@ -105,4 +139,33 @@ Listed in full in the README. The material ones: coverage is Bengaluru and five 
 
 ## Deployment status
 
-The application is built to deploy with `./scripts/deploy.sh` (AWS SAM, `infra/template.yaml`, validated). The remaining external step is recorded in `docs/DEPLOY.md`: AWS credentials on the deploying machine and Bedrock model access enabled for `apac.amazon.nova-pro-v1:0` in the target region. **Until the live URL above is filled in with a URL that actually serves, this project should not be described as deployed.**
+Deployed with `sam deploy` from `infra/template.yaml` into `ap-south-1` (stack `civicproof`).
+
+**Verified against the running deployment, not inferred:**
+
+| | |
+|---|---|
+| `/api/health` | `{"ok":true,"store":"dynamodb","blobs":"s3","planner":"rules"}` · 26 documents, 853 pages, 790 projects |
+| DynamoDB | the 7 demo cases seeded into `civicproof-CasesTable-…`, each producing the determination it exists to demonstrate |
+| S3 | photographs stored and served through `/api/media/…` (200, `image/png`) |
+| Lambda Function URL | response streaming confirmed: a live investigation returned 20 trace events, 11 claims and a completed run as NDJSON in 2.5 s |
+| Amazon Location | reverse geocode at the report pin returned a real address in 0.26 s |
+| CloudWatch | 12 EMF metrics in the `CivicProof` namespace; the run recorded `VerifiedFacts=11`, `VerifiedShare=100`, `PolicyDenials=0`. Dashboard `civicproof-investigator` |
+| Fail-closed in production | a report with no photograph came back `INSUFFICIENT_EVIDENCE` → overall `UNKNOWN` |
+| Browser suite against the live URL | 14 of 16; the two that failed pass on their own (see the ceiling below) |
+
+**What is not working, and why — all one cause.** The AWS account is still being verified by AWS. Until that completes it cannot invoke Bedrock (`Operation not allowed`), is not subscribed to Textract, cannot create CloudFront distributions (`Your account must be verified before you can add new CloudFront resources`), and runs with a **Lambda concurrency ceiling of 10** instead of the default 1000. That ceiling is an account restriction, not a quota: Service Quotas refuses a request below the default of 1000.
+
+**What the ceiling means in practice.** Every request to a Function URL is a Lambda invocation, including each of the ~20 hashed chunks a page asks for. One visitor loading the site cold was measured at **20/20 assets HTTP 200** — it works. Concurrent load does not: 15 simultaneous requests returned 12 × 429, and 169 throttles were recorded in half an hour of testing. **One person demoing it is fine. Several at once is not.**
+
+**The fix is written and waiting on verification.** `infra/template.yaml` carries a `Cdn` parameter that puts CloudFront in front of the Function URL and serves `/_next/static` from the edge, taking those ~20 invocations per page load off the function. It defaults to `off` because a stack that cannot be created is worse than one missing an optimisation. Once AWS confirms the account:
+
+```bash
+sam deploy -t infra/template.yaml --stack-name civicproof --region ap-south-1 \
+  --capabilities CAPABILITY_IAM --resolve-s3 --no-confirm-changeset \
+  --parameter-overrides Planner=bedrock Cdn=on      # add GeminiApiKey=… for the Gemini path
+```
+
+That one command switches the investigator from the deterministic rules planner to Amazon Nova and puts the CDN in place. **Until then the deployment runs on the rules planner: no model is called, so the Gemini → Nova fallback is implemented and locally tested but has not executed in production, and is not claimed to have.**
+
+**Security note on the deploying identity.** The IAM user used here holds `AdministratorAccess` with a long-lived access key. That is broader than a deploy needs and should be rotated or removed after the hackathon; the Lambda's own role is least-privilege and is defined in the template.

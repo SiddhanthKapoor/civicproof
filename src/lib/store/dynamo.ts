@@ -9,6 +9,7 @@
  */
 import { ConditionalCheckFailedException, DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
+  DeleteCommand,
   DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
@@ -63,6 +64,10 @@ export class DynamoCaseStore implements CaseStore {
         ConditionExpression: "attribute_not_exists(PK)",
       }),
     );
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.doc.send(new DeleteCommand({ TableName: this.table, Key: { PK: `CASE#${id}`, SK: "CASE" } }));
   }
 
   async update(id: string, mutate: (c: Case) => Case): Promise<Case> {

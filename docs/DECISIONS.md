@@ -17,6 +17,7 @@ Every surface this work touches, kept or changed, with the reason. Appended as w
 | G3 | **Public repository is a P0 submission blocker** | First Commit explicitly requires it. Overrides the "keep private" recommendation in `docs/final-audit.md`, which is withdrawn. See `docs/PUBLIC_RELEASE.md`. |
 | G4 | Ambiguous Job Codes: the code establishes, corroboration disambiguates | Measured: 778/779 projects carry a code but only **529 are distinct** and **53 cover multiple projects** (`KN0204` → 13). A strict unique-match rule would make 53 codes permanently unverifiable, including the flagship Koira demo. Spec item D is still honoured: the identifier establishes, GPS only corroborates *within* the code's candidate set. |
 | G5 | No code changes until the audit is complete | Requested explicitly. `docs/AUDIT.md` landed first. |
+| G6 | **The OMMAS-derived evidence is shown in the hackathon demonstration**, with its attribution and citations intact | An explicit project decision, recorded in full under *"G6 — showing the OMMAS-derived evidence in the hackathon demonstration"* below. It settles what this project displays in one context. It does not alter the sources' own terms, and grants nothing. |
 
 ---
 
@@ -273,3 +274,26 @@ Closing the findings from `docs/AUDIT.md` and the final pre-submission audit. Ev
 ### F2 — deployment: blocked on external prerequisites
 
 `infra/template.yaml` validates in structure and `scripts/deploy.sh` is deterministic, but neither the `aws` nor the `sam` CLI is installed here and there are no credentials, so nothing has been deployed. `docs/SUBMISSION.md` says so in those words rather than carrying a placeholder URL.
+
+---
+
+## G6 — showing the OMMAS-derived evidence in the hackathon demonstration
+
+**Decided 2026-09-20. This is a project/release decision about what CivicProof displays in a named context. It is not a statement about what the underlying documents permit.**
+
+**The decision.** The team has explicitly chosen that the licensing-restricted OMMAS-derived information CivicProof already uses **will be shown in the intended hackathon demonstration**. The affected evidence is not removed, is not replaced with invented or synthetic stand-ins, and is not quietly suppressed. Source attribution, document titles, page references, citations, provenance records and licensing notices stay exactly where they are.
+
+**What the audit found, restated unchanged.** Eighteen of the twenty-six corpus documents are OMMAS/PMGSY exports carrying the publisher's own notice restricting republication (recorded per document in `corpus/manifest.json` as `© NRRDA (report footer). OMMAS's legal notice restricts r…`). Measured against the current corpus, **6,826 of 7,677 reference facts — 88% — cite at least one of those eighteen documents.** Those figures are unchanged by this decision; they are what makes it a decision worth recording rather than a detail.
+
+**What this decision does not do.**
+
+- It does **not** change, reinterpret, waive or extend the source's stated terms. Those terms are whatever NRRDA/OMMAS say they are, and this entry has no effect on them.
+- It does **not** make the material open data, public-domain, freely reusable, or licensed for redistribution, and CivicProof must not describe it in any of those ways. The BBMP register is separately recorded as public domain; that is a fact about a different dataset and does not extend to the OMMAS exports.
+- It does **not** grant anyone — user, viewer, judge or downstream reader — any permission the source does not already give them.
+- It does **not** license the repository, the corpus, or any export for redistribution.
+
+**What must remain true while this decision stands.** Every fact drawn from these documents keeps its visible source attribution, its document title and its page citation, on the case page and in every generated packet. A reader must always be able to see which document and which page a statement came from, and to open it. Removing or obscuring that attribution would turn a recorded-provenance decision into an unattributed republication, which is a materially different and worse position.
+
+**Scope, and when to revisit.** This decision covers the **intended hackathon demonstration and its distribution context** — showing the running application, the demo cases and the recorded video to that audience. It does **not** extend to broader public redistribution: publishing the repository with the exports committed, mirroring the corpus, or distributing the documents as a dataset. **Before any of those, this decision must be reconsidered against the sources' actual terms**, alongside the two release items already open in F1 (the committed exports themselves, and the pending history purge whose replacement list is known to be incomplete).
+
+**No behaviour changed because of this.** Determination logic, evidence verification, contractor verification, DLP arithmetic, complaint generation and fail-closed behaviour are untouched by this decision and must stay untouched by it. The only artefact of G6 is this entry. Verified after recording it: `npm run check` exit 0 — 221 unit tests, ingest 26 documents / 853 pages, evaluation 130/130 linked and 1,317/1,317 facts, 16/16 browser tests with no accessibility violations; all seven demo cases still produce the determinations they exist to demonstrate; and every citation on those cases still resolves to a real page whose quoted words are found on it.

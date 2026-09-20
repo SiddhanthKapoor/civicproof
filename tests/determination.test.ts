@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contractualStatus, determine, fieldCondition, humanReviewReasons, overallState, photoSufficiency, scopeRelationship, type PhotoObservation } from "@/lib/agent/determination";
+import { contractualStatus, determine, fieldCondition, humanReviewReasons, overallState, photoSufficiency, scopeRelationship, whyItMatters, type PhotoObservation } from "@/lib/agent/determination";
 import { measureImage } from "@/lib/cases";
 import { CONTRACTUAL_STATUS, FIELD_CONDITION, IDENTITY_STATE, OVERALL_STATE, SCOPE_RELATIONSHIP } from "@/lib/schemas";
 import type { Claim, Evidence, Determination } from "@/lib/schemas";
@@ -367,6 +367,116 @@ describe("every input the determination claims to weigh actually gates it", () =
             expect(r, `${identity}/${contractual}/${field}/${scope}`).not.toMatch(
               /\bliable\b|\bliability\b|\bnegligen|\bat fault\b|\bcaused\b|\bbreach\b|\bguilty\b|\bunlawful\b|\bdamages\b/i,
             );
+          }
+  });
+});
+
+/**
+ * WHY IT MATTERS. The section has one job: say what the established evidence means in practice,
+ * without ever crossing into who is at fault. So the tests pin three things — that a sentence
+ * appears only when the axis behind it was actually settled, that each sentence carries the claims
+ * it rests on, and that the no-fault boundary is present in every one of the outcomes.
+ */
+describe("why it matters is composed from the axes, not authored", () => {
+  const det = (over: Partial<Determination> = {}): Determination => ({
+    identity: { value: "VERIFIED", method: "verified_record", reason: "r" },
+    contractualStatus: { value: "ACTIVE", windowEnd: "2027-03-05", reason: "r", basedOnClaimIds: ["c-done", "c-dlp"] },
+    fieldCondition: { value: "DEFECT_OBSERVED", reason: "r" },
+    scopeRelationship: { value: "POTENTIALLY_RELATED", reason: "r", basedOnClaimIds: ["c-scope"] },
+    overall: { value: "POTENTIAL_ISSUE", reason: "r" },
+    requiresHumanReview: true,
+    completeness: { have: 7, of: 7 },
+    ...over,
+  });
+  const supporting: Claim[] = [
+    claim({ id: "c-done", field: "completion_date", value: "2022-03-05", evidenceIds: ["ev1"] }),
+    claim({ id: "c-dlp", field: "defect_liability", value: "60 months", evidenceIds: ["ev2"] }),
+    claim({ id: "c-scope", field: "scope", value: "White topping", evidenceIds: ["ev3"] }),
+    claim({ id: "c-obs", field: "photo_observation", value: "potholes", origin: "ai_inference", verification: "unverified" }),
+  ];
+
+  it("states the three findings the requirement asks for, in order, when all three hold", () => {
+    const s = whyItMatters(det(), supporting);
+    const text = s.findings.map((f) => f.text).join(" ");
+    expect(text).toMatch(/within its recorded defect-liability period, which runs to 5 Mar 2027/);
+    expect(text).toMatch(/photograph shows a visible defect in the surface/);
+    expect(text).toMatch(/documents work covering the reported road section/);
+    expect(s.consequence).toBe("This makes the issue appropriate for authority inspection under the project's documented maintenance context.");
+  });
+
+  it("carries the claims each finding rests on, and drops ids the case does not hold", () => {
+    const s = whyItMatters(det(), supporting);
+    expect(s.findings[0].basedOnClaimIds).toEqual(["c-done", "c-dlp"]);
+    expect(s.findings[1].basedOnClaimIds).toEqual(["c-obs"]);
+    expect(s.findings[2].basedOnClaimIds).toEqual(["c-scope"]);
+    // A dangling id would render as a citation with nothing behind it.
+    const stale = whyItMatters(det({ scopeRelationship: { value: "POTENTIALLY_RELATED", reason: "r", basedOnClaimIds: ["gone"] } }), supporting);
+    expect(stale.findings.at(-1)!.basedOnClaimIds).toEqual([]);
+  });
+
+  it("says nothing about an axis the evidence did not settle", () => {
+    const s = whyItMatters(
+      det({
+        contractualStatus: { value: "UNKNOWN", reason: "r", basedOnClaimIds: [] },
+        fieldCondition: { value: "INSUFFICIENT_EVIDENCE", reason: "r" },
+        scopeRelationship: { value: "UNKNOWN", reason: "r", basedOnClaimIds: [] },
+        overall: { value: "UNKNOWN", reason: "r" },
+      }),
+      supporting,
+    );
+    expect(s.findings).toEqual([]);
+    expect(s.consequence).toMatch(/cannot yet be put to the authority/);
+    expect(s.consequence).toMatch(/open questions below name the record that would settle it/);
+  });
+
+  it("distinguishes the two ways a case can be SUPPORTED, because they mean different things to do", () => {
+    const noDefect = whyItMatters(det({ fieldCondition: { value: "NO_DEFECT_OBSERVED", reason: "r" }, overall: { value: "SUPPORTED", reason: "r" } }), supporting);
+    expect(noDefect.consequence).toMatch(/nothing here to put to the authority/);
+    const expired = whyItMatters(
+      det({ contractualStatus: { value: "EXPIRED", windowEnd: "2024-03-05", reason: "r", basedOnClaimIds: ["c-done"] }, overall: { value: "SUPPORTED", reason: "r" } }),
+      supporting,
+    );
+    expect(expired.findings[0].text).toMatch(/period ended on 5 Mar 2024/);
+    expect(expired.consequence).toMatch(/can still be reported to the authority/);
+    expect(expired.consequence).toMatch(/outside the project's recorded defect-liability period/);
+  });
+
+  it("leads with the unestablished project when there is no project, and still says what can be done", () => {
+    const s = whyItMatters(
+      det({
+        identity: { value: "UNVERIFIED", method: "geographic", reason: "r" },
+        contractualStatus: { value: "UNKNOWN", reason: "r", basedOnClaimIds: [] },
+        scopeRelationship: { value: "UNKNOWN", reason: "r", basedOnClaimIds: [] },
+        overall: { value: "UNVERIFIED", reason: "r" },
+      }),
+      supporting,
+    );
+    expect(s.findings[0].text).toMatch(/No public-works project has been established/);
+    expect(s.consequence).toMatch(/can still be sent to the local authority as a civic complaint/);
+  });
+
+  it("states the no-fault boundary verbatim in every outcome, and asserts fault in none", () => {
+    for (const identity of IDENTITY_STATE)
+      for (const contractual of CONTRACTUAL_STATUS)
+        for (const field of FIELD_CONDITION)
+          for (const scope of SCOPE_RELATIONSHIP) {
+            const s = whyItMatters(
+              det({
+                identity: { value: identity, method: "verified_record", reason: "r" },
+                contractualStatus: { value: contractual, windowEnd: "2027-03-05", reason: "r", basedOnClaimIds: [] },
+                fieldCondition: { value: field, reason: "r" },
+                scopeRelationship: { value: scope, reason: "r", basedOnClaimIds: [] },
+                overall: overallState({ identity, contractual, field, scope }),
+              }),
+              supporting,
+            );
+            const where = `${identity}/${contractual}/${field}/${scope}`;
+            expect(s.boundary, where).toBe("This does not establish contractor fault, causation, negligence, or legal liability.");
+            expect(s.consequence, where).toBeTruthy();
+            // Everything except the boundary must be clear of legal conclusions. "defect-liability"
+            // is the name of a contract clause, so it is set aside before the check.
+            const said = [...s.findings.map((f) => f.text), s.consequence].join(" ").replace(/defect[- ]liability/gi, "");
+            expect(said, where).not.toMatch(/\bliable\b|\bliability\b|\bnegligen|\bat fault\b|\bcaused\b|\bbreach\b|\bguilty\b|\bunlawful\b|\bdamages\b/i);
           }
   });
 });
